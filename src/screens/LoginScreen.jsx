@@ -7,12 +7,22 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleLogin = async () => {
+    console.log(email, password, "log")
+    try {
+      const user = await login(email, password);
+    } catch (error) {
+      // Alert.alert('Error', 'Credenciales inválidas');
+      console.log(error)
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Iniciar Sesión</Text>
       <TextInput placeholder="Correo" value={email} onChangeText={setEmail} style={styles.input} />
       <TextInput placeholder="Contraseña" value={password} onChangeText={setPassword} style={styles.input} secureTextEntry />
-      <Button title="Ingresar" onPress={login} />
+      <Button title="Ingresar" onPress={handleLogin} />
       <Button title="Registrarse" onPress={() => navigation.navigate('Register')} />
     </View>
   );
