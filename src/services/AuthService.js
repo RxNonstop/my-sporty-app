@@ -30,3 +30,14 @@ export const logout = async () => {
   await AsyncStorage.removeItem('token');
   await AsyncStorage.removeItem('user');
 };
+
+export const getUser = async () => {
+  const token = await AsyncStorage.getItem('token');
+  const res = await axios.get(`${API_URL}/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }
+  });
+  return res.data.usuario;
+};

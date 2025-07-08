@@ -6,10 +6,13 @@ import PerfilScreen from '../screens/PerfilScreen';
 import ConfiguracionScreen from '../screens/ConfiguracionScreen';
 import CrearEventoStack from './StackNavigator'; // stack con pantalla oculta
 import CalendarioScreen from '../screens/CalendarioScreen';
+import FriendsScreen from '../screens/FriendsScreen';
+import CrearEquipoScreen from '../screens/CrearEquiposScreen';
 import { View, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import NotificacionesScreen from '../screens/NotificacionesScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -87,6 +90,33 @@ export default function DrawerNavigator() {
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Amigos" 
+        component={FriendsScreen} 
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="people-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Equipos" 
+        component={CrearEquipoScreen} 
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="shield-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Notificaciones" 
+        component={NotificacionesScreen} 
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
           ),
         }}
       />

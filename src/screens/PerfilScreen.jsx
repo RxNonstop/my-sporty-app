@@ -1,7 +1,12 @@
 import { Container } from 'postcss';
+import { useContext } from 'react';
 import { View, Text, SafeAreaView, ScrollView, Image, StyleSheet } from 'react-native';
+import { AuthContext } from '../context/AuthContext';
 
 export default function PerfilScreen() {
+
+  const {usuario} = useContext(AuthContext);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -10,14 +15,15 @@ export default function PerfilScreen() {
             source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
             style={styles.avatar}
           />
-          <Text style={styles.username}>Nombre de Usuario</Text>
-          <Text style={styles.email}>usuario@email.com</Text>
+          <Text style={styles.username}>{usuario?.nombre}</Text>
+          <Text style={styles.email}>{usuario?.correo}</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.sectionTitle}>Información:</Text>
-          <Text>Deportes favoritos: Fútbol, Baloncesto</Text>
-          <Text>Eventos creados: 5</Text>
+          <Text>Rol: {usuario?.rol}</Text>
+          <Text>Fecha de nacimiento: {usuario?.fecha_nacimiento}</Text>
+          <Text>Sexo: {usuario?.sexo == 'F' ? ('Femenino'):('Masculino')}</Text>
           <Text>Campeonatos participados: 3</Text>
         </View>
       </ScrollView>

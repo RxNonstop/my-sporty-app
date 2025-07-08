@@ -5,28 +5,31 @@ import * as authService from '../services/AuthService';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // useEffect(() => {
-  //   const cargarUsuario = async () => {
-  //     setCargando(true);
-  //     const userData = await AsyncStorage.getItem('user');
-  //     if (userData) {
-  //       setUsuario(JSON.parse(userData));
-  //     }
-  //     setCargando(false);
-  //   };
-  //   cargarUsuario();
-  // }, []);
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          const user = await authService.getUser();
+          setUsuario(user);
+        }
+      } catch (err) {
+        console.error('No se pudo obtener usuario', err);
+        await AsyncStorage.clear();
+      }
+      setCargando(false);
+    };
+    cargarUsuario();
+  }, []);
 
   const login = async (email, password) => {
-    const user = await authService.login(email, password);
-    console.log(user,"usuario")
-    if (user){
-      setUsuario(user.usuario);
-      setIsAuthenticated(true)
+    const data = await authService.login(email, password);
+    console.log(data,"usuario")
+    if (data){
+      setUsuario(data);
     }
   };
 
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, isAuthenticated, login, logout, register, cargando }}>
+    <AuthContext.Provider value={{ usuario, login, logout, register, cargando }}>
       {children}
     </AuthContext.Provider>
   );

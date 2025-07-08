@@ -7,10 +7,10 @@ import 'react-native-gesture-handler';
 import { useContext } from 'react';
 
 function AppContent() {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { usuario } = useContext(AuthContext);
   return (
     <NavigationContainer>
-      {isAuthenticated ? <DrawerNavigator /> : <AuthStack />}
+      {usuario ? <DrawerNavigator /> : <AuthStack />}
     </NavigationContainer>
   );
 }
