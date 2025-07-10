@@ -58,15 +58,6 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen 
         name="Configuración" 
         component={ConfiguracionScreen} 
         options={{
@@ -117,6 +108,15 @@ export default function DrawerNavigator() {
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Perfil" 
+        component={PerfilScreen} 
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

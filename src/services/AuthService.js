@@ -11,14 +11,12 @@ export const login = async (correo, password) => {
       'Content-Type': 'application/json',
     }
   });
-  console.log(res)
-  const { token, usuario, mensaje } = res.data;
+  const { token, user} = res.data.data;
 
-  console.log(token, usuario, mensaje, "servicio")
+  console.log(token, user, "servicio")
   await AsyncStorage.setItem('token', token);
-  await AsyncStorage.setItem('user', JSON.stringify(usuario));
-  await AsyncStorage.setItem('mensaje', JSON.stringify(mensaje));
-  return usuario;
+  await AsyncStorage.setItem('user', JSON.stringify(user));
+  return user;
 };
 
 export const register = async (data) => {
@@ -39,5 +37,5 @@ export const getUser = async () => {
       'Content-Type': 'application/json',
     }
   });
-  return res.data.usuario;
+  return res.data.data.user;
 };

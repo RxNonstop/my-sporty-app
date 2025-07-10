@@ -1,46 +1,44 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
+import { AmistadContext } from '../context/AmistadContext';
 import { AuthContext } from '../context/AuthContext';
-
-const API_URL = 'http://localhost/api-DeportProyect/api/index.php'; // cámbialo a 10.0.2.2 si usas emulador Android
+import { enviarSolicitud } from '../services/amistadService';
 
 export default function FriendsScreen() {
+  const { amigos, cargarAmigos } = useContext(AmistadContext);
   const { usuario } = useContext(AuthContext);
-  const [amigos, setAmigos] = useState([]);
   const [correoNuevo, setCorreoNuevo] = useState('');
 
-  const cargarAmigos = async () => {
-    try {
-    //   const res = await axios.get(`${API_URL}/amigos/${usuario.id}`);
-      setAmigos(res.data.amigos || []);
-    } catch (err) {
-      console.error('Error cargando amigos', err);
-    }
-  };
+  useEffect(() => {
+    cargarAmigos();
+  }, []);
 
   const agregarAmigo = async () => {
-    if (!correoNuevo.trim()) return Alert.alert('Error', 'Ingresa un correo válido');
+    if (!correoNuevo.trim()) {
+      return Alert.alert('Error', 'Ingresa un correo válido');
+    }
 
     try {
-      const res = await axios.post(`${API_URL}/amigos`, {
-        usuario_id: usuario.id,
-        correo: correoNuevo
-      }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      Alert.alert('Éxito', res.data.message || 'Amigo agregado');
+      // Aquí tú puedes hacer una búsqueda en tu API para obtener el ID del usuario por correo.
+      // Como no hay un endpoint de búsqueda por correo en el controller que me diste,
+      // supongamos que tú ya tienes la lógica para obtenerlo en la app (debes implementar eso en backend si no existe).
+      // Aquí por ejemplo simulamos un ID por defecto:
+      const para_usuario_id = await buscarUsuarioPorCorreo(correoNuevo);
+
+      await enviarSolicitud(para_usuario_id);
+      Alert.alert('Éxito', 'Solicitud de amistad enviada');
       setCorreoNuevo('');
       cargarAmigos();
     } catch (err) {
       console.error(err);
-      Alert.alert('Error', err.response?.data?.message || 'No se pudo agregar');
+      Alert.alert('Error', err?.response?.data?.message || 'No se pudo agregar');
     }
   };
 
-  useEffect(() => {
-    if (usuario) cargarAmigos();
-  }, [usuario]);
+  const buscarUsuarioPorCorreo = async (correo) => {
+    // Simulación temporal. Deberías tener un endpoint como GET /usuarios?correo=
+    throw new Error('Debe implementarse un endpoint para buscar por correo.');
+  };
 
   return (
     <View style={styles.container}>
@@ -49,7 +47,9 @@ export default function FriendsScreen() {
       <FlatList
         data={amigos}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Text style={styles.item}>{item.nombre} - {item.correo}</Text>}
+        renderItem={({ item }) => (
+          <Text style={styles.item}>{item.nombre} - {item.correo}</Text>
+        )}
         ListEmptyComponent={<Text style={styles.empty}>No tienes amigos todavía</Text>}
       />
 
@@ -62,7 +62,7 @@ export default function FriendsScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <Button title="Agregar Amigo" onPress={agregarAmigo} />
+      <Button title="Enviar solicitud" onPress={agregarAmigo} />
     </View>
   );
 }
