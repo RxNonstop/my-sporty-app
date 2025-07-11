@@ -1,10 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import {
-  getSolicitudes,
-  enviarSolicitud,
-  responderSolicitud,
-  eliminarSolicitud,
-  getAmigos
+  getAmigos,
+  encontrarUsuario,
+  enviarSolicitud
 } from '../services/amistadService';
 
 export const AmistadContext = createContext();
@@ -12,56 +10,60 @@ export const AmistadContext = createContext();
 export const AmistadProvider = ({ children }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [amigos, setAmigos] = useState([]);
-
-  const cargarSolicitudes = async () => {
-    try {
-      const data = await getSolicitudes();
-      setSolicitudes(data);
-    } catch (err) {
-      console.error('Error al cargar solicitudes:', err);
-    }
-  };
+  const [isLoading, setIsLoading] = useState();
 
   const cargarAmigos = async () => {
+    setIsLoading(true);
     try {
       const data = await getAmigos();
       setAmigos(data);
     } catch (err) {
       console.error('Error al cargar amigos:', err);
     }
+    finally{
+      setIsLoading(false);
+    }
   };
 
-  const enviar = async (paraId) => {
-    await enviarSolicitud(paraId);
-    await cargarSolicitudes();
-  };
+  const encontrarUsuarioPorCorreo = async(correo) =>{
+    setIsLoading(true);
+    try {
+      const data = await encontrarUsuario(correo);
+      if(data.status == 200){
+        return data.data
+      }
+    } catch (err) {
+      console.error('Error al cargar usuario:', err);
+    }
+    finally{
+      setIsLoading(false);
+    }
+  }
 
-  const responder = async (id, estado) => {
-    await responderSolicitud(id, estado);
-    await cargarSolicitudes();
-    await cargarAmigos();
-  };
+  const enviarSolicitudPorId = async(id) =>{
+    setIsLoading(true);
+    try {
+      await enviarSolicitud(id);
+    } catch (err) {
+      console.error('Error al enviar la solicitud:', err);
+    }
+    finally{
+      setIsLoading(false);
+    }
+  }
 
-  const eliminar = async (id) => {
-    await eliminarSolicitud(id);
-    await cargarSolicitudes();
-  };
-
-  useEffect(() => {
-    cargarSolicitudes();
-    cargarAmigos();
-  }, []);
+  // useEffect(() => {
+  //   cargarAmigos();
+  // }, []);
 
   return (
     <AmistadContext.Provider
       value={{
-        solicitudes,
         amigos,
-        enviar,
-        responder,
-        eliminar,
-        cargarSolicitudes,
+        isLoading,
         cargarAmigos,
+        encontrarUsuarioPorCorreo,
+        enviarSolicitudPorId
       }}
     >
       {children}

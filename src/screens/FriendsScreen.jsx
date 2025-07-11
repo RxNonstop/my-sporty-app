@@ -2,42 +2,30 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
 import { AmistadContext } from '../context/AmistadContext';
 import { AuthContext } from '../context/AuthContext';
-import { enviarSolicitud } from '../services/amistadService';
 
 export default function FriendsScreen() {
-  const { amigos, cargarAmigos } = useContext(AmistadContext);
-  const { usuario } = useContext(AuthContext);
+  const { amigos, cargarAmigos, encontrarUsuarioPorCorreo, enviarSolicitudPorId} = useContext(AmistadContext);
+  const [usuarioEncontrado, setUsuarioEncontrado] = useState()
   const [correoNuevo, setCorreoNuevo] = useState('');
 
   useEffect(() => {
     cargarAmigos();
   }, []);
 
-  const agregarAmigo = async () => {
-    if (!correoNuevo.trim()) {
-      return Alert.alert('Error', 'Ingresa un correo válido');
-    }
-
-    try {
-      // Aquí tú puedes hacer una búsqueda en tu API para obtener el ID del usuario por correo.
-      // Como no hay un endpoint de búsqueda por correo en el controller que me diste,
-      // supongamos que tú ya tienes la lógica para obtenerlo en la app (debes implementar eso en backend si no existe).
-      // Aquí por ejemplo simulamos un ID por defecto:
-      const para_usuario_id = await buscarUsuarioPorCorreo(correoNuevo);
-
-      await enviarSolicitud(para_usuario_id);
-      Alert.alert('Éxito', 'Solicitud de amistad enviada');
-      setCorreoNuevo('');
-      cargarAmigos();
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Error', err?.response?.data?.message || 'No se pudo agregar');
-    }
+  const agregarAmigo = async (id) => {
+    await enviarSolicitudPorId(id);
+    Alert.alert("Solicitud enviada correctamente");
+    setCorreoNuevo('');
+    setUsuarioEncontrado(null);
   };
 
-  const buscarUsuarioPorCorreo = async (correo) => {
-    // Simulación temporal. Deberías tener un endpoint como GET /usuarios?correo=
-    throw new Error('Debe implementarse un endpoint para buscar por correo.');
+  const buscarUsuarioPorCorreo = async () => {
+    if (!correoNuevo.trim()) {
+      return;
+    }
+    const res = await encontrarUsuarioPorCorreo(correoNuevo);
+    setUsuarioEncontrado(res)
+    console.log(res)
   };
 
   return (
@@ -53,6 +41,17 @@ export default function FriendsScreen() {
         ListEmptyComponent={<Text style={styles.empty}>No tienes amigos todavía</Text>}
       />
 
+      
+      {usuarioEncontrado && (
+        <View style={{ marginVertical: 16, padding: 12, borderWidth: 1, borderColor: '#1D4ED8', borderRadius: 8 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{usuarioEncontrado.nombre}</Text>
+          <Text style={{ color: '#555', marginBottom: 8 }}>{usuarioEncontrado.correo}</Text>
+          <Button title="Enviar solicitud de amistad" onPress={() => agregarAmigo(usuarioEncontrado.id)} />
+          <View style={{ height: 8 }} />
+          <Button title="Buscar otro usuario" color="#888" onPress={() => { setUsuarioEncontrado(null); setCorreoNuevo(''); }} />
+        </View>
+      )}
+
       <Text style={styles.subtitle}>Agregar nuevo amigo por correo</Text>
       <TextInput
         style={styles.input}
@@ -62,7 +61,7 @@ export default function FriendsScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <Button title="Enviar solicitud" onPress={agregarAmigo} />
+      <Button title="Enviar solicitud" onPress={buscarUsuarioPorCorreo} />
     </View>
   );
 }

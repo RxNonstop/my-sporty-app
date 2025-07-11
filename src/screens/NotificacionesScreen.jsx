@@ -2,35 +2,56 @@ import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-
-const API_URL = 'http://localhost/api-DeportProyect/api/index.php'; // o 10.0.2.2 si usas emulador Android
+import { NotificacionContext } from '../context/NotificacionContext';
 
 export default function NotificacionesScreen() {
+  const {notificaciones, isLoading, cargarNotificaciones, responderNotificacion} = useContext(NotificacionContext);
   const { usuario } = useContext(AuthContext);
-  const [notificaciones, setNotificaciones] = useState([]);
-  const [cargando, setCargando] = useState(true);
 
-  const cargarNotificaciones = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/notificaciones/${usuario.id}`);
-      setNotificaciones(res.data || []);
-    } catch (err) {
-      console.error('Error al cargar notificaciones:', err);
-    } finally {
-      setCargando(false);
-    }
-  };
+  useEffect(()=>{
+    cargarNotificaciones();
+  },[])
 
-  useEffect(() => {
-    if (usuario) {
-      cargarNotificaciones();
-    }
-  }, [usuario]);
+  const responderSolicitud = () =>{
+
+  }
 
   const renderItem = ({ item }) => (
-    <View style={[styles.notificacion, !item.leida && styles.noLeida]}>
-      <Text style={styles.mensaje}>{item.mensaje}</Text>
-      <Text style={styles.fecha}>{new Date(item.fecha).toLocaleString()}</Text>
+    <View style={[styles.notificacion]}>
+      <Text style={styles.mensaje}>{item.nombre_remitente}</Text>
+      <Text style={styles.fecha}>{new Date(item.fecha_envio).toLocaleString()}</Text>
+      <Text style={styles.fecha}>{item.estado}</Text>
+      <View style={{ flexDirection: 'row', marginTop: 8 }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#1D4ED8',
+            paddingVertical: 6,
+            paddingHorizontal: 16,
+            borderRadius: 6,
+            marginRight: 10,
+          }}
+          onPress={async() => {
+            await responderNotificacion(item.id,"aceptado");
+            await cargarNotificaciones();
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Aceptar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#EF4444',
+            paddingVertical: 6,
+            paddingHorizontal: 16,
+            borderRadius: 6,
+          }}
+          onPress={async() => {
+            await responderSolicitud(item.id,"rechazado");
+            await cargarNotificaciones();
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Rechazar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -38,7 +59,7 @@ export default function NotificacionesScreen() {
     <View style={styles.container}>
       <Text style={styles.titulo}>Notificaciones</Text>
 
-      {cargando ? (
+      {isLoading ? (
         <ActivityIndicator size="large" color="#3B82F6" />
       ) : (
         <FlatList

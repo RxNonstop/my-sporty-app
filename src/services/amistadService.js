@@ -13,27 +13,17 @@ const authHeader = async () => {
   };
 };
 
-export const getSolicitudes = async () => {
+export const getAmigos = async () => {
   const res = await axios.get(`${API_URL}/amistades`, await authHeader());
-  return res.data.data.solicitudes;
+  return res.data.data.amigos;
 };
 
 export const enviarSolicitud = async (para_usuario_id) => {
-  const res = await axios.post(`${API_URL}/amistades`, { para_usuario_id }, await authHeader());
-  return res.data;
+  const res = await axios.post(`${API_URL}/solicitudes-amistad`,{para_usuario_id}, await authHeader());
+  return res.data.message;
 };
 
-export const responderSolicitud = async (id, estado) => {
-  const res = await axios.put(`${API_URL}/amistades/${id}`, { estado }, await authHeader());
+export const encontrarUsuario = async(email) => {
+  const res = await axios.post(`${API_URL}/usuarios/email`,{email}, await authHeader())
   return res.data;
-};
-
-export const eliminarSolicitud = async (id) => {
-  const res = await axios.delete(`${API_URL}/amistades/${id}`, await authHeader());
-  return res.data;
-};
-
-export const getAmigos = async () => {
-  const res = await axios.get(`${API_URL}/amistades?amigos=1`, await authHeader());
-  return res.data.data.amigos;
-};
+}
