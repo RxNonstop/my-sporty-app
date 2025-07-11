@@ -52,9 +52,9 @@ export const AmistadProvider = ({ children }) => {
     }
   }
 
-  // useEffect(() => {
-  //   cargarAmigos();
-  // }, []);
+  useEffect(() => {
+    cargarAmigos();
+  }, []);
 
   return (
     <AmistadContext.Provider

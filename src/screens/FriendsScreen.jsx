@@ -61,7 +61,7 @@ export default function FriendsScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <Button title="Enviar solicitud" onPress={buscarUsuarioPorCorreo} />
+      <Button title="Buscar amigo" onPress={buscarUsuarioPorCorreo} />
     </View>
   );
 }
