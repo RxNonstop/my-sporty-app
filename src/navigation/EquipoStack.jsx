@@ -4,22 +4,22 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import CrearEventoScreen from '../screens/CrearEventoScreen';
 import SeleccionarEquiposScreen from '../screens/SeleccionarEquiposScreen';
-import DetalleEventoScreen from '../screens/DetalleEventoScreen';
-import CalendarioScreen from '../screens/CalendarioScreen';
+import CrearEquipoScreen from '../screens/CrearEquipoScreen';
+import EquiposScreen from '../screens/EquiposScreen';
 
 const Stack = createNativeStackNavigator();
 
-export default function CrearEventoStack() {
+export default function EquipoStack() {
   return (
-    <Stack.Navigator initialRouteName="CrearEvento" screenOptions={{ headerShown: true }}>
+    <Stack.Navigator initialRouteName="EquiposScreen" screenOptions={{ headerShown: true }}>
       <Stack.Screen
-        name="CrearEvento"
-        component={CrearEventoScreen}
+        name="CrearEquipo"
+        component={CrearEquipoScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="SeleccionarEquipos"
-        component={SeleccionarEquiposScreen}
+        name="EquiposScreen"
+        component={EquiposScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

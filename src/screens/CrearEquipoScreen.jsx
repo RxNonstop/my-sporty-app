@@ -2,26 +2,18 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { AmistadContext } from '../context/AmistadContext';
 
 const API_URL = 'http://localhost/api-DeportProyect/api/index.php'; // Ajusta a 10.0.2.2 si usas Android
 
 export default function CrearEquipoScreen() {
-  const { usuario } = useContext(AuthContext);
+  const {amigos} = useContext(AmistadContext)
   const [nombreEquipo, setNombreEquipo] = useState('');
   const [deporte, setDeporte] = useState('Fútbol');
-  const [amigos, setAmigos] = useState([]);
   const [seleccionados, setSeleccionados] = useState([]);
 
   const deportes = ['Fútbol', 'Baloncesto', 'Voleibol'];
 
-  const cargarAmigos = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/amigos/${usuario.id}`);
-      setAmigos(res.data.amigos || []);
-    } catch (err) {
-      console.error('Error al cargar amigos', err);
-    }
-  };
 
   const toggleSeleccion = (id) => {
     if (seleccionados.includes(id)) {
@@ -58,10 +50,6 @@ export default function CrearEquipoScreen() {
       Alert.alert('Error', err.response?.data?.message || 'No se pudo crear el equipo');
     }
   };
-
-  useEffect(() => {
-    if (usuario) cargarAmigos();
-  }, [usuario]);
 
   return (
     <View style={styles.container}>

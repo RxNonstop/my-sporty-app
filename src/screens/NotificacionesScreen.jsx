@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, use } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { NotificacionContext } from '../context/NotificacionContext';
+import {AmistadContext} from '../context/AmistadContext'
 
 export default function NotificacionesScreen() {
   const {notificaciones, isLoading, cargarNotificaciones, responderNotificacion} = useContext(NotificacionContext);
+  const {cargarAmigos} = useContext(AmistadContext);
+
   const { usuario } = useContext(AuthContext);
 
   useEffect(()=>{
@@ -33,6 +36,7 @@ export default function NotificacionesScreen() {
           onPress={async() => {
             await responderNotificacion(item.id,"aceptado");
             await cargarNotificaciones();
+            await cargarAmigos();
           }}
         >
           <Text style={{ color: '#fff', fontWeight: 'bold' }}>Aceptar</Text>

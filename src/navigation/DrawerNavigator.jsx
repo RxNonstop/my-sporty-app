@@ -1,14 +1,17 @@
 import React, { useContext } from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import StackNavigator from './StackNavigator'
+import StackNavigator from './EventoStack'
 import HomeScreen from '../screens/HomeScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import ConfiguracionScreen from '../screens/ConfiguracionScreen';
-import CrearEventoStack from './StackNavigator'; // stack con pantalla oculta
+import EventoStack from './EventoStack'; // stack con pantalla oculta
+import EquipoStack from './EquipoStack';
 import CalendarioScreen from '../screens/CalendarioScreen';
 import FriendsScreen from '../screens/FriendsScreen';
-import CrearEquipoScreen from '../screens/CrearEquiposScreen';
+import EquiposScreen from '../screens/EquiposScreen';
+import CrearEquiposScreen from '../screens/CrearEquipoScreen';
 import { View, StyleSheet } from 'react-native';
+
 
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
@@ -66,9 +69,9 @@ export default function DrawerNavigator() {
           ),
         }}
       />
-      <Drawer.Screen 
+      <Drawer.Screen
         name="Crear Evento" 
-        component={CrearEventoStack} 
+        component={EventoStack} 
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
@@ -95,7 +98,7 @@ export default function DrawerNavigator() {
       />
       <Drawer.Screen 
         name="Equipos" 
-        component={CrearEquipoScreen} 
+        component={EquipoStack} 
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="shield-outline" size={size} color={color} />

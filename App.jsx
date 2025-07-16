@@ -7,6 +7,7 @@ import AuthStack from './src/navigation/AuthStack';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import 'react-native-gesture-handler';
 import { useContext } from 'react';
+import { EquipoProvider } from './src/context/EquipoContext';
 
 function AppContent() {
   const { usuario } = useContext(AuthContext);
@@ -22,9 +23,11 @@ export default function App() {
     <AuthProvider>
       <NotificacionProvider>
         <AmistadProvider>
-          <EventoProvider>
-              <AppContent />
-          </EventoProvider>
+          <EquipoProvider>
+            <EventoProvider>
+                <AppContent />
+            </EventoProvider>
+          </EquipoProvider>
         </AmistadProvider>
       </NotificacionProvider>
     </AuthProvider>
