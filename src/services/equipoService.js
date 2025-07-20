@@ -15,6 +15,7 @@ const authHeader = async () => {
 
 export const getEquiposService = async () => {
   const res = await axios.get(`${API_URL}/equipos`, await authHeader());
+  console.log('Equipos cargados:', res.data);
   return res.data;
 };
 
@@ -28,8 +29,8 @@ export const updateEquipoService = async () => {
   return res.data;
 };
 
-export const deleteEquipoService = async () => {
-  const res = await axios.delete(`${API_URL}/equipos`, await authHeader());
+export const deleteEquipoService = async (id) => {
+  const res = await axios.delete(`${API_URL}/equipos/${id}`, await authHeader());
   return res.data;
 };
 

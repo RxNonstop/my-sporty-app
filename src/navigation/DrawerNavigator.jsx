@@ -11,6 +11,7 @@ import FriendsScreen from '../screens/FriendsScreen';
 import EquiposScreen from '../screens/EquiposScreen';
 import CrearEquiposScreen from '../screens/CrearEquipoScreen';
 import { View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,7 @@ const Drawer = createDrawerNavigator();
 export default function DrawerNavigator() {
 
   const {logout} = useContext(AuthContext)
+  const navigation = useNavigation();
 
   function CustomDrawerContent(props) {
     const { logout } = useContext(AuthContext);
@@ -99,6 +101,13 @@ export default function DrawerNavigator() {
       <Drawer.Screen 
         name="Equipos" 
         component={EquipoStack} 
+        listeners={({navigation})=>({
+          focus: () => {
+            navigation.navigate('Equipos', {
+              screen: 'EquiposScreen', // pantalla interna del stack Equipos
+            });
+          },
+        })}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="shield-outline" size={size} color={color} />

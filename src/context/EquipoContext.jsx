@@ -18,7 +18,7 @@ export const EquipoProvider = ({ children }) => {
         setIsLoading(true);
         try {
             const data = await getEquiposService();
-            setEquipos(data);
+            setEquipos(data.data.equipos);
         } catch (err) {
             console.error('Error al cargar amigos:', err);
         }
@@ -30,15 +30,15 @@ export const EquipoProvider = ({ children }) => {
     const getEquipoById = async(id) =>{
         setIsLoading(true);
         try {
-        const data = await getEquipoByIdService(id);
-        if(data.status == 200){
-            setEquipo(data)
-        }
+            const data = await getEquipoByIdService(id);
+            if(data.status == 200){
+                setEquipo(data)
+            }
         } catch (err) {
-        console.error('Error al cargar usuario:', err);
+            console.error('Error al cargar usuario:', err);
         }
         finally{
-        setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
@@ -79,7 +79,7 @@ export const EquipoProvider = ({ children }) => {
   const deleteEquipo = async (id) => {
     setIsLoading(true);
     try {
-        const response = await deleteUserService(id);
+        const response = await deleteEquipoService(id);
         if (response.status === 200 || response.status === 204) {
             setEquipos((prev) => prev.filter((user) => user.id !== id));
             if (selectedEquipo?.id === id) setSelectedEquipo(null);

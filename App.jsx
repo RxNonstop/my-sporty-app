@@ -21,15 +21,15 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <NotificacionProvider>
-        <AmistadProvider>
-          <EquipoProvider>
-            <EventoProvider>
-                <AppContent />
-            </EventoProvider>
-          </EquipoProvider>
-        </AmistadProvider>
-      </NotificacionProvider>
+      <EquipoProvider>
+        <NotificacionProvider>
+          <AmistadProvider>
+              <EventoProvider>
+                  <AppContent />
+              </EventoProvider>
+          </AmistadProvider>
+        </NotificacionProvider>
+      </EquipoProvider>
     </AuthProvider>
   );
 }

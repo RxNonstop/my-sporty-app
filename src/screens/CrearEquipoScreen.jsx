@@ -7,21 +7,31 @@ import { AmistadContext } from '../context/AmistadContext';
 const API_URL = 'http://localhost/api-DeportProyect/api/index.php'; // Ajusta a 10.0.2.2 si usas Android
 
 export default function CrearEquipoScreen() {
-  const {amigos} = useContext(AmistadContext)
+  const {amigos, cargarAmigos} = useContext(AmistadContext)
   const [nombreEquipo, setNombreEquipo] = useState('');
   const [deporte, setDeporte] = useState('Fútbol');
   const [seleccionados, setSeleccionados] = useState([]);
 
   const deportes = ['Fútbol', 'Baloncesto', 'Voleibol'];
 
+  useEffect(() => {
+    const fetchAmigos = async () => {
+      try {
+        await cargarAmigos();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchAmigos();
+  }, []);
 
-  const toggleSeleccion = (id) => {
-    if (seleccionados.includes(id)) {
-      setSeleccionados(seleccionados.filter((e) => e !== id));
-    } else {
-      setSeleccionados([...seleccionados, id]);
-    }
-  };
+  // const toggleSeleccion = (id) => {
+  //   if (seleccionados.includes(id)) {
+  //     setSeleccionados(seleccionados.filter((e) => e !== id));
+  //   } else {
+  //     setSeleccionados([...seleccionados, id]);
+  //   }
+  // };
 
   const crearEquipo = async () => {
     if (!nombreEquipo.trim()) {
@@ -33,16 +43,10 @@ export default function CrearEquipoScreen() {
     }
 
     try {
-      const res = await axios.post(`${API_URL}/equipos`, {
-        nombre: nombreEquipo,
-        deporte,
-        creador_id: usuario.id,
-        miembros: seleccionados,
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      Alert.alert('Éxito', res.data.message || 'Equipo creado correctamente');
+      const res = await crearEquipo()
+      if(res.status !== 201) {
+        Alert.alert('Éxito', res.data.message || 'Equipo creado correctamente');
+      }
       setNombreEquipo('');
       setSeleccionados([]);
     } catch (err) {
@@ -75,7 +79,7 @@ export default function CrearEquipoScreen() {
         ))}
       </View>
 
-      <Text style={styles.label}>Selecciona miembros:</Text>
+      {/* <Text style={styles.label}>Selecciona miembros:</Text>
       <FlatList
         data={amigos}
         keyExtractor={(item) => item.id.toString()}
@@ -91,7 +95,7 @@ export default function CrearEquipoScreen() {
           );
         }}
         ListEmptyComponent={<Text style={styles.empty}>No tienes amigos disponibles</Text>}
-      />
+      /> */}
 
       <Button title="Crear Equipo" onPress={crearEquipo} />
     </View>

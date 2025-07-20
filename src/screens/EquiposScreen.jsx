@@ -3,38 +3,40 @@ import {
   View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getEquipos, deleteEquipo } from '../services/equipoService';
 import { EquipoContext } from '../context/EquipoContext';
 
 export default function EquiposScreen() {
-  const { equipos} = useContext(EquipoContext);
+  const { equipos, getEquipos, deleteEquipo } = useContext(EquipoContext);
   const navigation = useNavigation();
 
-  const cargarEquipos = async () => {
-    try {
-      const data = await getEquipos(); // Debería devolver equipos del usuario logueado
-      setEquipos(data);
-    } catch (err) {
-      console.error('Error cargando equipos', err);
-    }
-  };
+  useEffect(() => {
+    const cargarEquipos = async () => {
+      try {
+        await getEquipos();
+      } catch (err) {
+        console.error('Error cargando equipos', err);
+      }
+    };
+    cargarEquipos();
+  },[])
 
-  const confirmarEliminar = (id) => {
-    Alert.alert(
-      '¿Eliminar equipo?',
-      'Esta acción no se puede deshacer',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteEquipo(id);
-            cargarEquipos();
-          },
-        },
-      ]
-    );
+  const confirmarEliminar = async (id) => {
+    // Alert.alert(
+    //   '¿Eliminar equipo?',
+    //   'Esta acción no se puede deshacer',
+    //   [
+    //     { text: 'Cancelar', style: 'cancel' },
+    //     {
+    //       text: 'Eliminar',
+    //       style: 'destructive',
+    //       onPress: async () => {
+    //         await deleteEquipo(id);
+    //         // cargarEquipos();
+    //       },
+    //     },
+    //   ]
+    // );
+    await deleteEquipo(id);
   };
 
   const renderItem = ({ item }) => (
