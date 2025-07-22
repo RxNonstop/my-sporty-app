@@ -1,31 +1,62 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { 
-  getSolicitudes,
-  responderSolicitud
+  getSolicitudesService,
+  getInvitacionesService,
+  responderSolicitudService,
+  responderInvitacionService
 } from '../services/notificacionService'
 
 export const NotificacionContext = createContext();
 
 export const NotificacionProvider = ({ children }) => {
-  const [notificaciones, setNotificaciones] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [invitaciones, setInvitaciones] = useState([]);
   const [isLoading, setIsLoading] = useState();
 
-  const cargarNotificaciones = async () => {
+  const cargarSolicitudes = async () => {
     setIsLoading(true);
     try {
-      const data = await getSolicitudes();
-      setNotificaciones(data);
+      const data = await getSolicitudesService();
+      setSolicitudes(data);
     } catch (err) {
-      console.error('Error al cargar amigos:', err);
+      console.error('Error al cargar solicitudes:', err);
     }finally{
       setIsLoading(false);
     }
   };
 
-  const responderNotificacion = async (id, estado) =>{
+  const cargarInvitaciones = async () => {
     setIsLoading(true);
     try {
-      await responderSolicitud(id, estado);
+      const data = await getInvitacionesService();
+      setInvitaciones(data);
+    } catch (err) {
+      console.error('Error al cargar invitaciones:', err);
+    }finally{
+      setIsLoading(false);
+    }
+  };
+
+  const responderSolicitud = async (id, estado) =>{
+    setIsLoading(true);
+    try {
+      await responderSolicitudService(id, estado);
+      // if (data.status === 200) {
+      //   setNotificaciones((prev) =>
+      //     prev.map((c) => (c.id === id ? data.data : c))
+      //   );
+      // }
+    } catch (err) {
+      console.error('Error al responder la notificacion:', err);
+    }finally{
+      setIsLoading(false);
+    }
+  }
+
+  const responderInvitacion = async (id, estado) =>{
+    setIsLoading(true);
+    try {
+      await responderInvitacionService(id, estado);
       // if (data.status === 200) {
       //   setNotificaciones((prev) =>
       //     prev.map((c) => (c.id === id ? data.data : c))
@@ -39,15 +70,19 @@ export const NotificacionProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    cargarNotificaciones();
+    cargarSolicitudes();
+    cargarInvitaciones();
   }, []);
 
   return (
     <NotificacionContext.Provider
       value={{
-        notificaciones,
-        cargarNotificaciones,
-        responderNotificacion
+        solicitudes,
+        invitaciones,
+        cargarSolicitudes,
+        cargarInvitaciones,
+        responderSolicitud,
+        responderInvitacion,
       }}
     >
       {children}

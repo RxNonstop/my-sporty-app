@@ -6,18 +6,15 @@ import { NotificacionContext } from '../context/NotificacionContext';
 import {AmistadContext} from '../context/AmistadContext'
 
 export default function NotificacionesScreen() {
-  const {notificaciones, isLoading, cargarNotificaciones, responderNotificacion} = useContext(NotificacionContext);
+  const {solicitudes, invitaciones, isLoading, cargarSolicitudes, cargarInvitaciones, responderSolicitud} = useContext(NotificacionContext);
   const {cargarAmigos} = useContext(AmistadContext);
 
   const { usuario } = useContext(AuthContext);
 
   useEffect(()=>{
-    cargarNotificaciones();
+    cargarSolicitudes();
+    cargarInvitaciones();
   },[])
-
-  const responderSolicitud = () =>{
-
-  }
 
   const renderItem = ({ item }) => (
     <View style={[styles.notificacion]}>
@@ -34,8 +31,8 @@ export default function NotificacionesScreen() {
             marginRight: 10,
           }}
           onPress={async() => {
-            await responderNotificacion(item.id,"aceptado");
-            await cargarNotificaciones();
+            await responderSolicitud(item.id,"aceptado");
+            await cargarSolicitudes();
             await cargarAmigos();
           }}
         >
@@ -62,15 +59,28 @@ export default function NotificacionesScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Notificaciones</Text>
+      <Text style={styles.subtitulo}>Solicitudes de amistad</Text>
 
       {isLoading ? (
         <ActivityIndicator size="large" color="#3B82F6" />
       ) : (
         <FlatList
-          data={notificaciones}
+          data={solicitudes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
-          ListEmptyComponent={<Text style={styles.empty}>No tienes notificaciones.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>No tienes solicitudes pendientes.</Text>}
+        />
+      )}
+
+      <Text style={styles.subtitulo}>Invitaciones de equipo</Text>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#3B82F6" />
+      ) : (
+        <FlatList
+          data={invitaciones}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={<Text style={styles.empty}>No tienes invitaciones pendientes.</Text>}
         />
       )}
     </View>
@@ -80,6 +90,7 @@ export default function NotificacionesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 16 },
   titulo: { fontSize: 22, fontWeight: 'bold', color: '#1D4ED8', marginBottom: 16 },
+  subtitulo: { fontSize: 16, fontWeight: 'bold', color: '#1D4ED8', marginBottom: 12 },
   notificacion: {
     padding: 12,
     borderRadius: 8,

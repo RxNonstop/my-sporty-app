@@ -15,7 +15,6 @@ const authHeader = async () => {
 
 export const getEquiposService = async () => {
   const res = await axios.get(`${API_URL}/equipos`, await authHeader());
-  console.log('Equipos cargados:', res.data);
   return res.data;
 };
 
@@ -34,9 +33,14 @@ export const deleteEquipoService = async (id) => {
   return res.data;
 };
 
-export const enviarInvitacion = async (para_usuario_id) => {
-  const res = await axios.post(`${API_URL}/equipos`,{para_usuario_id}, await authHeader());
-  return res.data.message;
+export const enviarInvitacionService = async (para_usuario_id, equipo_id) => {
+  const res = await axios.post(`${API_URL}/invitaciones-equipo`, { para_usuario_id, equipo_id }, await authHeader());
+  return res.data;
+};
+
+export const createEquipoService = async (equipoData) => {
+  const res = await axios.post(`${API_URL}/equipos`, equipoData, await authHeader());
+  return res.data;
 };
 
 // export const encontrarUsuario = async(email) => {
