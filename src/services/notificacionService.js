@@ -13,27 +13,17 @@ const authHeader = async () => {
   };
 };
 
-export const getSolicitudesService = async () => {
+export const getSolicitudes = async () => {
   const res = await axios.get(`${API_URL}/solicitudes-amistad`, await authHeader());
   return res.data.data.solicitudes;
 };
 
-export const getInvitacionesService = async () => {
-  const res = await axios.get(`${API_URL}/invitaciones-equipo`, await authHeader());
-  return res.data.data.invitaciones;
-};
-
-export const responderSolicitudService = async (id, estado) => {
+export const responderSolicitud = async (id, estado) => {
   const res = await axios.put(`${API_URL}/solicitudes-amistad/${id}`, { estado }, await authHeader());
   return res.data;
 };
 
-export const responderInvitacionService = async (id, estado) => {
-  const res = await axios.put(`${API_URL}/invitaciones-equipo/${id}`, { estado }, await authHeader());
-  return res.data;
-};
-
-export const eliminarSolicitudPorIdService = async (id) => {
+export const eliminarSolicitudPorId = async (id) => {
   const res = await axios.delete(`${API_URL}/amistades/${id}`, await authHeader());
   return res.data;
 };

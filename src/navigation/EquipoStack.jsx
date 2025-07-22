@@ -7,7 +7,6 @@ import CrearEventoScreen from '../screens/CrearEventoScreen';
 import SeleccionarEquiposScreen from '../screens/SeleccionarEquiposScreen';
 import CrearEquipoScreen from '../screens/CrearEquipoScreen';
 import EquiposScreen from '../screens/EquiposScreen';
-import InvitacionEquipoScreen from '../screens/InvitacionEquipoScreen';
 
 
 export default function EquipoStack() {
@@ -24,11 +23,6 @@ export default function EquipoStack() {
         name="CrearEquipo"
         component={CrearEquipoScreen}
         options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="InvitacionEquipoScreen"
-        component={InvitacionEquipoScreen}
-        options={{ title: 'Invitar Amigos' }}
       />
     </Stack.Navigator>
   );

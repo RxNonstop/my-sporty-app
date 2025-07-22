@@ -3,8 +3,7 @@ import {
   getEquiposService,
   getEquipoByIdService,
   updateEquipoService,
-  deleteEquipoService,
-  enviarInvitacionService
+  deleteEquipoService
 } from '../services/equipoService'
 export const EquipoContext = createContext();
 
@@ -23,8 +22,8 @@ export const EquipoProvider = ({ children }) => {
         } catch (err) {
             console.error('Error al cargar amigos:', err);
         }
-        finally{
-            setIsLoading(false);
+            finally{
+        setIsLoading(false);
         }
     };
 
@@ -59,56 +58,39 @@ export const EquipoProvider = ({ children }) => {
         }
     };
 
-    const updateEquipo = async(id,data) =>{
-        setIsLoading(true);
-        try {
-        const response = await enviarSolicitud(id);
-        if(response.status == 200){
-            setEquipos((prev) =>
-                prev.map((u) => (u.id === id ? response.data : u))
-            );
-            setEquipo(response.data)
-        }
-        } catch (err) {
-        console.error('Error al enviar la solicitud:', err);
-        }
-        finally{
-        setIsLoading(false);
-        }
+  const updateEquipo = async(id,data) =>{
+    setIsLoading(true);
+    try {
+      const response = await enviarSolicitud(id);
+      if(response.status == 200){
+        setEquipos((prev) =>
+            prev.map((u) => (u.id === id ? response.data : u))
+        );
+        setEquipo(response.data)
+      }
+    } catch (err) {
+      console.error('Error al enviar la solicitud:', err);
     }
+    finally{
+      setIsLoading(false);
+    }
+  }
 
-    const deleteEquipo = async (id) => {
-        setIsLoading(true);
-        try {
-            const response = await deleteEquipoService(id);
-            if (response.status === 200 || response.status === 204) {
-                setEquipos((prev) => prev.filter((user) => user.id !== id));
-                if (selectedEquipo?.id === id) setSelectedEquipo(null);
-            }
-            return response;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        } finally {
-            setIsLoading(false);
+  const deleteEquipo = async (id) => {
+    setIsLoading(true);
+    try {
+        const response = await deleteEquipoService(id);
+        if (response.status === 200 || response.status === 204) {
+            setEquipos((prev) => prev.filter((user) => user.id !== id));
+            if (selectedEquipo?.id === id) setSelectedEquipo(null);
         }
-    };
-
-    const enviarInvitacion = async (para_usuario_id, para_equipo_id) => {
-        setIsLoading(true);
-        try {
-            const response = await enviarInvitacionService(para_usuario_id, para_equipo_id);
-            if (response.status === 200) {
-                Alert.alert('Invitación enviada', 'Se ha enviado la invitación correctamente');
-                console.log("se ha enviado la invitación correctamente");
-            }
-            return response;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
+        return response;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    } finally {
+        setIsLoading(false);
+    }
     };
 
     const selectEquipo = (equipoId) => {
@@ -131,8 +113,7 @@ export const EquipoProvider = ({ children }) => {
             getEquipos,
             createEquipo,
             updateEquipo,
-            deleteEquipo,
-            enviarInvitacion,
+            deleteEquipo
         }}
         >
         {children}

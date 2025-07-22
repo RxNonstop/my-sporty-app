@@ -52,7 +52,7 @@ export default function EquiposScreen() {
         />
         <Button
           title="Invitar"
-          onPress={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
+          onPress={() => navigation.navigate('InvitarAmigosScreen', { equipoId: item.id })}
         />
         <Button
           title="Eliminar"
