@@ -3,16 +3,20 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, Button, StyleSheet, 
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { AmistadContext } from '../context/AmistadContext';
+import { EquipoContext } from '../context/EquipoContext'; 
+import { useNavigation } from '@react-navigation/native';
 
-const API_URL = 'http://localhost/api-DeportProyect/api/index.php'; // Ajusta a 10.0.2.2 si usas Android
 
 export default function CrearEquipoScreen() {
   const {amigos, cargarAmigos} = useContext(AmistadContext)
+  const {createEquipo} = useContext(EquipoContext);
   const [nombreEquipo, setNombreEquipo] = useState('');
-  const [deporte, setDeporte] = useState('Fútbol');
+  const [deporte, setDeporte] = useState('futbol');
   const [seleccionados, setSeleccionados] = useState([]);
 
-  const deportes = ['Fútbol', 'Baloncesto', 'Voleibol'];
+  const navigation = useNavigation();
+
+  const deportes = ['futbol', 'beisbol', 'voleibol'];
 
   useEffect(() => {
     const fetchAmigos = async () => {
@@ -33,22 +37,20 @@ export default function CrearEquipoScreen() {
   //   }
   // };
 
-  const crearEquipo = async () => {
+  const crearNuevoEquipo = async () => {
     if (!nombreEquipo.trim()) {
       return Alert.alert('Error', 'Debes ingresar un nombre para el equipo');
     }
 
-    if (seleccionados.length === 0) {
-      return Alert.alert('Error', 'Selecciona al menos un amigo para el equipo');
-    }
+    // if (seleccionados.length === 0) {
+    //   return Alert.alert('Error', 'Selecciona al menos un amigo para el equipo');
+    // }
 
     try {
-      const res = await crearEquipo()
-      if(res.status !== 201) {
-        Alert.alert('Éxito', res.data.message || 'Equipo creado correctamente');
-      }
+      await createEquipo(nombreEquipo, deporte)
       setNombreEquipo('');
       setSeleccionados([]);
+      navigation.goBack();
     } catch (err) {
       console.error(err);
       Alert.alert('Error', err.response?.data?.message || 'No se pudo crear el equipo');
@@ -97,7 +99,7 @@ export default function CrearEquipoScreen() {
         ListEmptyComponent={<Text style={styles.empty}>No tienes amigos disponibles</Text>}
       /> */}
 
-      <Button title="Crear Equipo" onPress={crearEquipo} />
+      <Button title="Crear Equipo" onPress={crearNuevoEquipo} />
     </View>
   );
 }

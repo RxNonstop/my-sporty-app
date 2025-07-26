@@ -4,9 +4,14 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { EquipoContext } from '../context/EquipoContext';
+import { AuthContext } from '../context/AuthContext';
 
 export default function EquiposScreen() {
   const { equipos, getEquipos, deleteEquipo } = useContext(EquipoContext);
+  const { usuario } = useContext(AuthContext);
+  const [yourTeams, setYourTeams] = useState([]);
+  const [otherTeams, setOtherTeams] = useState([]);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -18,6 +23,19 @@ export default function EquiposScreen() {
       }
     };
     cargarEquipos();
+  },[])
+
+  useEffect(()=>{
+    if (usuario && equipos && equipos.length !== 0) {
+      equipos.map(equipo => {
+        if (equipo.propietario_id === usuario?.id) { 
+          setYourTeams(prev => [...prev, equipo]);
+        } else {
+          setOtherTeams(prev => [...prev, equipo]);
+        }
+        console.log(otherTeams, "equipo")
+      });
+    }
   },[])
 
   const confirmarEliminar = async (id) => {
@@ -39,38 +57,76 @@ export default function EquiposScreen() {
     await deleteEquipo(id);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.nombre}>{item.nombre}</Text>
-      <Text>Deporte: {item.deporte}</Text>
-      <Text>Miembros: {item.miembros?.length || 0}</Text>
+  const renderItem = ({ item }) => {
+    return(
+      <View style={styles.card}>
+        <Text style={styles.nombre}>{item.nombre}</Text>
+        <Text>Deporte: {item.deporte}</Text>
+        <Text>Miembros: {item.miembros?.length || 0}</Text>
 
-      <View style={styles.actions}>
-        <Button
-          title="Editar"
-          onPress={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
-        />
-        <Button
-          title="Invitar"
-          onPress={() => navigation.navigate('InvitarAmigosScreen', { equipoId: item.id })}
-        />
-        <Button
-          title="Eliminar"
-          color="red"
-          onPress={() => confirmarEliminar(item.id)}
-        />
+        {/* <View style={styles.actions}>
+          <Button
+            title="Editar"
+            onPress={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
+          />
+          <Button
+            title="Invitar"
+            onPress={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
+          />
+          <Button
+            title="Eliminar"
+            color="red"
+            onPress={() => confirmarEliminar(item.id)}
+          />
+        </View> */}
       </View>
-    </View>
-  );
+    );
+  };
+
+  const renderYourItem = ({ item }) => {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.nombre}>{item.nombre}</Text>
+        <Text>Deporte: {item.deporte}</Text>
+        <Text>Miembros: {item.miembros?.length || 0}</Text>
+
+        <View style={styles.actions}>
+          <Button
+            title="Editar"
+            onPress={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
+          />
+          <Button
+            title="Invitar"
+            onPress={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
+          />
+          <Button
+            title="Eliminar"
+            color="red"
+            onPress={() => confirmarEliminar(item.id)}
+          />
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis Equipos</Text>
+
       <FlatList
-        data={equipos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
+        data={yourTeams}
+        keyExtractor={(item) => item?.id?.toString()}
+        renderItem={renderYourItem}
         ListEmptyComponent={<Text style={styles.empty}>No tienes equipos aún</Text>}
+      />
+
+      <Text style={styles.title}>Otros equipos</Text>
+
+      <FlatList
+        data={otherTeams}
+        keyExtractor={(item) => item?.id?.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={<Text style={styles.empty}>No estas inscrito en  nigun equipo</Text>}
       />
 
       <TouchableOpacity
