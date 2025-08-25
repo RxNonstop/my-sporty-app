@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import ConfiguracionScreen from '../screens/ConfiguracionScreen';
 import EventoStack from './EventoStack'; // stack con pantalla oculta
+import EventosStack from './EventosStack';
 import EquipoStack from './EquipoStack';
 import CalendarioScreen from '../screens/CalendarioScreen';
 import FriendsScreen from '../screens/FriendsScreen';
@@ -77,6 +78,22 @@ export default function DrawerNavigator() {
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Lista Eventos" 
+        component={EventosStack} 
+        listeners={({navigation})=>({
+          focus: () => {
+            navigation.navigate('Lista Eventos', {
+              screen: 'EventosScreen', // pantalla interna del stack Eventos
+            });
+          },
+        })}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="calendar-number-outline" size={size} color={color} />
           ),
         }}
       />
