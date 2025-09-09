@@ -14,7 +14,8 @@ const authHeader = async () => {
 };
 
 export const getEventos = async () => {
-  const res = await axios.get(`${API_URL}/campeonatos`, await authHeader());
+  const res = await axios.get(`${API_URL}/campeonatos/me`, await authHeader());
+  console.log('Respuesta de getEventos:', res.data);
   return res.data.data;
 };
 

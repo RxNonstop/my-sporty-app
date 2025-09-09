@@ -1,53 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useContext } from 'react';
+import { CampeonatoContext } from '../context/CampeonatoContext';
 
 // Simulación de datos
-const mockEvents = [
-  {
-    id: '1',
-    type: 'Partido',
-    name: 'Fútbol 5 - Domingo',
-    date: '2025-08-22',
-    location: 'Parque Central',
-  },
-  {
-    id: '2',
-    type: 'Campeonato',
-    name: 'Torneo de Verano',
-    date: '2025-09-01',
-    location: 'Complejo Deportivo',
-  },
-];
+// const mockEvents = [
+//   {
+//     id: '1',
+//     type: 'Partido',
+//     name: 'Fútbol 5 - Domingo',
+//     date: '2025-08-22',
+//     location: 'Parque Central',
+//   },
+//   {
+//     id: '2',
+//     type: 'Campeonato',
+//     name: 'Torneo de Verano',
+//     date: '2025-09-01',
+//     location: 'Complejo Deportivo',
+//   },
+// ];
 
 const EventosScreen = () => {
   const [events, setEvents] = useState([]);
   const navigation = useNavigation();
+  const { campeonatos, getCampeonatos } = useContext(CampeonatoContext);
 
   useEffect(() => {
-    // Aquí podrías hacer una petición a tu API para obtener los eventos creados por el usuario
-    // Ejemplo: fetchUserEvents().then(setEvents);
-    setEvents(mockEvents);
+    getCampeonatos();
+    
   }, []);
+
+  useEffect(() => {
+    const campeonatosBorrador = campeonatos.filter(c => c.estado === "borrador");
+    setEvents(campeonatosBorrador);
+  }, [campeonatos]);
 
   const EventItem = ({ event }) => (
   <TouchableOpacity style={styles.item}
   onPress={() => navigation.navigate('FasesCampeonatoScreen', { campeonato: event })}>
-    <Text style={styles.eventType}>{event.type}</Text>
-    <Text style={styles.eventName}>{event.name}</Text>
-    <Text style={styles.eventInfo}>Fecha: {event.date}</Text>
-    <Text style={styles.eventInfo}>Lugar: { event.location}</Text>
+    <Text style={styles.eventType}>{event.deporte}</Text>
+    <Text style={styles.eventName}>{event.nombre}</Text>
+    <Text style={styles.eventInfo}>Descripcion: {event.descripcion}</Text>
+    <Text style={styles.eventInfo}>Numero minimo de equipos: { event.numero_equipos}</Text>
   </TouchableOpacity>
 );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mis eventos creados</Text>
+      <Text style={styles.title}>Mis campeonatos creados</Text>
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <EventItem event={item} />}
-        ListEmptyComponent={<Text>No tienes eventos creados.</Text>}
+        ListEmptyComponent={<Text>No tienes campeonatos creados.</Text>}
       />
     </View>
   );

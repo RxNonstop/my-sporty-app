@@ -2,16 +2,19 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { EventoContext } from '../context/EventoContext';
+import { CampeonatoContext } from '../context/CampeonatoContext';
 import { useNavigation } from '@react-navigation/native';
 
 export default function CrearEventoScreen() {
   const { agregarEvento } = useContext(EventoContext);
+  const { agregarCampeonato } = useContext(CampeonatoContext);
   const navigation = useNavigation();
 
   const [event, setEvent] = useState('');
   const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
-  const [tipoActividad, setTipoActividad] = useState('evento');
+  const [descripcion, setDescripcion] = useState('');
+  const [tipoActividad, setTipoActividad] = useState('partido');
+  const [privacidad, setPrivacidad] = useState('publico');
   const [deporte, setDeporte] = useState('Fútbol');
   const [jugadores, setJugadores] = useState('');
   const [suplentes, setSuplentes] = useState('');
@@ -26,20 +29,21 @@ export default function CrearEventoScreen() {
     const formattedInicio = fechaInicio.toISOString().split('T')[0];
     const formattedFin = fechaFin.toISOString().split('T')[0];
 
-    if (!event || !location || !formattedInicio) {
+    if (!event  || !formattedInicio) {
       return alert('Nombre, Lugar y Fecha de inicio son obligatorios');
     }
 
     const eventoData = {
-      event,
+      nombre: event,
       location,
-      description,
+      descripcion,
       dotColor: deporte === 'Fútbol' ? 'green' : deporte === 'Béisbol' ? 'blue' : 'orange',
       tipoActividad,
       deporte,
-      jugadores,
-      suplentes,
-      numEquipos,
+      inscripciones_abiertas: privacidad === 'privado' ? 1 : 0,
+      numero_jugadores: jugadores,
+      numero_suplentes: suplentes,
+      numero_equipos: numEquipos,
       fechaFin: tipoActividad === 'campeonato' ? formattedFin : null,
       fechaInicio: formattedInicio,
     };
@@ -48,33 +52,62 @@ export default function CrearEventoScreen() {
       if (!numEquipos || isNaN(numEquipos)) {
         return alert('Número de equipos inválido');
       }
-
-      navigation.navigate('SeleccionarEquipos', {
-        eventoBase: eventoData,
-        numEquipos: parseInt(numEquipos),
-      });
+      agregarCampeonato(eventoData);
+      setEvent('');
+      setLocation('');
+      setDescripcion('');
+      setTipoActividad('partido');
+      setPrivacidad('publico');
+      setDeporte('Fútbol');
+      setJugadores('');
+      setSuplentes('');
+      setNumEquipos('');
+      setFechaInicio(new Date());
+      setFechaFin(new Date());
+      // navigation.navigate('SeleccionarEquipos', {
+      //   eventoBase: eventoData,
+      //   numEquipos: parseInt(numEquipos),
+      // });
+      alert('Campeonato creado exitosamente');
+      navigation.navigate('Inicio');
     } else {
-      agregarEvento(formattedInicio, eventoData);
+      agregarCampeonato(eventoData);
       navigation.navigate('Calendario');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Nuevo {tipoActividad === 'campeonato' ? 'Campeonato' : 'Evento'}</Text>
+      <Text style={styles.title}>Nuevo {tipoActividad === 'campeonato' ? 'Campeonato' : 'Partido'}</Text>
 
       <TextInput placeholder="Nombre" style={styles.input} value={event} onChangeText={setEvent} />
-      <TextInput placeholder="Lugar" style={styles.input} value={location} onChangeText={setLocation} />
-      <TextInput placeholder="Descripción" style={styles.input} value={description} onChangeText={setDescription} />
+      {/* <TextInput placeholder="Lugar" style={styles.input} value={location} onChangeText={setLocation} /> */}
+      <TextInput placeholder="Descripción" style={styles.input} value={descripcion} onChangeText={setDescripcion} />
 
-      <Text style={styles.label}>Tipo de Actividad:</Text>
       <View style={styles.row}>
-        <TouchableOpacity onPress={() => setTipoActividad('evento')} style={[styles.option, tipoActividad === 'evento' && styles.selected]}>
-          <Text>Evento</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setTipoActividad('campeonato')} style={[styles.option, tipoActividad === 'campeonato' && styles.selected]}>
-          <Text>Campeonato</Text>
-        </TouchableOpacity>
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Tipo de Actividad:</Text>
+          <View style={styles.row}>
+            <TouchableOpacity onPress={() => setTipoActividad('partido')} style={[styles.option, tipoActividad === 'partido' && styles.selected]}>
+              <Text>Partido</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setTipoActividad('campeonato')} style={[styles.option, tipoActividad === 'campeonato' && styles.selected]}>
+              <Text>Campeonato</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Privacidad: </Text>
+          <View style={styles.row}>
+            <TouchableOpacity onPress={() => setPrivacidad('publico')} style={[styles.option, privacidad === 'publico' && styles.selected]}>
+              <Text>Público</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setPrivacidad('privado')} style={[styles.option, privacidad === 'privado' && styles.selected]}>
+              <Text>Privado</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       <Text style={styles.label}>Deporte:</Text>
@@ -139,6 +172,7 @@ const styles = StyleSheet.create({
   },
   label: { marginTop: 12, marginBottom: 4, fontWeight: '600', fontSize: 16 },
   row: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  fieldRow: {  width: '48%' },
   option: {
     paddingHorizontal: 10,
     paddingVertical: 6,

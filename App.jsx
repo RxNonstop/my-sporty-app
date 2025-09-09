@@ -3,6 +3,7 @@ import DrawerNavigator from './src/navigation/DrawerNavigator'
 import { EventoProvider } from './src/context/EventoContext';
 import { AmistadProvider } from './src/context/AmistadContext';
 import { NotificacionProvider } from './src/context/NotificacionContext';
+import { CampeonatoProvider } from './src/context/CampeonatoContext';
 import AuthStack from './src/navigation/AuthStack';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import 'react-native-gesture-handler';
@@ -25,7 +26,9 @@ export default function App() {
         <NotificacionProvider>
           <AmistadProvider>
               <EventoProvider>
+                <CampeonatoProvider>
                   <AppContent />
+                </CampeonatoProvider>
               </EventoProvider>
           </AmistadProvider>
         </NotificacionProvider>
