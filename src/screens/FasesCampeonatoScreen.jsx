@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 
 View,
@@ -12,6 +12,7 @@ Modal,
 SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const FasesCampeonatoScreen = ({ route }) => {
 const { campeonato } = route.params || {};
@@ -19,15 +20,64 @@ const [fases, setFases] = useState([]);
 const [modalVisible, setModalVisible] = useState(false);
 const [nuevaFase, setNuevaFase] = useState('');
 const [metodoFase, setMetodoFase] = useState('');
+const [tamanoGrupo, setTamanoGrupo] = useState('');
+const [clasificadosPorGrupo, setClasificadosPorGrupo] = useState('');
+const [errorGrupo, setErrorGrupo] = useState('');
+useEffect(() => {
+  console.log(campeonato);
+}, [campeonato]);
+
+
+const navigation = useNavigation();
 
 const agregarFase = () => {
   if (!nuevaFase.trim() || !metodoFase) return;
+
+  const equiposAnteriores = fases.length === 0 
+    ? campeonato.numero_equipos
+    : fases[fases.length - 1].equiposRestantes;
+
+  let equiposRestantes = equiposAnteriores;
+
+  if (metodoFase === "liga") {
+    equiposRestantes = equiposAnteriores;
+  } else if (metodoFase === "eliminatoria") {
+    equiposRestantes = Math.ceil(equiposAnteriores / 2);
+  } else if (metodoFase === "grupos") {
+    const grupo = parseInt(tamanoGrupo, 10) || 4; // por defecto 4
+    const clasificados = parseInt(clasificadosPorGrupo, 10);
+    
+
+    if (!grupo || !clasificados) {
+      setErrorGrupo("Debes ingresar valores válidos.");
+      return;
+    }
+    if (clasificados >= grupo) {
+      setErrorGrupo("Los clasificados deben ser menores que el tamaño del grupo.");
+      return;
+    }
+
+    const grupos = Math.floor(equiposAnteriores / grupo);
+    equiposRestantes = grupos * clasificadosPorGrupo;
+  }
+
   setFases([
     ...fases,
-    { nombre: nuevaFase.trim(), metodo: metodoFase }
+    { 
+      nombre: nuevaFase.trim(), 
+      metodo: metodoFase,
+      equiposIniciales: equiposAnteriores,
+      equiposRestantes,
+      ...(metodoFase === "grupos" && { tamanoGrupo }),
+      tamanoGrupo, 
+      clasificadosPorGrupo 
+    }
   ]);
   setNuevaFase('');
   setMetodoFase('');
+  setTamanoGrupo('');
+  setClasificadosPorGrupo('');
+  setErrorGrupo('');
   setModalVisible(false);
 };
 
@@ -41,7 +91,12 @@ const eliminarFase = (indexEliminar) => {
 
 return (
   <View style={styles.container}>
-    <Text style={styles.title}>{campeonato?.nombre || "Sin nombre"}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12}}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', marginRight: 8 }}>
+        <Ionicons name="arrow-back" size={24} color="#000" />
+      </TouchableOpacity>
+      <Text style={styles.title}>{campeonato?.nombre || "Sin nombre"}</Text>
+    </View>
     <Text style={styles.subtitle}>Fases del campeonato:</Text>
     <FlatList
       data={fases}
@@ -50,6 +105,8 @@ return (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4, padding: 16,backgroundColor: '#f2f2f2',borderRadius: 8, marginBottom: 12, justifyContent: 'space-between' }}>
           <Text style={{ flex: 1 }}>
             {index + 1}. {item.nombre} ({item.metodo})
+            {item.metodo === "grupos" && ` - Grupos de ${item.tamanoGrupo}`}
+            {"\n"}Equipos: {item.equiposIniciales} → {item.equiposRestantes}
           </Text>
           <TouchableOpacity onPress={() => eliminarFase(index)}>
             <Ionicons name="trash-outline" size={20} color="#888" />
@@ -108,6 +165,25 @@ return (
             onPress={agregarFase}
             disabled={!nuevaFase.trim() || !metodoFase}
           />
+          {metodoFase === 'grupos' && (
+            <>
+              <TextInput
+                style={styles.input}
+                value={tamanoGrupo}
+                onChangeText={setTamanoGrupo}
+                placeholder="Tamaño del grupo (ej: 4)"
+                keyboardType="numeric"
+              />
+              <TextInput
+                style={styles.input}
+                value={clasificadosPorGrupo}
+                onChangeText={setClasificadosPorGrupo}
+                placeholder="Clasificados por grupo (ej: 2)"
+                keyboardType="numeric"
+              />
+              {errorGrupo ? <Text style={{ color: 'red' }}>{errorGrupo}</Text> : null}
+            </>
+          )}
           <Button title="Cancelar" color="#888" onPress={() => setModalVisible(false)} />
         </View>
       </View>
