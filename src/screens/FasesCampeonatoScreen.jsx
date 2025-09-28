@@ -13,6 +13,8 @@ SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+
 
 const FasesCampeonatoScreen = ({ route }) => {
 const { campeonato } = route.params || {};
@@ -30,24 +32,42 @@ useEffect(() => {
 
 const navigation = useNavigation();
 
+const calcularDivisores = (num) => {
+  let divisores = [];
+  for (let i = 2; i <= num; i++) {
+    if (num % i === 0) {
+      divisores.push(i);
+    }
+  }
+  return divisores;
+};
+
 const agregarFase = () => {
   if (!nuevaFase.trim() || !metodoFase) return;
 
   const equiposAnteriores = fases.length === 0 
-    ? campeonato.numero_equipos
+    ? campeonato.numero_equipos 
     : fases[fases.length - 1].equiposRestantes;
 
   let equiposRestantes = equiposAnteriores;
 
   if (metodoFase === "liga") {
-    equiposRestantes = equiposAnteriores;
+    equiposRestantes = equiposAnteriores-(equiposAnteriores-1);
   } else if (metodoFase === "eliminatoria") {
-    equiposRestantes = Math.ceil(equiposAnteriores / 2);
+    if (equiposAnteriores % 2 !== 0) {
+      equiposRestantes = Math.ceil((equiposAnteriores - 1) / 2) + 1;
+    } else {
+      equiposRestantes = equiposAnteriores / 2;
+    }
   } else if (metodoFase === "grupos") {
-    const grupo = parseInt(tamanoGrupo, 10) || 4; // por defecto 4
+    const grupo = parseInt(tamanoGrupo, 10);
     const clasificados = parseInt(clasificadosPorGrupo, 10);
-    
 
+    const divisoresValidos = calcularDivisores(equiposAnteriores);
+    if (!divisoresValidos.includes(grupo)) {
+      setErrorGrupo("El tamaño de grupo no divide equitativamente los equipos.");
+      return;
+    }
     if (!grupo || !clasificados) {
       setErrorGrupo("Debes ingresar valores válidos.");
       return;
@@ -57,8 +77,8 @@ const agregarFase = () => {
       return;
     }
 
-    const grupos = Math.floor(equiposAnteriores / grupo);
-    equiposRestantes = grupos * clasificadosPorGrupo;
+    const grupos = equiposAnteriores / grupo; // garantizado equitativo
+    equiposRestantes = grupos * clasificados;
   }
 
   setFases([
@@ -68,11 +88,13 @@ const agregarFase = () => {
       metodo: metodoFase,
       equiposIniciales: equiposAnteriores,
       equiposRestantes,
-      ...(metodoFase === "grupos" && { tamanoGrupo }),
-      tamanoGrupo, 
-      clasificadosPorGrupo 
+      ...(metodoFase === "grupos" && { 
+        tamanoGrupo, 
+        clasificadosPorGrupo 
+      })
     }
   ]);
+  
   setNuevaFase('');
   setMetodoFase('');
   setTamanoGrupo('');
@@ -97,6 +119,7 @@ return (
       </TouchableOpacity>
       <Text style={styles.title}>{campeonato?.nombre || "Sin nombre"}</Text>
     </View>
+    <Text style={styles.subtitle}>No. Inicial de equipos: {campeonato?.numero_equipos || "No registrado"}</Text>
     <Text style={styles.subtitle}>Fases del campeonato:</Text>
     <FlatList
       data={fases}
@@ -163,17 +186,36 @@ return (
           <Button
             title="Agregar fase"
             onPress={agregarFase}
-            disabled={!nuevaFase.trim() || !metodoFase}
+            disabled={
+              !nuevaFase.trim() ||
+              !metodoFase ||
+              (
+                fases.length === 0
+                  ? campeonato.numero_equipos
+                  : fases[fases.length - 1].equiposRestantes
+              ) === 1
+            }
           />
           {metodoFase === 'grupos' && (
             <>
-              <TextInput
-                style={styles.input}
-                value={tamanoGrupo}
-                onChangeText={setTamanoGrupo}
-                placeholder="Tamaño del grupo (ej: 4)"
-                keyboardType="numeric"
-              />
+              <Text style={{ fontWeight: "600", marginBottom: 6 }}>
+                Tamaño del grupo:
+              </Text>
+              <View style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 6, marginBottom: 12, paddingBottom: 6, paddingTop: 6 }}>
+                <Picker
+                  selectedValue={tamanoGrupo}
+                  onValueChange={(value) => setTamanoGrupo(value)}
+                  style={{ borderWidth:0}}
+                >
+                  <Picker.Item label="Seleccione tamaño de grupo" value="" />
+                  {calcularDivisores(
+                    fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes
+                  ).map((div, idx) => (
+                    <Picker.Item key={idx} label={`${div}`} value={div.toString()} />
+                  ))}
+                </Picker>
+              </View>
+
               <TextInput
                 style={styles.input}
                 value={clasificadosPorGrupo}
@@ -188,11 +230,19 @@ return (
         </View>
       </View>
     </Modal>
+    
 
     <View style={styles.bottomButtonContainer}>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
+        disabled={
+          (
+            fases.length === 0
+              ? campeonato.numero_equipos
+              : fases[fases.length - 1].equiposRestantes
+          ) === 1
+        }
       >
         <Text style={styles.addButtonText}>Agregar Fase</Text>
       </TouchableOpacity>

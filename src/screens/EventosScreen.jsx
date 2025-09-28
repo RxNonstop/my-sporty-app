@@ -40,8 +40,8 @@ const EventosScreen = () => {
   const EventItem = ({ event }) => (
   <TouchableOpacity style={styles.item}
   onPress={() => navigation.navigate('FasesCampeonatoScreen', { campeonato: event })}>
-    <Text style={styles.eventType}>{event.deporte}</Text>
     <Text style={styles.eventName}>{event.nombre}</Text>
+    <Text style={styles.eventType}>{event.deporte}</Text>
     <Text style={styles.eventInfo}>Descripcion: {event.descripcion}</Text>
     <Text style={styles.eventInfo}>Numero minimo de equipos: { event.numero_equipos}</Text>
   </TouchableOpacity>
