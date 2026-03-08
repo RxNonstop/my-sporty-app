@@ -1,16 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
-  View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert,
+  View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { EquipoContext } from '../context/EquipoContext';
-import { AuthContext } from '../context/AuthContext';
 
 export default function EquiposScreen() {
-  const { equipos, getEquipos, deleteEquipo } = useContext(EquipoContext);
-  const { usuario } = useContext(AuthContext);
-  const [yourTeams, setYourTeams] = useState([]);
-  const [otherTeams, setOtherTeams] = useState([]);
+  const { yourTeams, otherTeams, usuario, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
+  
 
   const navigation = useNavigation();
 
@@ -25,18 +22,18 @@ export default function EquiposScreen() {
     cargarEquipos();
   },[])
 
-  useEffect(()=>{
-    if (usuario && equipos && equipos.length !== 0) {
-      equipos.map(equipo => {
-        if (equipo.propietario_id === usuario?.id) { 
-          setYourTeams(prev => [...prev, equipo]);
-        } else {
-          setOtherTeams(prev => [...prev, equipo]);
-        }
-        console.log(otherTeams, "equipo")
-      });
-    }
-  },[])
+  // useEffect(()=>{
+  //   if (usuario && equipos && equipos.length !== 0) {
+  //     equipos.map(equipo => {
+  //       if (equipo.propietario_id === usuario?.id) { 
+  //         setYourTeams(prev => [...prev, equipo]);
+  //       } else {
+  //         setOtherTeams(prev => [...prev, equipo]);
+  //       }
+  //       console.log(otherTeams, "equipo")
+  //     });
+  //   }
+  // },[])
 
   const confirmarEliminar = async (id) => {
     // Alert.alert(
@@ -113,12 +110,14 @@ export default function EquiposScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Mis Equipos</Text>
 
+      {isLoading ? <ActivityIndicator size="large" color="#1D4ED8" /> : (
       <FlatList
         data={yourTeams}
         keyExtractor={(item) => item?.id?.toString()}
         renderItem={renderYourItem}
         ListEmptyComponent={<Text style={styles.empty}>No tienes equipos aún</Text>}
       />
+      )}
 
       <Text style={styles.title}>Otros equipos</Text>
 

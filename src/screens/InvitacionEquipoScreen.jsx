@@ -22,16 +22,11 @@ export default function InvitarAmigosScreen() {
   },[]);
 
   const enviarInvitacionAEquipo = async (amigoId) => {
-    try {
         setEnviando(amigoId);
         await enviarInvitacion(amigoId, equipoId);
         Alert.alert('Invitación enviada', 'Se ha enviado la invitación correctamente');
-    } catch (error) {
-        console.error(error);
         Alert.alert('Error', 'No se pudo enviar la invitación');
-    } finally {
         setEnviando(null);
-    }
   };
 
   const renderAmigo = ({ item }) => (

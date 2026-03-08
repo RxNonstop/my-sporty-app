@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   container: {
     flex: 1,

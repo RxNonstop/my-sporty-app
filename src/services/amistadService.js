@@ -1,7 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'http://localhost/api-DeportProyect/api/index.php';
+import { API_URL } from '../utils/global';
 
 const authHeader = async () => {
   const token = await AsyncStorage.getItem('token');
@@ -25,5 +24,9 @@ export const enviarSolicitud = async (para_usuario_id) => {
 
 export const encontrarUsuario = async(email) => {
   const res = await axios.post(`${API_URL}/usuarios/email`,{email}, await authHeader())
+  return res.data;
+}
+export const eliminarAmigo  = async(email) => {
+  const res = await axios.delete(`${API_URL}/usuarios/email`,{data:{email}}, await authHeader())
   return res.data;
 }
