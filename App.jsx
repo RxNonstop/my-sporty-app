@@ -12,6 +12,7 @@ import { EquipoProvider } from './src/context/EquipoContext';
 
 function AppContent() {
   const { usuario } = useContext(AuthContext);
+  console.log("Hola");
   return (
     <NavigationContainer>
       {usuario ? <DrawerNavigator /> : <AuthStack />}
