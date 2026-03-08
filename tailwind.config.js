@@ -7,6 +7,10 @@ module.exports = {
       colors: {
         primary: "rgba(0, 122, 255, 0.12)",
         secondary: "rgba(0, 122, 255, 0.25)",
+        terniary: "rgba(0, 122, 255, 0.75)",
+        fourty: "rgba(0, 122, 255, 0.5)",
+        green: "#1f9b26",
+        red: "#e60000",
       },
     },
   },
@@ -15,5 +19,7 @@ module.exports = {
   darkColor: {
     primary: "rgba(0, 122, 255, 0.25)",
     secondary: "rgba(0, 122, 255, 0.75)",
+    terniary: "rgba(0, 122, 255, 0.12)",
+    fourty: "rgba(0, 122, 255, 0.5)",
   },
 };

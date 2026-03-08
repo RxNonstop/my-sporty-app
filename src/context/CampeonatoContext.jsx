@@ -15,8 +15,9 @@ export const CampeonatoProvider = ({ children }) => {
   const { usuario } = useContext(AuthContext);
   const [campeonatosPublicos, setCampeonatosPublicos] = useState([]);
   const [misCampeonatos, setMisCampeonatos] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [campeonato, setCampeonato] = useState();
-  console.log(campeonatosPublicos);
+
   useEffect(() => {
     const fetchCampeonatos = async () => {
       console.log("Usuario en CampeonatoContext:", usuario);
@@ -49,6 +50,16 @@ export const CampeonatoProvider = ({ children }) => {
     setCampeonato(data);
   };
 
+  const refreshCampeonatosPublicos = async () => {
+    if (usuario) {
+      setLoading(true);
+      await getCampeonatosPublicos();
+      setTimeout(() => setLoading(false), 500);
+    } else {
+      setCampeonatosPublicos([]);
+    }
+  };
+
   const agregarCampeonato = async (nuevoCampeonato) => {
     const data = await crearEvento(nuevoCampeonato);
     setMisCampeonatos((prev) => [...prev, data]);
@@ -78,8 +89,8 @@ export const CampeonatoProvider = ({ children }) => {
         modificarCampeonato,
         eliminarCampeonato,
         campeonatosPublicos,
-        getCampeonatosPublicos,
-        setCampeonatosPublicos,
+        refreshCampeonatosPublicos,
+        loading,
       }}
     >
       {children}
