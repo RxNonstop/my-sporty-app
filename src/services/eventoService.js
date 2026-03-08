@@ -4,21 +4,61 @@ import API_URL from "../config/apiConfig";
 
 const authHeader = async () => {
   const token = await AsyncStorage.getItem("token");
+
   return {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "application/json",
     },
   };
 };
 
-export const getEventos = async (userId) => {
-  const res = await axios.get(
-    `${API_URL}/campeonatos/propietario/${userId}`,
-    await authHeader(),
-  );
-  console.log("Respuesta de getEventos:", res.data);
-  return res.data.data;
+export const getEventosPublicos = async () => {
+  try {
+    const res = await axios.get(
+      `${API_URL}/campeonatos/publicos`,
+      await authHeader(),
+    );
+    console.log("Respuesta de getEventosPublicos:", res.data);
+    return res.data.data || [];
+  } catch (error) {
+    console.error(
+      "Error en getEventosPublicos:",
+      error.response?.status,
+      error.response?.data,
+    );
+    if (error.response?.status === 401) {
+      console.error(
+        "[401] Token inválido o expirado. Verifica que estés autenticado.",
+      );
+    }
+    return [];
+  }
+};
+
+export const getMisEventos = async (userId) => {
+  try {
+    const res = await axios.get(
+      `${API_URL}/campeonatos/propietario/${userId}`,
+      await authHeader(),
+    );
+    console.log("Respuesta de getMisEventos:", res.data);
+    if (!res.data || !res.data.data) {
+      console.error("Respuesta inesperada de getMisEventos:", res.data);
+      return [];
+    }
+    return res.data.data;
+  } catch (error) {
+    console.error(
+      "Error en getMisEventos:",
+      error.response?.status,
+      error.response?.data,
+    );
+    if (error.response?.status === 401) {
+      console.error("[401] Token inválido. Necesitas autenticarte primero.");
+    }
+    return [];
+  }
 };
 
 export const crearEvento = async (eventoData) => {

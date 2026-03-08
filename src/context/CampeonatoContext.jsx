@@ -1,10 +1,11 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import {
-  getEventos,
+  getMisEventos,
   getEventoById,
   crearEvento,
   actualizarEvento,
   eliminarEvento,
+  getEventosPublicos,
 } from "../services/eventoService";
 import { AuthContext } from "./AuthContext";
 
@@ -12,26 +13,35 @@ export const CampeonatoContext = createContext();
 
 export const CampeonatoProvider = ({ children }) => {
   const { usuario } = useContext(AuthContext);
-
-  const [campeonatos, setCampeonatos] = useState([]);
+  const [campeonatosPublicos, setCampeonatosPublicos] = useState([]);
+  const [misCampeonatos, setMisCampeonatos] = useState([]);
   const [campeonato, setCampeonato] = useState();
-
+  console.log(campeonatosPublicos);
   useEffect(() => {
     const fetchCampeonatos = async () => {
+      console.log("Usuario en CampeonatoContext:", usuario);
       if (usuario) {
-        await getCampeonatos(usuario.id);
+        console.log("Obteniendo campeonatos para el usuario:", usuario.id);
+        await getMisCampeonatos(usuario.id);
+        await getCampeonatosPublicos();
       } else {
-        setCampeonatos([]);
+        setMisCampeonatos([]);
       }
     };
 
     fetchCampeonatos();
   }, [usuario]);
 
-  const getCampeonatos = async (userId) => {
-    const data = await getEventos(userId);
+  const getCampeonatosPublicos = async () => {
+    const data = await getEventosPublicos();
+    setCampeonatosPublicos(data);
+    return data;
+  };
 
-    setCampeonatos(data);
+  const getMisCampeonatos = async (userId) => {
+    const data = await getMisEventos(userId);
+
+    setMisCampeonatos(data);
   };
 
   const getCampeonatoByID = async (id) => {
@@ -41,30 +51,35 @@ export const CampeonatoProvider = ({ children }) => {
 
   const agregarCampeonato = async (nuevoCampeonato) => {
     const data = await crearEvento(nuevoCampeonato);
-    setCampeonatos((prev) => [...prev, data]);
+    setMisCampeonatos((prev) => [...prev, data]);
   };
 
   const modificarCampeonato = async (id, cambios) => {
     const data = await actualizarEvento(id, cambios);
-    setCampeonatos((prev) =>
+    setMisCampeonatos((prev) =>
       prev.map((campeonato) => (campeonato.id === id ? data : campeonato)),
     );
   };
 
   const eliminarCampeonato = async (id) => {
     await eliminarEvento(id);
-    setCampeonatos((prev) => prev.filter((campeonato) => campeonato.id !== id));
+    setMisCampeonatos((prev) =>
+      prev.filter((campeonato) => campeonato.id !== id),
+    );
   };
 
   return (
     <CampeonatoContext.Provider
       value={{
-        campeonatos,
-        getCampeonatos,
+        misCampeonatos,
+        getMisCampeonatos,
         getCampeonatoByID,
         agregarCampeonato,
         modificarCampeonato,
         eliminarCampeonato,
+        campeonatosPublicos,
+        getCampeonatosPublicos,
+        setCampeonatosPublicos,
       }}
     >
       {children}
