@@ -1,29 +1,32 @@
-import React, { useContext } from 'react';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import StackNavigator from './EventoStack'
-import HomeScreen from '../screens/HomeScreen';
-import PerfilScreen from '../screens/PerfilScreen';
-import ConfiguracionScreen from '../screens/ConfiguracionScreen';
-import EventoStack from './EventoStack'; // stack con pantalla oculta
-import EventosStack from './EventosStack';
-import EquipoStack from './EquipoStack';
-import CalendarioScreen from '../screens/CalendarioScreen';
-import FriendsScreen from '../screens/FriendsScreen';
-import EquiposScreen from '../screens/EquiposScreen';
-import CrearEquiposScreen from '../screens/CrearEquipoScreen';
-import { View, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useContext } from "react";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from "@react-navigation/drawer";
+import StackNavigator from "./EventoStack";
+import HomeScreen from "../screens/HomeScreen";
+import PerfilScreen from "../screens/PerfilScreen";
+import ConfiguracionScreen from "../screens/ConfiguracionScreen";
+import EventoStack from "./EventoStack"; // stack con pantalla oculta
+import EventosStack from "./EventosStack";
+import EquipoStack from "./EquipoStack";
+import CalendarioScreen from "../screens/CalendarioScreen";
+import FriendsScreen from "../screens/FriendsScreen";
+import EquiposScreen from "../screens/EquiposScreen";
+import CrearEquiposScreen from "../screens/CrearEquipoScreen";
+import { View, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-
-import { Ionicons } from '@expo/vector-icons';
-import { AuthContext } from '../context/AuthContext';
-import NotificacionesScreen from '../screens/NotificacionesScreen';
+import { Ionicons } from "@expo/vector-icons";
+import { AuthContext } from "../context/AuthContext";
+import NotificacionesScreen from "../screens/NotificacionesScreen";
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
-
-  const {logout} = useContext(AuthContext)
+  const { logout } = useContext(AuthContext);
   const navigation = useNavigation();
 
   function CustomDrawerContent(props) {
@@ -42,7 +45,7 @@ export default function DrawerNavigator() {
             icon={({ size, color }) => (
               <Ionicons name="log-out-outline" size={size} color="red" />
             )}
-            labelStyle={{ color: 'red', fontWeight: 'bold' }}
+            labelStyle={{ color: "red", fontWeight: "bold" }}
           />
         </View>
       </DrawerContentScrollView>
@@ -50,22 +53,22 @@ export default function DrawerNavigator() {
   }
 
   return (
-    <Drawer.Navigator 
-    initialRouteName="Inicio"
-    drawerContent={(props) => <CustomDrawerContent {...props} />}
+    <Drawer.Navigator
+      initialRouteName="Inicio"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
-      <Drawer.Screen 
-        name="Inicio" 
-        component={HomeScreen} 
+      <Drawer.Screen
+        name="Inicio"
+        component={HomeScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Configuración" 
-        component={ConfiguracionScreen} 
+      <Drawer.Screen
+        name="Configuración"
+        component={ConfiguracionScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
@@ -73,8 +76,8 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Crear Evento" 
-        component={EventoStack} 
+        name="Crear Evento"
+        component={EventoStack}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
@@ -82,46 +85,50 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Lista Eventos" 
-        component={EventosStack} 
-        listeners={({navigation})=>({
+        name="Lista Eventos"
+        component={EventosStack}
+        listeners={({ navigation }) => ({
           focus: () => {
-            navigation.navigate('Lista Eventos', {
-              screen: 'EventosScreen', // pantalla interna del stack Eventos
+            navigation.navigate("Lista Eventos", {
+              screen: "EventosScreen", // pantalla interna del stack Eventos
             });
           },
         })}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="calendar-number-outline" size={size} color={color} />
+            <Ionicons
+              name="calendar-number-outline"
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Calendario" 
-        component={CalendarioScreen} 
+      <Drawer.Screen
+        name="Calendario"
+        component={CalendarioScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Amigos" 
-        component={FriendsScreen} 
+      <Drawer.Screen
+        name="Amigos"
+        component={FriendsScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="people-outline" size={size} color={color} />
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Equipos" 
-        component={EquipoStack} 
-        listeners={({navigation})=>({
+      <Drawer.Screen
+        name="Equipos"
+        component={EquipoStack}
+        listeners={({ navigation }) => ({
           focus: () => {
-            navigation.navigate('Equipos', {
-              screen: 'EquiposScreen', // pantalla interna del stack Equipos
+            navigation.navigate("Equipos", {
+              screen: "EquiposScreen", // pantalla interna del stack Equipos
             });
           },
         })}
@@ -131,18 +138,18 @@ export default function DrawerNavigator() {
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Notificaciones" 
-        component={NotificacionesScreen} 
+      <Drawer.Screen
+        name="Notificaciones"
+        component={NotificacionesScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="notifications-outline" size={size} color={color} />
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
+      <Drawer.Screen
+        name="Perfil"
+        component={PerfilScreen}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
@@ -155,9 +162,9 @@ export default function DrawerNavigator() {
 
 const styles = StyleSheet.create({
   logoutContainer: {
-    marginTop: 'auto', // 🔽 lo empuja al fondo
+    marginTop: "auto", // 🔽 lo empuja al fondo
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: "#ccc",
     paddingTop: 10,
   },
 });

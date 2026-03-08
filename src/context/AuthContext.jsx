@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as authService from '../services/AuthService';
+import React, { createContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as authService from "../services/AuthService";
 
 export const AuthContext = createContext();
 
@@ -11,13 +11,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const cargarUsuario = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem("token");
         if (token) {
           const user = await authService.getUser();
           setUsuario(user);
         }
       } catch (err) {
-        console.error('No se pudo obtener usuario', err);
+        console.error("No se pudo obtener usuario", err);
         await AsyncStorage.clear();
       }
       setCargando(false);
@@ -27,14 +27,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const data = await authService.login(email, password);
-    console.log(data,"usuario")
-    if (data){
+    console.log(data, "usuario");
+    if (data) {
       setUsuario(data);
     }
   };
 
   const register = async (data) => {
-    await authService.register(data);
+    const user = await authService.register(data);
+    if (user) {
+      setUsuario(user);
+    }
+    return user;
   };
 
   const logout = async () => {
@@ -43,7 +47,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, register, cargando }}>
+    <AuthContext.Provider
+      value={{ usuario, login, logout, register, cargando }}
+    >
       {children}
     </AuthContext.Provider>
   );
