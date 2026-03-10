@@ -26,3 +26,7 @@ export const encontrarUsuario = async(email) => {
   const res = await axios.post(`${API_URL}/usuarios/email`,{email}, await authHeader())
   return res.data;
 }
+export const eliminarAmigo  = async(email) => {
+  const res = await axios.delete(`${API_URL}/usuarios/email`,{data:{email}}, await authHeader())
+  return res.data;
+}
