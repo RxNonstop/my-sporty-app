@@ -1,62 +1,99 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from "react";
 import {
-    getEventos,
-    getEventoById,
-    crearEvento,
-    actualizarEvento,
-    eliminarEvento
-} from '../services/eventoService'
+  getMisEventos,
+  getEventoById,
+  crearEvento,
+  actualizarEvento,
+  eliminarEvento,
+  getEventosPublicos,
+} from "../services/eventoService";
+import { AuthContext } from "./AuthContext";
 
 export const CampeonatoContext = createContext();
 
 export const CampeonatoProvider = ({ children }) => {
-    const [campeonatos, setCampeonatos] = useState([]);
-    const [campeonato, setCampeonato] = useState();
+  const { usuario } = useContext(AuthContext);
+  const [campeonatosPublicos, setCampeonatosPublicos] = useState([]);
+  const [misCampeonatos, setMisCampeonatos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [campeonato, setCampeonato] = useState();
 
-
-    useEffect(() => {
-        getCampeonatos();
-    }, []);
-
-    const getCampeonatos = async () => {
-        const data = await getEventos();
-        setCampeonatos(data);
+  useEffect(() => {
+    const fetchCampeonatos = async () => {
+      console.log("Usuario en CampeonatoContext:", usuario);
+      if (usuario) {
+        console.log("Obteniendo campeonatos para el usuario:", usuario.id);
+        await getMisCampeonatos(usuario.id);
+        await getCampeonatosPublicos();
+      } else {
+        setMisCampeonatos([]);
+      }
     };
-    
-    const getCampeonatoByID = async(id) =>{
-        const data = await getEventoById(id);
-        setCampeonato(data);
+
+    fetchCampeonatos();
+  }, [usuario]);
+
+  const getCampeonatosPublicos = async () => {
+    const data = await getEventosPublicos();
+    setCampeonatosPublicos(data);
+    return data;
+  };
+
+  const getMisCampeonatos = async (userId) => {
+    const data = await getMisEventos(userId);
+
+    setMisCampeonatos(data);
+  };
+
+  const getCampeonatoByID = async (id) => {
+    const data = await getEventoById(id);
+    setCampeonato(data);
+  };
+
+  const refreshCampeonatosPublicos = async () => {
+    if (usuario) {
+      setLoading(true);
+      await getCampeonatosPublicos();
+      setTimeout(() => setLoading(false), 500);
+    } else {
+      setCampeonatosPublicos([]);
     }
+  };
 
-    const agregarCampeonato = async (nuevoCampeonato) => {
-        const data = await crearEvento(nuevoCampeonato);
-        setCampeonatos((prev) => [...prev, data]);
-    };
+  const agregarCampeonato = async (nuevoCampeonato) => {
+    const data = await crearEvento(nuevoCampeonato);
+    setMisCampeonatos((prev) => [...prev, data]);
+  };
 
-    const modificarCampeonato = async (id, cambios) => {
-        const data = await actualizarEvento(id, cambios);
-        setCampeonatos((prev) =>
-            prev.map((campeonato) => (campeonato.id === id ? data : campeonato))
-        );
-    };
-
-    const eliminarCampeonato = async (id) => {
-        await eliminarEvento(id);
-        setCampeonatos((prev) => prev.filter((campeonato) => campeonato.id !== id));
-    };
-
-    return (
-        <CampeonatoContext.Provider
-            value={{
-                campeonatos,
-                getCampeonatos,
-                getCampeonatoByID,
-                agregarCampeonato,
-                modificarCampeonato,
-                eliminarCampeonato
-            }}
-        >
-            {children}
-        </CampeonatoContext.Provider>
+  const modificarCampeonato = async (id, cambios) => {
+    const data = await actualizarEvento(id, cambios);
+    setMisCampeonatos((prev) =>
+      prev.map((campeonato) => (campeonato.id === id ? data : campeonato)),
     );
+  };
+
+  const eliminarCampeonato = async (id) => {
+    await eliminarEvento(id);
+    setMisCampeonatos((prev) =>
+      prev.filter((campeonato) => campeonato.id !== id),
+    );
+  };
+
+  return (
+    <CampeonatoContext.Provider
+      value={{
+        misCampeonatos,
+        getMisCampeonatos,
+        getCampeonatoByID,
+        agregarCampeonato,
+        modificarCampeonato,
+        eliminarCampeonato,
+        campeonatosPublicos,
+        refreshCampeonatosPublicos,
+        loading,
+      }}
+    >
+      {children}
+    </CampeonatoContext.Provider>
+  );
 };

@@ -1,34 +1,42 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useState, useContext } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useContext(AuthContext);
-  const navigate = useNavigation()
+  const navigate = useNavigation();
 
-  const [nombre, setNombre] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [cedula, setCedula ] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [urlFoto, setUrlFoto] = useState('');
-  const [sexo, setSexo] = useState('M');
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [cedula, setCedula] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [urlFoto, setUrlFoto] = useState("");
+  const [sexo, setSexo] = useState("M");
   const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [mostrarFecha, setMostrarFecha] = useState(false);
 
   const handleRegister = async () => {
     if (!nombre || !correo || !password || !confirmPassword) {
-      return Alert.alert('Error', 'Todos los campos son obligatorios');
+      return Alert.alert("Error", "Todos los campos son obligatorios");
     }
 
     if (password !== confirmPassword) {
-      return Alert.alert('Error', 'Las contraseñas no coinciden');
+      return Alert.alert("Error", "Las contraseñas no coinciden");
     }
 
-    const formattedFecha = fechaNacimiento.toISOString().split('T')[0];
+    const formattedFecha = fechaNacimiento.toISOString().split("T")[0];
 
     try {
       const data = {
@@ -38,17 +46,21 @@ export default function RegisterScreen({ navigation }) {
         password,
         sexo,
         url_foto_perfil: urlFoto || null,
-        fecha_nacimiento: formattedFecha
+        fecha_nacimiento: formattedFecha,
       };
 
       const res = await register(data);
-      if(res){
-        navigate.navigate('login')
-        Alert.alert('Éxito', 'Registro exitoso');
+      if (res) {
+        Alert.alert("Éxito", "Registro exitoso");
+        navigate.navigate("Login");
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'No se pudo registrar. Revisa los datos e intenta nuevamente.');
+      console.error("[RegisterScreen] Error en registro:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "No se pudo registrar. Revisa los datos e intenta nuevamente.";
+      Alert.alert("Error en Registro", errorMessage);
     }
   };
 
@@ -132,7 +144,10 @@ export default function RegisterScreen({ navigation }) {
         <Button title="Registrarse" onPress={handleRegister} />
       </View>
 
-      <Text style={styles.loginText} onPress={() => navigation.navigate('Login')}>
+      <Text
+        style={styles.loginText}
+        onPress={() => navigation.navigate("Login")}
+      >
         ¿Ya tienes cuenta? Inicia sesión
       </Text>
     </ScrollView>
@@ -140,11 +155,38 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: '#fff', flexGrow: 1, justifyContent: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 24, textAlign: 'center', color: '#1D4ED8' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginBottom: 12 },
-  picker: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, marginBottom: 12 },
-  label: { fontWeight: '600', marginBottom: 4 },
+  container: {
+    padding: 16,
+    backgroundColor: "#fff",
+    flexGrow: 1,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 24,
+    textAlign: "center",
+    color: "#1D4ED8",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  label: { fontWeight: "600", marginBottom: 4 },
   button: { marginTop: 16 },
-  loginText: { marginTop: 20, textAlign: 'center', color: '#2563EB', textDecorationLine: 'underline' },
+  loginText: {
+    marginTop: 20,
+    textAlign: "center",
+    color: "#2563EB",
+    textDecorationLine: "underline",
+  },
 });

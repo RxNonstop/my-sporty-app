@@ -1,15 +1,15 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState } from "react";
 
 export const EventoContext = createContext();
 
 export const EventoProvider = ({ children }) => {
   const [eventos, setEventos] = useState({
-    '2025-06-15': {
+    "2025-06-15": {
       marked: true,
-      dotColor: 'red',
-      event: 'Fútbol',
-      location: 'Estadio Nacional',
-      description: 'Final de campeonato de fútbol universitario',
+      dotColor: "red",
+      event: "Fútbol",
+      location: "Estadio Nacional",
+      description: "Final de campeonato de fútbol universitario",
     },
   });
 
@@ -18,7 +18,7 @@ export const EventoProvider = ({ children }) => {
       ...prev,
       [fecha]: {
         marked: true,
-        dotColor: nuevoEvento.dotColor || 'blue',
+        dotColor: nuevoEvento.dotColor || "blue",
         ...nuevoEvento,
       },
     }));
