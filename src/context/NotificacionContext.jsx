@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { 
   getSolicitudesService,
   getInvitacionesService,
@@ -7,6 +7,7 @@ import {
   getInvitacionesCampeonatosService,
   responderInvitacionCampeonatoService
 } from '../services/notificacionService'
+import { AuthContext } from './AuthContext';
 
 export const NotificacionContext = createContext();
 
@@ -15,6 +16,19 @@ export const NotificacionProvider = ({ children }) => {
   const [invitaciones, setInvitaciones] = useState([]);
   const [invitacionesCampeonato, setInvitacionesCampeonato] = useState([]);
   const [isLoading, setIsLoading] = useState();
+  const { usuario } = useContext(AuthContext);
+  
+
+  useEffect(() => {
+    if (usuario) {
+      cargarSolicitudes();
+      cargarInvitaciones();
+    }
+    else{
+      setSolicitudes([]);
+      setInvitaciones([]);
+    }
+  }, [usuario]);
 
   const cargarSolicitudes = async () => {
     setIsLoading(true);
@@ -109,7 +123,7 @@ export const NotificacionProvider = ({ children }) => {
       value={{
         solicitudes,
         invitaciones,
-        invitacionesCampeonato,
+        isLoading,
         cargarSolicitudes,
         cargarInvitaciones,
         cargarInvitacionesCampeonatos,
