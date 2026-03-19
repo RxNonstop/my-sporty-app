@@ -147,7 +147,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
       ) : evento.equipo_inscrito_nombre ? (
         <View className="mx-4 mb-4 mt-1 py-3 bg-green dark:bg-green/20 border border-green dark:border-green/40 rounded-xl items-center flex-row justify-center gap-2">
           <Ionicons name="shield-checkmark-outline" size={16} color="#059669" />
-          <Text className="text-[#059669] dark:text-green font-bold text-sm">Inscrito con: {evento.equipo_inscrito_nombre}</Text>
+          <Text className="text-white dark:text-green font-bold text-sm">Inscrito con: {evento.equipo_inscrito_nombre}</Text>
         </View>
       ) : (evento.solicitud_pendiente_id || (evento.para_usuario_id === (evento.usuario_id || 0) && evento.tipo === 'solicitud_union')) ? ( // Simplified check, mainly relying on Backend field
         <View className="mx-4 mb-4 mt-1 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl items-center flex-row justify-center gap-2">
