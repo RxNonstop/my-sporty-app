@@ -43,6 +43,16 @@ export const createEquipoService = async (nombre,deporte) => {
   return res.data;
 };
 
+export const getEquiposAmigosParaCampeonatoService = async (campeonatoId) => {
+  const res = await axios.get(`${API_URL}/equipos/amigos/para-campeonato/${campeonatoId}`, await authHeader());
+  return res.data;
+};
+
+export const enviarInvitacionCampeonatoService = async (id_campeonato, id_usuario, equipo_id) => {
+  const res = await axios.post(`${API_URL}/invitaciones-campeonatos`, { id_campeonato, id_usuario, equipo_id }, await authHeader());
+  return res.data;
+};
+
 // export const encontrarUsuario = async(email) => {
 //   const res = await axios.post(`${API_URL}/usuarios/email`,{email}, await authHeader())
 //   return res.data;

@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/drawer";
 import { View, Text, SafeAreaView, ScrollView, Pressable } from "react-native";
 import StackNavigator from "./EventoStack";
-import HomeScreen from "../screens/HomeScreen";
+import HomeStack from "./HomeStack";
 import PerfilScreen from "../screens/PerfilScreen";
 import ConfiguracionScreen from "../screens/ConfiguracionScreen";
 import EventoStack from "./EventoStack"; // stack con pantalla oculta
@@ -25,11 +25,12 @@ import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import NotificacionesScreen from "../screens/NotificacionesScreen";
 import { CampeonatoContext } from "../context/CampeonatoContext";
+import { NotificacionContext } from "../context/NotificacionContext";
 
 const Drawer = createDrawerNavigator();
 
 const headerTitle = (title, description, actionable) => (
-  <View className="flex-row items-center justify-between ">
+  <View className="flex-row items-center justify-between w-full">
     <View className={`${actionable ? "w-3/4" : "w-full"}`}>
       <Text className="text-lg font-bold text-gray-900 dark:text-gray-100 ">
         {title}
@@ -38,7 +39,9 @@ const headerTitle = (title, description, actionable) => (
         {description}
       </Text>
     </View>
-    {actionable && actionable()}
+    <View className="w-1/4 contents">
+      {actionable && actionable()}
+    </View>
   </View>
 );
 
@@ -47,6 +50,7 @@ export default function DrawerNavigator() {
   const { isDarkMode } = useContext(ThemeContext);
   const navigation = useNavigation();
   const { loading, refreshCampeonatosPublicos } = useContext(CampeonatoContext);
+  const { loading: NotificacionesLoading, refreshNotificaciones } = useContext(NotificacionContext);
 
   function CustomDrawerContent(props) {
     const { logout } = useContext(AuthContext);
@@ -95,7 +99,7 @@ export default function DrawerNavigator() {
     >
       <Drawer.Screen
         name="Inicio"
-        component={HomeScreen}
+        component={HomeStack}
         screenOptions={{ headerShown: false }}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -106,15 +110,13 @@ export default function DrawerNavigator() {
               "Inicio",
               "Explora los campeonatos públicos disponibles",
               () => (
-                <View className="flex-row gap-3">
-                  <Pressable
-                    className={`p-3 flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
                     onPress={async () => await refreshCampeonatosPublicos()}
                     disabled={loading}
                   >
                     <Ionicons name="reload" size={25} color="#3b82f6" />
-                  </Pressable>
-                </View>
+                  </Pressable>             
               ),
             ),
         }}
@@ -145,7 +147,7 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Mis campeonatos"
+        name="Campeonatos"
         component={EventosStack}
         listeners={({ navigation }) => ({
           focus: () => {
@@ -163,7 +165,7 @@ export default function DrawerNavigator() {
             />
           ),
           headerTitle: () =>
-            headerTitle("Mis campeonatos", "Gestiona tus campeonatos creados"),
+            headerTitle("Campeonatos", "Gestiona y explora tus campeonatos"),
         }}
       />
       <Drawer.Screen
@@ -177,6 +179,15 @@ export default function DrawerNavigator() {
             headerTitle(
               "Calendario",
               "Visualiza tus eventos y fechas importantes",
+                   () => (
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                    onPress={async () => await refreshCampeonatosPublicos()}
+                    disabled={loading}
+                  >
+                    <Ionicons name="reload" size={25} color="#3b82f6" />
+                  </Pressable>             
+              ),
             ),
         }}
       />
@@ -226,7 +237,17 @@ export default function DrawerNavigator() {
             headerTitle(
               "Notificaciones",
               "Mantente al día con las novedades de tus campeonatos",
+                () => (
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                    onPress={async () => await refreshNotificaciones()}
+                    disabled={NotificacionesLoading}
+                  >
+                    <Ionicons name="reload" size={25} color="#3b82f6" />
+                  </Pressable>             
+              ),
             ),
+            
         }}
       />
       <Drawer.Screen

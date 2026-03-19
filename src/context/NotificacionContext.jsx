@@ -3,7 +3,9 @@ import {
   getSolicitudesService,
   getInvitacionesService,
   responderSolicitudService,
-  responderInvitacionService
+  responderInvitacionService,
+  getInvitacionesCampeonatosService,
+  responderInvitacionCampeonatoService
 } from '../services/notificacionService'
 import { AuthContext } from './AuthContext';
 
@@ -12,6 +14,7 @@ export const NotificacionContext = createContext();
 export const NotificacionProvider = ({ children }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [invitaciones, setInvitaciones] = useState([]);
+  const [invitacionesCampeonato, setInvitacionesCampeonato] = useState([]);
   const [isLoading, setIsLoading] = useState();
   const { usuario } = useContext(AuthContext);
   
@@ -51,6 +54,26 @@ export const NotificacionProvider = ({ children }) => {
     }
   };
 
+  const refreshNotificaciones = async () => {
+    setIsLoading(true)
+    await cargarSolicitudes();
+    await cargarInvitaciones();
+    await cargarInvitacionesCampeonatos();
+    setIsLoading(false)
+  }
+
+  const cargarInvitacionesCampeonatos = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getInvitacionesCampeonatosService();
+      setInvitacionesCampeonato(data);
+    } catch (err) {
+      console.error('Error al cargar invitaciones a campeonatos:', err);
+    }finally{
+      setIsLoading(false);
+    }
+  };
+
   const responderSolicitud = async (id, estado) =>{
     setIsLoading(true);
     try {
@@ -71,13 +94,19 @@ export const NotificacionProvider = ({ children }) => {
     setIsLoading(true);
     try {
       await responderInvitacionService(id, estado);
-      // if (data.status === 200) {
-      //   setNotificaciones((prev) =>
-      //     prev.map((c) => (c.id === id ? data.data : c))
-      //   );
-      // }
     } catch (err) {
       console.error('Error al responder la notificacion:', err);
+    }finally{
+      setIsLoading(false);
+    }
+  }
+
+  const responderInvitacionCampeonato = async (id, estado) =>{
+    setIsLoading(true);
+    try {
+      await responderInvitacionCampeonatoService(id, estado);
+    } catch (err) {
+      console.error('Error al responder la invitacion a campeonato:', err);
     }finally{
       setIsLoading(false);
     }
@@ -86,6 +115,7 @@ export const NotificacionProvider = ({ children }) => {
   useEffect(() => {
     cargarSolicitudes();
     cargarInvitaciones();
+    cargarInvitacionesCampeonatos();
   }, []);
 
   return (
@@ -96,8 +126,12 @@ export const NotificacionProvider = ({ children }) => {
         isLoading,
         cargarSolicitudes,
         cargarInvitaciones,
+        cargarInvitacionesCampeonatos,
         responderSolicitud,
         responderInvitacion,
+        responderInvitacionCampeonato,
+        refreshNotificaciones,
+        isLoading
       }}
     >
       {children}

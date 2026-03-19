@@ -20,11 +20,10 @@ export const EquipoProvider = ({ children }) => {
   const [selectedEquipo, setSelectedEquipo] = useState(null);
   const [isLoading, setIsLoading] = useState();
 
-    useEffect(() => async () => {
-        if(usuario){
-            await getEquipos();
-        }
-        else{
+    useEffect(() => {
+        if (usuario) {
+            getEquipos();
+        } else {
             setOtherTeams([]);
             setYourTeams([]);
         }
@@ -46,15 +45,11 @@ export const EquipoProvider = ({ children }) => {
         setIsLoading(true);
         try {
             const data = await getEquiposService();
-            data.data.map(equipo => {
-                if (equipo.propietario_id === usuario?.id) {
-                    setYourTeams(prev => [...prev, equipo]);
-                    console.log(yourTeams, " tu equipo")
-                } else {
-                    setOtherTeams(prev => [...prev, equipo]);
-                    console.log(otherTeams, " otro equipo")
-                }
-            });
+            const teams = data.data;
+            const your = teams.filter(e => e.propietario_id === usuario?.id);
+            const others = teams.filter(e => e.propietario_id !== usuario?.id);
+            setYourTeams(your);
+            setOtherTeams(others);
         } catch (err) {
             console.error('Error al cargar amigos:', err);
         }
