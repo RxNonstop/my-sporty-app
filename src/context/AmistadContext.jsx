@@ -1,9 +1,10 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import {
   getAmigos,
   encontrarUsuario,
   enviarSolicitud
 } from '../services/amistadService';
+import { AuthContext } from './AuthContext';
 
 export const AmistadContext = createContext();
 
@@ -11,11 +12,17 @@ export const AmistadProvider = ({ children }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [amigos, setAmigos] = useState([]);
   const [isLoading, setIsLoading] = useState();
+  const { usuario } = useContext(AuthContext);
+  
 
   
   useEffect(() => {
-    cargarAmigos();
-  }, []);
+    if (usuario) {
+      cargarAmigos();
+    }else{
+      setAmigos([]);
+    }
+  }, [usuario]);
 
   const cargarAmigos = async () => {
     setIsLoading(true);
