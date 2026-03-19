@@ -5,7 +5,7 @@ import API_URL from "../config/apiConfig";
 
 export const login = async (correo, password) => {
   const res = await axios.post(
-    `${API_URL}/login`,
+    `${API_URL}/auth/login`,
     { correo, password },
     {
       headers: {
@@ -23,7 +23,7 @@ export const login = async (correo, password) => {
 
 export const register = async (data) => {
   try {
-    const res = await axios.post(`${API_URL}/register`, data, {
+    const res = await axios.post(`${API_URL}/auth/register`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -51,7 +51,7 @@ export const logout = async () => {
 
 export const getUser = async () => {
   const token = await AsyncStorage.getItem("token");
-  const res = await axios.get(`${API_URL}/me`, {
+  const res = await axios.get(`${API_URL}/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",

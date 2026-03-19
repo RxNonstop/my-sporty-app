@@ -32,10 +32,17 @@ export default function CrearEventoScreen() {
   const [fechaFin, setFechaFin] = useState(new Date());
   const [mostrarInicio, setMostrarInicio] = useState(false);
   const [mostrarFin, setMostrarFin] = useState(false);
-
+   console.log(deporte)
   const handleContinuar = () => {
-    const formattedInicio = fechaInicio.toISOString().split("T")[0];
-    const formattedFin = fechaFin.toISOString().split("T")[0];
+    const formatDateLocal = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const formattedInicio = formatDateLocal(fechaInicio);
+    const formattedFin = formatDateLocal(fechaFin);
 
     console.log(formattedInicio)
 
@@ -43,19 +50,40 @@ export default function CrearEventoScreen() {
       return alert("Nombre, Lugar y Fecha de inicio son obligatorios");
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inicioDate = new Date(fechaInicio);
+    inicioDate.setHours(0, 0, 0, 0);
+    const finDate = new Date(fechaFin);
+    finDate.setHours(0, 0, 0, 0);
+
+    let estado = 'borrador';
+    if (tipoActividad === 'campeonato' && finDate.getTime() < today.getTime()) {
+      estado = 'finalizado';
+    } else if (inicioDate.getTime() > today.getTime()) {
+      estado = 'programado';
+    } else if (inicioDate.getTime() <= today.getTime()) {
+      estado = 'activo';
+    }
+ 
     const eventoData = {
       nombre: event,
       location,
       descripcion,
       dotColor:
-        deporte === "Fútbol"
+        deporte === "futbol"
           ? "green"
-          : deporte === "Béisbol"
-            ? "blue"
-            : "orange",
+          : deporte === "baloncesto"
+            ? "orange"
+            : deporte === "beisbol"
+              ? "blue"
+              : "purple",
       tipoActividad,
       deporte,
-      inscripciones_abiertas: privacidad === "privado" ? 1 : 0,
+      // Public championships always have inscriptions open by default;
+      // private ones start closed (invited only)
+      inscripciones_abiertas: privacidad === 'privado' ? 0 : 1,
+      estado,
       numero_jugadores: jugadores,
       numero_suplentes: suplentes,
       numero_equipos: numEquipos,
@@ -206,6 +234,7 @@ export default function CrearEventoScreen() {
               { label: "Fútbol", value: "futbol" },
               { label: "Baloncesto", value: "baloncesto" },
               { label: "Béisbol", value: "beisbol" },
+              { label: "Voleibol", value: "voleibol" },
             ].map((dep) => (
               <TouchableOpacity
                 key={dep.value}

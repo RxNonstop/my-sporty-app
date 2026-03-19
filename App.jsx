@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import "./global.css";
 import { NavigationContainer } from "@react-navigation/native";
 import DrawerNavigator from "./src/navigation/DrawerNavigator";
@@ -14,10 +15,10 @@ import { EquipoProvider } from "./src/context/EquipoContext";
 
 function AppContent() {
   const { usuario } = useContext(AuthContext);
-  return (
-    <NavigationContainer>
-      {usuario ? <DrawerNavigator /> : <AuthStack />}
-    </NavigationContainer>
+  return (     
+        <NavigationContainer>
+          {usuario ? <DrawerNavigator /> : <AuthStack />}
+        </NavigationContainer>
   );
 }
 

@@ -15,9 +15,14 @@ export default function CrearEquipoScreen() {
   const [seleccionados, setSeleccionados] = useState([]);
 
   const navigation = useNavigation();
-
-  const deportes = ['futbol', 'beisbol', 'voleibol'];
-
+console.log(amigos)
+  const deportes = [
+              { label: "Fútbol", value: "futbol" },
+              { label: "Baloncesto", value: "baloncesto" },
+              { label: "Béisbol", value: "beisbol" },
+              { label: "Voleibol", value: "voleibol" },
+            ];
+console.log(deporte)
   useEffect(() => {
     const fetchAmigos = async () => {
       try {
@@ -72,11 +77,11 @@ export default function CrearEquipoScreen() {
       <View style={styles.row}>
         {deportes.map((dep) => (
           <TouchableOpacity
-            key={dep}
-            style={[styles.option, deporte === dep && styles.selected]}
-            onPress={() => setDeporte(dep)}
+            key={dep.value}
+            style={[styles.option, deporte === dep.value && styles.selected]}
+            onPress={() => setDeporte(dep.value)}
           >
-            <Text>{dep}</Text>
+            <Text>{dep.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
