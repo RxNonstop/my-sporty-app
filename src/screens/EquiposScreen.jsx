@@ -1,6 +1,7 @@
 import { useEffect, useContext, useMemo } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator, SectionList
+  View, Text, FlatList, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator, SectionList,
+  ScrollView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -107,8 +108,8 @@ export default function EquiposScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
-      <View className="flex-1 px-4">
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+      <View style={{ flex: 1 }} className="px-4">
         {isLoading && yourTeams.length === 0 && otherTeams.length === 0 ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator color="#1D4ED8" size="large" />

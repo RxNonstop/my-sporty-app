@@ -55,7 +55,7 @@ export default function SeleccionarEquiposScreen({ route, navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Selecciona {numEquipos} equipos</Text>
       <ScrollView 
-        className="flex-1"
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
         {EQUIPOS_DISPONIBLES.map((item) => {

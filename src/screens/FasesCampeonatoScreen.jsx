@@ -216,8 +216,8 @@ const eliminarFase = async (idFase) => {
   const isCampeonato = campeonato?.tipo !== 'partido';
 
   return (
-    <SafeAreaView className="flex-1 bg-[#fafafa] dark:bg-neutral-900">
-      <View className="flex-1 px-5 pt-4 bg-[#fafafa] dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1 }} className="bg-[#fafafa] dark:bg-neutral-900">
+      <View style={{ flex: 1 }} className="px-5 pt-4 bg-[#fafafa] dark:bg-neutral-900">
         <View className="flex-row items-center mb-5">
           <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1 rounded-full dark:bg-neutral-800">
             <Ionicons name="arrow-back" size={24} color="#1a1a1a" className="dark:text-white" />

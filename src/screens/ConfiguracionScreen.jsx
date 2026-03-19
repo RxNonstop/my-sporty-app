@@ -30,8 +30,8 @@ export default function ConfiguracionScreen() {
   const { isDarkMode, toggleTema } = useContext(ThemeContext);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
-      <ScrollView className="flex-1 px-4 pt-6">
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+      <ScrollView style={{ flex: 1 }} className="px-4 pt-6">
        
 
         <View className="my-6">

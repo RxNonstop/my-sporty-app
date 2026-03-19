@@ -79,21 +79,13 @@ export default function FriendsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
-      <View className="flex-1 px-5">
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+      <View style={{ flex: 1 }} className="px-5">
         
-        {/* Header */}
-        <View className="mt-6 mb-8">
-          <Text className="text-3xl font-extrabold text-blue-700 dark:text-blue-400">
-            Amigos
-          </Text>
-          <Text className="text-sm text-gray-500 dark:text-neutral-400 mt-1">
-            Conecta y compite con tu círculo
-          </Text>
-        </View>
+      
 
         {/* Search Bar */}
-        <View className="mb-6">
+        <View className="my-6">
           <View className="flex-row items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 py-1 border border-gray-100 dark:border-neutral-700 shadow-sm">
             <Ionicons name="search" size={20} color="#9CA3AF" />
             <TextInput
