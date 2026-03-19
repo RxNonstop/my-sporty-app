@@ -30,7 +30,7 @@ export default function ConfiguracionScreen() {
   const { isDarkMode, toggleTema } = useContext(ThemeContext);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <ScrollView style={{ flex: 1 }} className="px-4 pt-6">
        
 
@@ -64,8 +64,8 @@ export default function ConfiguracionScreen() {
                 <Ionicons name="log-out-outline" size={22} color="#DC2626" />
               </View>
               <View className="flex-1">
-                <Text className="text-base font-semibold text-red-600 dark:text-red-400">Cerrar Sesión</Text>
-                <Text className="text-xs text-red-400/80">Salir de tu cuenta actual</Text>
+                <Text className="text-base font-semibold text-red-600 dark:text-white">Cerrar Sesión</Text>
+                <Text className="text-xs text-red-400/80 dark:text-white">Salir de tu cuenta actual</Text>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#DC2626" />

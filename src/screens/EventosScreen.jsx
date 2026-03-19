@@ -99,7 +99,7 @@ const EventosScreen = () => {
   const hasActiveFilter = filterStatus !== 'todos' || filterDate !== 'desc';
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-[#fafafa] dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
 
       {/* TABS — same style as FixtureFaseScreen */}
       <View className="mx-5 mt-4 mb-2">

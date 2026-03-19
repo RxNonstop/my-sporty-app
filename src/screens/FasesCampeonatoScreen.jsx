@@ -16,6 +16,7 @@ import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
 import { getEquiposAmigosParaCampeonatoService, enviarInvitacionCampeonatoService } from '../services/equipoService';
 import { getFasesService, crearFaseService, eliminarFaseService, getEquiposInscritosService, getPosicionesFaseService, getEventoById } from '../services/eventoService';
+import { ThemeContext } from '../context/ThemeContext';
 
 const FasesCampeonatoScreen = ({ route }) => {
 const { campeonato, readOnly } = route.params || {};
@@ -36,6 +37,9 @@ const [equiposInscritos, setEquiposInscritos] = useState([]);
 const [modalAmigosVisible, setModalAmigosVisible] = useState(false);
 const [equiposAmigos, setEquiposAmigos] = useState([]);
 const [loadingAmigos, setLoadingAmigos] = useState(false);
+
+const { isDarkMode } = useContext(ThemeContext);
+
 useEffect(() => {
   cargarDatosIniciales();
 }, [campeonato]);
@@ -209,18 +213,18 @@ const eliminarFase = async (idFase) => {
 
   const renderBadge = (text, color) => (
     <View style={{ backgroundColor: color + '15' }} className="px-2 py-1 rounded mr-2 mb-2 dark:bg-opacity-20">
-      <Text style={{ color }} className="text-xs font-semibold dark:opacity-90">{text}</Text>
+      <Text style={{ color }} className="text-xs font-semibold dark:opacity-90 capitalize">{text}</Text>
     </View>
   );
 
   const isCampeonato = campeonato?.tipo !== 'partido';
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-[#fafafa] dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <View style={{ flex: 1 }} className="px-5 pt-4 bg-[#fafafa] dark:bg-neutral-900">
         <View className="flex-row items-center mb-5">
           <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1 rounded-full dark:bg-neutral-800">
-            <Ionicons name="arrow-back" size={24} color="#1a1a1a" className="dark:text-white" />
+            <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#000"} className="dark:text-white" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-[#1a1a1a] dark:text-white flex-1" numberOfLines={1}>
             {campeonatoActual?.nombre || "Sin nombre"}

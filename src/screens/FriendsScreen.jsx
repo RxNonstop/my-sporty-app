@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { AmistadContext } from '../context/AmistadContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const FriendCard = ({ item }) => (
   <View className="flex-row items-center p-4 bg-white dark:bg-neutral-800 rounded-2xl mb-3 border border-gray-100 dark:border-neutral-700 shadow-sm">
@@ -52,7 +53,8 @@ export default function FriendsScreen() {
   const [usuarioEncontrado, setUsuarioEncontrado] = useState();
   const [correoNuevo, setCorreoNuevo] = useState('');
   const [buscando, setBuscando] = useState(false);
-
+  const { isDarkMode } = useContext(ThemeContext);
+  
   useEffect(() => {
     cargarAmigos();
   }, [cargarAmigos]);
@@ -79,7 +81,7 @@ export default function FriendsScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1 , backgroundColor: isDarkMode ? "#171717" : "#f9fafb"}} >
       <View style={{ flex: 1 }} className="px-5">
         
       

@@ -100,7 +100,7 @@ export default function CalendarioScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-[#fafafa] dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <ScrollView style={{ flex: 1 }} className="pt-4 px-5" showsVerticalScrollIndicator={false}>
    
 

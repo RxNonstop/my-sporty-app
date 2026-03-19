@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { EquipoContext } from '../context/EquipoContext';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const SPORT_ICONS = {
   futbol: "sports-soccer",
@@ -74,6 +75,7 @@ export default function EquiposScreen() {
   const { yourTeams, otherTeams, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
   const { usuario } = useContext(AuthContext);
   const navigation = useNavigation();
+  const { isDarkMode } = useContext(ThemeContext);
 
   const confirmarEliminar = (id) => {
     Alert.alert(
@@ -108,7 +110,7 @@ export default function EquiposScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
       <View style={{ flex: 1 }} className="px-4">
         {isLoading && yourTeams.length === 0 && otherTeams.length === 0 ? (
           <View className="flex-1 items-center justify-center">

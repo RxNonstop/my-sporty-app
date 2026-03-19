@@ -9,7 +9,7 @@ import { NotificacionProvider } from "./src/context/NotificacionContext";
 import { CampeonatoProvider } from "./src/context/CampeonatoContext";
 import AuthStack from "./src/navigation/AuthStack";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
-import { ThemeProvider } from "./src/context/ThemeContext";
+import { ThemeContext, ThemeProvider } from "./src/context/ThemeContext";
 import { useContext } from "react";
 import { View } from "react-native";
 import { EquipoProvider } from "./src/context/EquipoContext";
@@ -17,8 +17,10 @@ import { EquipoProvider } from "./src/context/EquipoContext";
 
 function AppContent() {
   const { usuario } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
+
   return (
-    <View style={{ flex: 1 }}>
+    <View className={`flex-1 ${isDarkMode ? "dark bg-neutral-900" : "bg-gray-50"}`}>
       <NavigationContainer>
         {usuario ? <DrawerNavigator /> : <AuthStack />}
       </NavigationContainer>

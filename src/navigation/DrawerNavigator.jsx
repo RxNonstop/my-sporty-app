@@ -62,7 +62,7 @@ export default function DrawerNavigator() {
         contentContainerStyle={{ flex: 1 }}
         scrollEnabled={false}
       >
-        <View className="flex-1 bg-white dark:bg-gray-900 ">
+        <View className={`flex-1 bg-white dark:bg-[#171717]`}>
           <DrawerItemList {...props} />
         </View>
 
@@ -86,10 +86,10 @@ export default function DrawerNavigator() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerStyle: {
-          backgroundColor: isDarkMode ? "#111827" : "#ffffff",
+         backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
         },
         headerStyle: {
-          backgroundColor: isDarkMode ? "#111827" : "#ffffff",
+          backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
           height: 120,
         },
         headerTintColor: isDarkMode ? "#ffffff" : "#111827",

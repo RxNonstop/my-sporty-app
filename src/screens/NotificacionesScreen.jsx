@@ -13,6 +13,7 @@ import { AuthContext } from '../context/AuthContext';
 import { NotificacionContext } from '../context/NotificacionContext';
 import { AmistadContext } from '../context/AmistadContext';
 import { getSolicitudesUnionCampeonatoService } from '../services/notificacionService';
+import { ThemeContext } from '../context/ThemeContext';
 
 // ─── Helper: Section Header ────────────────────────────────────────────
 const SectionHeader = ({ icon, title, count }) => (
@@ -83,7 +84,7 @@ export default function NotificacionesScreen() {
     responderSolicitud, responderInvitacion, responderInvitacionCampeonato,
   } = useContext(NotificacionContext);
   const { cargarAmigos } = useContext(AmistadContext);
-
+  const { isDarkMode } = useContext(ThemeContext);
   const [solicitudesUnion, setSolicitudesUnion] = useState([]);
   const [loadingUnion, setLoadingUnion] = useState(false);
 
@@ -113,14 +114,14 @@ export default function NotificacionesScreen() {
 
   if (isLoading && !solicitudes?.length && !invitaciones?.length) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900 items-center justify-center">
+      <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
         <ActivityIndicator size="large" color="#1D4ED8" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
       <ScrollView style={{ flex: 1 }} className="px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
    
 

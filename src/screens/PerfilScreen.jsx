@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { View, Text, SafeAreaView, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const StatItem = ({ icon, label, value, color }) => (
   <View className="flex-1 items-center bg-white dark:bg-neutral-800 p-4 rounded-3xl border border-gray-100 dark:border-neutral-700 shadow-sm">
@@ -27,9 +28,10 @@ const InfoRow = ({ icon, label, value }) => (
 
 export default function PerfilScreen() {
   const { usuario } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
       <ScrollView style={{ flex: 1 }} className="px-4" showsVerticalScrollIndicator={false}>
         {/* Header / Banner area */}
         <View className="items-center mt-8 mb-6">

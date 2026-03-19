@@ -12,12 +12,13 @@ import { EventoContext } from "../context/EventoContext";
 import { CampeonatoContext } from "../context/CampeonatoContext";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function CrearEventoScreen() {
   const { agregarEvento } = useContext(EventoContext);
   const { agregarCampeonato } = useContext(CampeonatoContext);
   const navigation = useNavigation();
-
+  const { isDarkMode } = useContext(ThemeContext);
   const [event, setEvent] = useState("");
   const [location, setLocation] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -121,7 +122,7 @@ export default function CrearEventoScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-gray-950">
+    <ScrollView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <View className="bg-terniary dark:bg-blue-900 ">
         <Text className="text-1xl font-bold text-white  p-2 text-center">
           Crear {tipoActividad === "campeonato" ? "Campeonato" : "Evento"}
@@ -327,7 +328,7 @@ export default function CrearEventoScreen() {
                   borderRadius: '8px',
                   border: '1px solid #d1d5db',
                   backgroundColor: 'transparent',
-                  color: 'var(--tw-text-opacity, inherit)'
+                  color: isDarkMode ? "#fff" : "#000",
                 }}
                 value={fechaInicio.toISOString().split("T")[0]}
                 onChange={(e) => {
