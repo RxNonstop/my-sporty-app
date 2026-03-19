@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   getAmigos,
   encontrarUsuario,
@@ -8,65 +8,60 @@ import {
 export const AmistadContext = createContext();
 
 export const AmistadProvider = ({ children }) => {
-  const [solicitudes, setSolicitudes] = useState([]);
   const [amigos, setAmigos] = useState([]);
-  const [isLoading, setIsLoading] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
-  
-  useEffect(() => {
-    cargarAmigos();
-  }, []);
-
-  const cargarAmigos = async () => {
+  const cargarAmigos = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await getAmigos();
       setAmigos(data);
     } catch (err) {
       console.error('Error al cargar amigos:', err);
-    }
-    finally{
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const encontrarUsuarioPorCorreo = async(correo) =>{
+  useEffect(() => {
+    cargarAmigos();
+  }, [cargarAmigos]);
+
+  const encontrarUsuarioPorCorreo = useCallback(async (correo) => {
     setIsLoading(true);
     try {
       const data = await encontrarUsuario(correo);
-      if(data.status == 200){
-        return data.data
+      if (data.status === 200) {
+        return data.data;
       }
     } catch (err) {
       console.error('Error al cargar usuario:', err);
-    }
-    finally{
+    } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
-  const enviarSolicitudPorId = async(id) =>{
+  const enviarSolicitudPorId = useCallback(async (id) => {
     setIsLoading(true);
     try {
       await enviarSolicitud(id);
     } catch (err) {
       console.error('Error al enviar la solicitud:', err);
-    }
-    finally{
+    } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  const value = useMemo(() => ({
+    amigos,
+    isLoading,
+    cargarAmigos,
+    encontrarUsuarioPorCorreo,
+    enviarSolicitudPorId
+  }), [amigos, isLoading, cargarAmigos, encontrarUsuarioPorCorreo, enviarSolicitudPorId]);
 
   return (
-    <AmistadContext.Provider
-      value={{
-        amigos,
-        isLoading,
-        cargarAmigos,
-        encontrarUsuarioPorCorreo,
-        enviarSolicitudPorId
-      }}
-    >
+    <AmistadContext.Provider value={value}>
       {children}
     </AmistadContext.Provider>
   );

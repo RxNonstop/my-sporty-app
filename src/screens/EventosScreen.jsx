@@ -99,7 +99,7 @@ const EventosScreen = () => {
   const hasActiveFilter = filterStatus !== 'todos' || filterDate !== 'desc';
 
   return (
-    <SafeAreaView className="flex-1 bg-[#fafafa] dark:bg-neutral-900">
+    <SafeAreaView style={{ flex: 1 }} className="bg-[#fafafa] dark:bg-neutral-900">
 
       {/* TABS — same style as FixtureFaseScreen */}
       <View className="mx-5 mt-4 mb-2">
@@ -140,7 +140,7 @@ const EventosScreen = () => {
       </View>
 
       {/* LIST */}
-      <View className="flex-1">
+      <View style={{ flex: 1 }}>
         {loading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#4f46e5" />

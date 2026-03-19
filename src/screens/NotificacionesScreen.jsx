@@ -120,8 +120,8 @@ export default function NotificacionesScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
-      <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+      <ScrollView style={{ flex: 1 }} className="px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
    
 
         {totalPending === 0 && !isLoading && !loadingUnion && (

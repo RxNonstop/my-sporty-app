@@ -88,7 +88,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-gray-900">
 
  
       <View className="px-5 pt-4 pb-2">

@@ -29,8 +29,8 @@ export default function PerfilScreen() {
   const { usuario } = useContext(AuthContext);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-neutral-900">
+      <ScrollView style={{ flex: 1 }} className="px-4" showsVerticalScrollIndicator={false}>
         {/* Header / Banner area */}
         <View className="items-center mt-8 mb-6">
           <View className="relative">

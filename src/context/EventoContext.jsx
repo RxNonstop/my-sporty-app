@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useCallback, useMemo } from "react";
 
 export const EventoContext = createContext();
 
@@ -13,7 +13,7 @@ export const EventoProvider = ({ children }) => {
     },
   });
 
-  const agregarEvento = (fecha, nuevoEvento) => {
+  const agregarEvento = useCallback((fecha, nuevoEvento) => {
     setEventos((prev) => ({
       ...prev,
       [fecha]: {
@@ -22,10 +22,15 @@ export const EventoProvider = ({ children }) => {
         ...nuevoEvento,
       },
     }));
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    eventos,
+    agregarEvento
+  }), [eventos, agregarEvento]);
 
   return (
-    <EventoContext.Provider value={{ eventos, agregarEvento }}>
+    <EventoContext.Provider value={value}>
       {children}
     </EventoContext.Provider>
   );
