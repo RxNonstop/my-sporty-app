@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
-
-View,
-Text,
-TextInput,
-Button,
-FlatList,
-StyleSheet,
-TouchableOpacity,
-Modal,
-SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  Button,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -228,147 +227,146 @@ const eliminarFase = async (idFase) => {
           </Text>
         </View>
 
-        <FlatList
-          data={fases}
-          keyExtractor={(_, idx) => idx.toString()}
+        <ScrollView
+          className="flex-1"
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={
-            <>
-              <View className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 p-4 mb-6">
-                {campeonatoActual?.descripcion ? (
-                  <Text className="text-sm text-[#6a6a6a] dark:text-neutral-400 mb-4 leading-5">{campeonatoActual.descripcion}</Text>
-                ) : null}
-                
-                <View className="flex-row flex-wrap mb-4">
-                  {renderBadge(campeonatoActual?.estado || "borrador", campeonatoActual?.estado === 'activo' || campeonatoActual?.estado === 'publicado' ? '#28a745' : campeonatoActual?.estado === 'finalizado' ? '#8a2be2' : '#6c757d')}
-                  {renderBadge(campeonatoActual?.privacidad || "público", '#007bff')}
-                  {campeonatoActual?.inscripciones_abiertas === '1' && renderBadge('Inscripciones abiertas', '#28a745')}
-                </View>
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          {/* Header content from original ListHeaderComponent */}
+          <View className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 p-4 mb-6">
+            {campeonatoActual?.descripcion ? (
+              <Text className="text-sm text-[#6a6a6a] dark:text-neutral-400 mb-4 leading-5">{campeonatoActual.descripcion}</Text>
+            ) : null}
+            
+            <View className="flex-row flex-wrap mb-4">
+              {renderBadge(campeonatoActual?.estado || "borrador", campeonatoActual?.estado === 'activo' || campeonatoActual?.estado === 'publicado' ? '#28a745' : campeonatoActual?.estado === 'finalizado' ? '#8a2be2' : '#6c757d')}
+              {renderBadge(campeonatoActual?.privacidad || "público", '#007bff')}
+              {campeonatoActual?.inscripciones_abiertas === '1' && renderBadge('Inscripciones abiertas', '#28a745')}
+            </View>
 
-                <View className="flex-row flex-wrap justify-between">
-                  <View className="w-[48%] mb-3">
-                     <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">ID</Text>
-                     <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.id || "-"}</Text>
-                  </View>
-                  <View className="w-[48%] mb-3">
-                     <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Deporte</Text>
-                     <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200 capitalize">{campeonatoActual?.deporte || "-"}</Text>
-                  </View>
-                  <View className="w-[48%] mb-3">
-                     <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Jugadores</Text>
-                     <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.numero_jugadores || "0"} / {campeonatoActual?.numero_suplentes || "0"} sup</Text>
-                  </View>
-                  <View className="w-[48%] mb-3">
-                     <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Inicia</Text>
-                     <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.fecha_inicio || "-"}</Text>
-                  </View>
-                  
-                  {isCampeonato && (
-                    <>
-                      <View className="w-[48%] mb-3">
-                        <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Termina</Text>
-                        <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.fecha_fin || "-"}</Text>
-                      </View>
-                      <View className="w-[48%] mb-3">
-                        <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Equipos</Text>
-                        <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.numero_equipos || "0"}</Text>
-                      </View>
-                    </>
-                  )}
-                  {campeonatoActual?.telefono_contacto ? (
-                    <View className="w-[48%] mb-3">
-                      <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Contacto</Text>
-                      <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.telefono_contacto}</Text>
-                    </View>
-                  ) : null}
-                </View>
-                
-                {isCampeonato && isOwner && (
-                  <TouchableOpacity
-                    className={`py-3 rounded-lg flex-row items-center justify-center mt-2 mb-2 ${equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'bg-gray-400 dark:bg-gray-600' : 'bg-indigo-600 dark:bg-indigo-500'}`}
-                    onPress={abrirModalAmigos}
-                    disabled={equiposInscritos.length >= (campeonato?.numero_equipos || 0)}
-                  >
-                     <Ionicons name="people-outline" size={18} color="#fff" className="mr-2" />
-                     <Text className="text-white font-semibold text-sm ml-2">
-                        {equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'Cupos Llenos' : 'Invitar Equipos de Amigos'}
-                     </Text>
-                  </TouchableOpacity>
-                )}
+            <View className="flex-row flex-wrap justify-between">
+              <View className="w-[48%] mb-3">
+                 <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">ID</Text>
+                 <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.id || "-"}</Text>
               </View>
-
-              <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-4">Equipos Inscritos ({equiposInscritos.length})</Text>
-              {equiposInscritos.length > 0 ? (
-                <View className="mb-4">
-                  {equiposInscritos.map((equipo) => (
-                    <View key={equipo.id} className="flex-row items-center p-3 bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-2">
-                       <View className="flex-1">
-                          <Text className="text-[14px] font-semibold text-[#1a1a1a] dark:text-white">{equipo.equipo_nombre}</Text>
-                       </View>
-                       <Ionicons name="checkmark-circle" size={20} color="#28a745" />
-                    </View>
-                  ))}
-                </View>
-              ) : (
-                <View className="p-4 items-center bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 border-dashed mb-4">
-                  <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">Ningún equipo se ha inscrito todavía.</Text>
-                </View>
+              <View className="w-[48%] mb-3">
+                 <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Deporte</Text>
+                 <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200 capitalize">{campeonatoActual?.deporte || "-"}</Text>
+              </View>
+              <View className="w-[48%] mb-3">
+                 <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Jugadores</Text>
+                 <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.numero_jugadores || "0"} / {campeonatoActual?.numero_suplentes || "0"} sup</Text>
+              </View>
+              <View className="w-[48%] mb-3">
+                 <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Inicia</Text>
+                 <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.fecha_inicio || "-"}</Text>
+              </View>
+              
+              {isCampeonato && (
+                <>
+                  <View className="w-[48%] mb-3">
+                    <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Termina</Text>
+                    <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.fecha_fin || "-"}</Text>
+                  </View>
+                  <View className="w-[48%] mb-3">
+                    <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Equipos</Text>
+                    <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.numero_equipos || "0"}</Text>
+                  </View>
+                </>
               )}
-
-              <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-2">Fases del campeonato</Text>
-            </>
-          }
-          renderItem={({ item, index }) => (
-            <View className="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-1 pr-3">
-                  <Text className="text-[15px] font-semibold text-[#1a1a1a] dark:text-neutral-200 mb-1">{index + 1}. {item.nombre}</Text>
-                  <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
-                    Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
-                    {item.metodo === "grupos" && ` (Grupos de ${item.tamanoGrupo})`}
-                  </Text>
-                  <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
-                    Equipos: {item.metodo === 'liga' ? `${equiposInscritos.length} → 1` : `${item.equiposIniciales} → ${item.equiposRestantes}`}
-                  </Text>
+              {campeonatoActual?.telefono_contacto ? (
+                <View className="w-[48%] mb-3">
+                  <Text className="text-[11px] text-[#8a8a8a] dark:text-neutral-500 mb-1 uppercase tracking-wider">Contacto</Text>
+                  <Text className="text-[13px] font-medium text-[#1a1a1a] dark:text-neutral-200">{campeonatoActual?.telefono_contacto}</Text>
                 </View>
+              ) : null}
+            </View>
+            
+            {isCampeonato && isOwner && (
+              <TouchableOpacity
+                className={`py-3 rounded-lg flex-row items-center justify-center mt-2 mb-2 ${equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'bg-gray-400 dark:bg-gray-600' : 'bg-indigo-600 dark:bg-indigo-500'}`}
+                onPress={abrirModalAmigos}
+                disabled={equiposInscritos.length >= (campeonato?.numero_equipos || 0)}
+              >
+                 <Ionicons name="people-outline" size={18} color="#fff" className="mr-2" />
+                 <Text className="text-white font-semibold text-sm ml-2">
+                    {equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'Cupos Llenos' : 'Invitar Equipos de Amigos'}
+                 </Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
-                {/* Buttons right */}
-                <View className="flex-row items-center space-x-2">
-                  <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-lg relative overflow-hidden">
-                    <Ionicons name="calendar-outline" size={20} className="text-indigo-600 dark:text-indigo-400" color="#4f46e5" />
-                  </TouchableOpacity>
-                  {isOwner && (
-                    <TouchableOpacity onPress={() => eliminarFase(item.id)} className="bg-red-50 dark:bg-red-900/40 p-2 rounded-lg">
-                      <Ionicons name="trash-outline" size={20} color="#ff4d4f" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-
-              {/* Leader badge */}
-              {posicionesLiga[item.id] && (
-                <View className="mt-4 p-2.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800/30 shadow-sm">
-                   <Text className="text-[11px] text-yellow-700 dark:text-yellow-500 font-bold uppercase mb-1 tracking-wider">
-                      {campeonatoActual?.estado === 'finalizado' ? '🏆 Campeón' : '⭐ Líder Actual de Liga'}
-                   </Text>
-                   <View className="flex-row justify-between items-center">
-                      <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white truncate flex-1" numberOfLines={1}>{posicionesLiga[item.id].nombre}</Text>
-                      <View className="flex-row items-center border-l pl-2 border-yellow-200 dark:border-yellow-800 ml-2">
-                         <Text className="text-xs font-bold text-gray-500 dark:text-gray-400 mr-2 uppercase tracking-wide">DG: {posicionesLiga[item.id].dg > 0 ? '+'+posicionesLiga[item.id].dg : posicionesLiga[item.id].dg}</Text>
-                         <Text className="text-[15px] font-black text-indigo-600 dark:text-indigo-400">{posicionesLiga[item.id].pts} PTS</Text>
-                      </View>
+          <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-4">Equipos Inscritos ({equiposInscritos.length})</Text>
+          {equiposInscritos.length > 0 ? (
+            <View className="mb-4">
+              {equiposInscritos.map((equipo) => (
+                <View key={equipo.id} className="flex-row items-center p-3 bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-2">
+                   <View className="flex-1">
+                      <Text className="text-[14px] font-semibold text-[#1a1a1a] dark:text-white">{equipo.equipo_nombre}</Text>
                    </View>
+                   <Ionicons name="checkmark-circle" size={20} color="#28a745" />
                 </View>
-              )}
+              ))}
+            </View>
+          ) : (
+            <View className="p-4 items-center bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 border-dashed mb-4">
+              <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">Ningún equipo se ha inscrito todavía.</Text>
             </View>
           )}
-          ListEmptyComponent={
+
+          <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-2">Fases del campeonato</Text>
+          
+          {fases.length === 0 ? (
             <View className="p-6 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
               <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">No hay fases agregadas aún.</Text>
             </View>
-          }
-          contentContainerStyle={{ paddingBottom: 100 }}
-        />
+          ) : (
+            fases.map((item, index) => (
+              <View key={index} className="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text className="text-[15px] font-semibold text-[#1a1a1a] dark:text-neutral-200 mb-1">{index + 1}. {item.nombre}</Text>
+                    <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
+                      Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
+                      {item.metodo === "grupos" && ` (Grupos de ${item.tamanoGrupo})`}
+                    </Text>
+                    <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
+                      Equipos: {item.metodo === 'liga' ? `${equiposInscritos.length} → 1` : `${item.equiposIniciales} → ${item.equiposRestantes}`}
+                    </Text>
+                  </View>
+
+                  {/* Buttons right */}
+                  <View className="flex-row items-center space-x-2">
+                    <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-lg relative overflow-hidden">
+                      <Ionicons name="calendar-outline" size={20} className="text-indigo-600 dark:text-indigo-400" color="#4f46e5" />
+                    </TouchableOpacity>
+                    {isOwner && (
+                      <TouchableOpacity onPress={() => eliminarFase(item.id)} className="bg-red-50 dark:bg-red-900/40 p-2 rounded-lg">
+                        <Ionicons name="trash-outline" size={20} color="#ff4d4f" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+
+                {/* Leader badge */}
+                {posicionesLiga[item.id] && (
+                  <View className="mt-4 p-2.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800/30 shadow-sm">
+                     <Text className="text-[11px] text-yellow-700 dark:text-yellow-500 font-bold uppercase mb-1 tracking-wider">
+                        {campeonatoActual?.estado === 'finalizado' ? '🏆 Campeón' : '⭐ Líder Actual de Liga'}
+                     </Text>
+                     <View className="flex-row justify-between items-center">
+                        <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white truncate flex-1" numberOfLines={1}>{posicionesLiga[item.id].nombre}</Text>
+                        <View className="flex-row items-center border-l pl-2 border-yellow-200 dark:border-yellow-800 ml-2">
+                           <Text className="text-xs font-bold text-gray-400 dark:text-gray-400 mr-2 uppercase tracking-wide">DG: {posicionesLiga[item.id].dg > 0 ? '+'+posicionesLiga[item.id].dg : posicionesLiga[item.id].dg}</Text>
+                           <Text className="text-[15px] font-black text-indigo-600 dark:text-indigo-400">{posicionesLiga[item.id].pts} PTS</Text>
+                        </View>
+                     </View>
+                  </View>
+                )}
+              </View>
+            ))
+          )}
+        </ScrollView>
 
         <Modal
           visible={modalVisible}
@@ -483,12 +481,12 @@ const eliminarFase = async (idFase) => {
                   <Text className="text-gray-500">No se encontraron equipos para invitar.</Text>
                 </View>
               ) : (
-                <FlatList
-                  data={equiposAmigos}
-                  keyExtractor={item => item.id.toString()}
+                <ScrollView
+                  className="flex-1"
                   showsVerticalScrollIndicator={false}
-                  renderItem={({ item }) => (
-                    <View className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-3">
+                >
+                  {equiposAmigos.map((item) => (
+                    <View key={item.id} className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-3">
                       <View className="flex-1">
                         <Text className="font-semibold text-[15px] dark:text-white">{item.nombre}</Text>
                         <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
@@ -500,8 +498,8 @@ const eliminarFase = async (idFase) => {
                         <Text className="text-white text-xs font-semibold">Invitar</Text>
                       </TouchableOpacity>
                     </View>
-                  )}
-                />
+                  ))}
+                </ScrollView>
               )}
             </View>
           </View>

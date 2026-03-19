@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Modal,
+  ScrollView,
   RefreshControl,
   SafeAreaView,
   Text,
@@ -146,9 +146,8 @@ const EventosScreen = () => {
             <ActivityIndicator size="large" color="#4f46e5" />
           </View>
         ) : (
-          <FlatList
-            data={filteredList}
-            keyExtractor={(item) => item.id.toString()}
+          <ScrollView
+            className="flex-1"
             contentContainerStyle={{ paddingBottom: 100 }}
             refreshControl={
               <RefreshControl
@@ -158,16 +157,8 @@ const EventosScreen = () => {
                 tintColor={isDarkMode ? '#ffffff' : '#4f46e5'}
               />
             }
-            renderItem={({ item }) => (
-              <EventCard
-                evento={item}
-                onPress={() => navigation.navigate('FasesCampeonatoScreen', {
-                  campeonato: item,
-                  readOnly: item.propietario_id != usuario?.id,
-                })}
-              />
-            )}
-            ListEmptyComponent={
+          >
+            {filteredList.length === 0 ? (
               <View className="mx-5 mt-4 p-8 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
                 <Ionicons name="trophy-outline" size={40} color={isDarkMode ? '#555' : '#ccc'} />
                 <Text className="text-center text-[#8a8a8a] dark:text-neutral-500 font-medium mt-3 mb-1">
@@ -179,8 +170,19 @@ const EventosScreen = () => {
                   </Text>
                 )}
               </View>
-            }
-          />
+            ) : (
+              filteredList.map((item) => (
+                <EventCard
+                  key={item.id}
+                  evento={item}
+                  onPress={() => navigation.navigate('FasesCampeonatoScreen', {
+                    campeonato: item,
+                    readOnly: item.propietario_id != usuario?.id,
+                  })}
+                />
+              ))
+            )}
+          </ScrollView>
         )}
       </View>
 

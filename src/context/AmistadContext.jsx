@@ -12,6 +12,11 @@ export const AmistadProvider = ({ children }) => {
   const [amigos, setAmigos] = useState([]);
   const [isLoading, setIsLoading] = useState();
 
+  
+  useEffect(() => {
+    cargarAmigos();
+  }, []);
+
   const cargarAmigos = async () => {
     setIsLoading(true);
     try {
@@ -51,10 +56,6 @@ export const AmistadProvider = ({ children }) => {
       setIsLoading(false);
     }
   }
-
-  useEffect(() => {
-    cargarAmigos();
-  }, []);
 
   return (
     <AmistadContext.Provider

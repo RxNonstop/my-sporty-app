@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { AmistadContext } from '../context/AmistadContext';
 
@@ -136,12 +136,12 @@ export default function FriendsScreen() {
             </View>
           </View>
 
-          <FlatList
-            data={amigos}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <FriendCard item={item} />}
+          <ScrollView 
+            className="flex-1"
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
+            contentContainerStyle={{ paddingBottom: 100 }}
+          >
+            {amigos.length === 0 ? (
               <View className="py-20 items-center">
                 <View className="w-20 h-20 rounded-full bg-gray-100 dark:bg-neutral-800 items-center justify-center mb-4">
                    <Ionicons name="people-outline" size={32} color="#D1D5DB" />
@@ -150,8 +150,12 @@ export default function FriendsScreen() {
                   Aún no tienes amigos en tu círculo. ¡Busca a alguien por su correo!
                 </Text>
               </View>
-            }
-          />
+            ) : (
+              amigos.map((item) => (
+                <FriendCard key={item.id} item={item} />
+              ))
+            )}
+          </ScrollView>
         </View>
       </View>
     </SafeAreaView>

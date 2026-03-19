@@ -70,19 +70,9 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete }) => {
 };
 
 export default function EquiposScreen() {
-  const { equipos, getEquipos, deleteEquipo, loading } = useContext(EquipoContext);
+  const { yourTeams, otherTeams, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
   const { usuario } = useContext(AuthContext);
   const navigation = useNavigation();
-
-
-
-  const { yourTeams, otherTeams } = useMemo(() => {
-    if (!equipos) return { yourTeams: [], otherTeams: [] };
-    return {
-      yourTeams: equipos.filter(e => e.propietario_id === usuario?.id),
-      otherTeams: equipos.filter(e => e.propietario_id !== usuario?.id)
-    };
-  }, [equipos, usuario?.id]);
 
   const confirmarEliminar = (id) => {
     Alert.alert(
@@ -112,42 +102,54 @@ export default function EquiposScreen() {
     </View>
   );
 
+  useEffect(() => {
+    getEquipos();
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-neutral-900">
       <View className="flex-1 px-4">
-        {loading && equipos.length === 0 ? (
+        {isLoading && yourTeams.length === 0 && otherTeams.length === 0 ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator color="#1D4ED8" size="large" />
           </View>
         ) : (
-          <SectionList
-            sections={[
-              { title: "Mis Equipos", data: yourTeams, count: yourTeams.length, emptyMessage: "No tienes equipos aún", icon: "shield-outline", isOwner: true },
-              { title: "Inscrito en", data: otherTeams, count: otherTeams.length, emptyMessage: "No estás en otros equipos", icon: "people-outline", isOwner: false }
-            ]}
-            keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
-            renderItem={({ item, section }) => (
-              <TeamCard 
-                item={item} 
-                isOwner={section.isOwner} 
-                onEdit={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
-                onInvite={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
-                onDelete={() => confirmarEliminar(item.id)}
-              />
-            )}
-            renderSectionHeader={({ section: { title, count } }) => renderSectionHeader(title, count)}
-            renderSectionFooter={({ section }) => (
-              section.data.length === 0 ? (
-                <View className="py-8 items-center bg-white dark:bg-neutral-800 rounded-3xl border border-dashed border-gray-200 dark:border-neutral-700 mb-4">
-                  <Ionicons name={section.icon} size={40} color="#9CA3AF" />
-                  <Text className="text-gray-400 dark:text-neutral-500 mt-2 text-sm italic">{section.emptyMessage}</Text>
-                </View>
-              ) : null
-            )}
-            ListFooterComponent={<View className="h-24" />}
-            stickySectionHeadersEnabled={false}
+          <ScrollView 
+            className="flex-1"
             showsVerticalScrollIndicator={false}
-          />
+            contentContainerStyle={{ paddingBottom: 120 }}
+          >
+            {renderSectionHeader("Mis Equipos", yourTeams.length)}
+            {yourTeams.length === 0 ? (
+              <View className="py-8 items-center bg-white dark:bg-neutral-800 rounded-3xl border border-dashed border-gray-200 dark:border-neutral-700 mb-4">
+                <Ionicons name="shield-outline" size={40} color="#9CA3AF" />
+                <Text className="text-gray-400 dark:text-neutral-500 mt-2 text-sm italic">No tienes equipos aún</Text>
+              </View>
+            ) : (
+              yourTeams.map(item => (
+                <TeamCard 
+                  key={item.id} 
+                  item={item} 
+                  isOwner={true} 
+                  onEdit={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
+                  onInvite={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
+                  onDelete={() => confirmarEliminar(item.id)}
+                />
+              ))
+            )}
+
+            {renderSectionHeader("Inscrito en", otherTeams.length)}
+            {otherTeams.length === 0 ? (
+              <View className="py-8 items-center bg-white dark:bg-neutral-800 rounded-3xl border border-dashed border-gray-200 dark:border-neutral-700 mb-4">
+                <Ionicons name="people-outline" size={40} color="#9CA3AF" />
+                <Text className="text-gray-400 dark:text-neutral-500 mt-2 text-sm italic">No estás en otros equipos</Text>
+              </View>
+            ) : (
+              otherTeams.map(item => (
+                <TeamCard key={item.id} item={item} isOwner={false} />
+              ))
+            )}
+          </ScrollView>
         )}
       </View>
 

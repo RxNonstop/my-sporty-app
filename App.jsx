@@ -9,16 +9,18 @@ import { CampeonatoProvider } from "./src/context/CampeonatoContext";
 import AuthStack from "./src/navigation/AuthStack";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
-import "react-native-gesture-handler";
 import { useContext } from "react";
 import { EquipoProvider } from "./src/context/EquipoContext";
 
+
 function AppContent() {
   const { usuario } = useContext(AuthContext);
-  return (     
-        <NavigationContainer>
-          {usuario ? <DrawerNavigator /> : <AuthStack />}
-        </NavigationContainer>
+  return (
+
+    <NavigationContainer>
+      {usuario ? <DrawerNavigator /> : <AuthStack />}
+    </NavigationContainer>
+
   );
 }
 
