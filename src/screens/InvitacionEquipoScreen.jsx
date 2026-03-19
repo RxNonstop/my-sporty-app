@@ -44,6 +44,7 @@ export default function InvitarAmigosScreen() {
   return (
     <View style={styles.container}>
       <FlatList
+        style={{ flex: 1 }}
         data={amigos}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderAmigo}
