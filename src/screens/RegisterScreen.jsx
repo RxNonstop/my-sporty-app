@@ -3,18 +3,21 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
+  TouchableOpacity,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigation();
 
   const [nombre, setNombre] = useState("");
@@ -26,16 +29,22 @@ export default function RegisterScreen({ navigation }) {
   const [sexo, setSexo] = useState("M");
   const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [mostrarFecha, setMostrarFecha] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleRegister = async () => {
-    if (!nombre || !correo || !password || !confirmPassword) {
-      return Alert.alert("Error", "Todos los campos son obligatorios");
+    setFieldErrors({}); // Clear previous errors
+    
+    if (!nombre || !correo || !cedula || !password || !confirmPassword) {
+      return Alert.alert("Error", "Todos los campos obligatorios deben estar presentes");
     }
 
     if (password !== confirmPassword) {
-      return Alert.alert("Error", "Las contraseñas no coinciden");
+      setFieldErrors(prev => ({ ...prev, confirmPassword: "Las contraseñas no coinciden" }));
+      return;
     }
 
+    setLoading(true);
     const formattedFecha = fechaNacimiento.toISOString().split("T")[0];
 
     try {
@@ -51,142 +60,185 @@ export default function RegisterScreen({ navigation }) {
 
       const res = await register(data);
       if (res) {
-        Alert.alert("Éxito", "Registro exitoso");
-        navigate.navigate("Login");
+        Alert.alert("Éxito", "¡Te has registrado correctamente!");
+        navigation.navigate("Login");
       }
     } catch (error) {
       console.error("[RegisterScreen] Error en registro:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "No se pudo registrar. Revisa los datos e intenta nuevamente.";
-      Alert.alert("Error en Registro", errorMessage);
+      
+      if (error.response?.data?.errors) {
+        // Handle express-validator errors: [{correo: "msg"}, {password: "msg"}]
+        const newErrors = {};
+        error.response.data.errors.forEach(errObj => {
+          const key = Object.keys(errObj)[0];
+          newErrors[key] = errObj[key];
+        });
+        setFieldErrors(newErrors);
+      } else if (error.response?.data?.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Ocurrió un error inesperado. Intente de nuevo.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Registro</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre completo"
-        value={nombre}
-        onChangeText={setNombre}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Cedula"
-        value={cedula}
-        onChangeText={setCedula}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={correo}
-        onChangeText={setCorreo}
-      />
-
-      <Text style={styles.label}>Sexo:</Text>
-      <Picker
-        selectedValue={sexo}
-        onValueChange={(itemValue) => setSexo(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Masculino" value="M" />
-        <Picker.Item label="Femenino" value="F" />
-      </Picker>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Confirmar contraseña"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-
-      <Text style={styles.label}>Fecha de Nacimiento:</Text>
-      <Button
-        title={fechaNacimiento.toDateString()}
-        onPress={() => setMostrarFecha(true)}
-      />
-      {mostrarFecha && (
-        <DateTimePicker
-          value={fechaNacimiento}
-          mode="date"
-          onChange={(_, selectedDate) => {
-            setMostrarFecha(false);
-            if (selectedDate) setFechaNacimiento(selectedDate);
+  const renderInput = (key, label, value, setter, placeholder, icon, secure = false, keyboardType = "default") => (
+    <View className="mb-4">
+      <Text className="text-sm font-semibold text-gray-700 dark:text-neutral-300 ml-1 mb-2">{label}</Text>
+      <View className={`flex-row items-center bg-white dark:bg-neutral-800 border ${fieldErrors[key] ? 'border-red' : 'border-gray-200 dark:border-neutral-700'} rounded-2xl px-4 py-3 shadow-sm`}>
+        <Ionicons name={icon} size={20} color={fieldErrors[key] ? "#ef4444" : "#6b7280"} />
+        <TextInput
+          placeholder={placeholder}
+          placeholderTextColor="#9ca3af"
+          value={value}
+          onChangeText={(val) => {
+            setter(val);
+            if (fieldErrors[key]) {
+              const newErrors = { ...fieldErrors };
+              delete newErrors[key];
+              setFieldErrors(newErrors);
+            }
           }}
+          className="flex-1 ml-3 text-gray-900 dark:text-white"
+          secureTextEntry={secure}
+          keyboardType={keyboardType}
+          autoCapitalize="none"
         />
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="URL de foto de perfil (opcional)"
-        value={urlFoto}
-        onChangeText={setUrlFoto}
-      />
-
-      <View style={styles.button}>
-        <Button title="Registrarse" onPress={handleRegister} />
       </View>
+      {fieldErrors[key] && (
+        <Text className="text-red text-xs mt-1 ml-2">{fieldErrors[key]}</Text>
+      )}
+    </View>
+  );
 
-      <Text
-        style={styles.loginText}
-        onPress={() => navigation.navigate("Login")}
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        className={isDarkMode ? "bg-neutral-900" : "bg-gray-50"}
+        showsVerticalScrollIndicator={false}
       >
-        ¿Ya tienes cuenta? Inicia sesión
-      </Text>
-    </ScrollView>
+        <View className="px-8 pt-12 pb-10">
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}
+            className="mb-8 w-10 h-10 items-center justify-center rounded-full bg-white dark:bg-neutral-800 shadow-sm"
+          >
+            <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#111827"} />
+          </TouchableOpacity>
+
+          <View className="mb-8">
+            <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Crea tu cuenta</Text>
+            <Text className="text-gray-500 dark:text-neutral-400">Únete a la mejor comunidad deportiva</Text>
+          </View>
+
+          <View className="space-y-4">
+            {renderInput("nombre", "Nombre Completo *", nombre, setNombre, "Juan Pérez", "person-outline")}
+            {renderInput("cedula", "Cédula / ID *", cedula, setCedula, "123456789", "card-outline", false, "numeric")}
+            {renderInput("correo", "Email *", correo, setCorreo, "tu@correo.com", "mail-outline", false, "email-address")}
+            
+            {/* Custom Gender Toggle */}
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 dark:text-neutral-300 ml-1 mb-2">Sexo *</Text>
+              <View className="flex-row bg-gray-200 dark:bg-neutral-800 p-1 rounded-2xl">
+                <TouchableOpacity 
+                  onPress={() => setSexo("M")}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${sexo === "M" ? "bg-blue-600 shadow-sm" : ""}`}
+                >
+                  <Ionicons name="male" size={18} color={sexo === "M" ? "#fff" : "#6b7280"} />
+                  <Text className={`ml-2 font-bold ${sexo === "M" ? "text-white" : "text-gray-500"}`}>Masculino</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => setSexo("F")}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${sexo === "F" ? "bg-pink-600 shadow-sm" : ""}`}
+                >
+                  <Ionicons name="female" size={18} color={sexo === "F" ? "#fff" : "#6b7280"} />
+                  <Text className={`ml-2 font-bold ${sexo === "F" ? "text-white" : "text-gray-500"}`}>Femenino</Text>
+                </TouchableOpacity>
+              </View>
+              {fieldErrors.sexo && (
+                <Text className="text-red text-xs mt-1 ml-2">{fieldErrors.sexo}</Text>
+              )}
+            </View>
+
+            {renderInput("password", "Contraseña *", password, setPassword, "••••••••", "lock-closed-outline", true)}
+            {renderInput("confirmPassword", "Confirmar Contraseña *", confirmPassword, setConfirmPassword, "••••••••", "lock-closed-outline", true)}
+
+            {/* Cross-platform Birthdate Picker */}
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 dark:text-neutral-300 ml-1 mb-2">Fecha de Nacimiento *</Text>
+              
+              {Platform.OS === 'web' ? (
+                <View className={`flex-row items-center bg-white dark:bg-neutral-800 border ${fieldErrors.fecha_nacimiento ? 'border-red' : 'border-gray-200 dark:border-neutral-700'} rounded-2xl px-4 py-3 shadow-sm`}>
+                  <Ionicons name="calendar-outline" size={20} color="#6b7280" />
+                  <input
+                    type="date"
+                    value={fechaNacimiento.toISOString().split("T")[0]}
+                    onChange={(e) => setFechaNacimiento(new Date(e.target.value))}
+                    style={{
+                      flex: 1,
+                      marginLeft: 12,
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: isDarkMode ? '#fff' : '#000',
+                      outline: 'none',
+                      fontSize: 16,
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                </View>
+              ) : (
+                <>
+                  <TouchableOpacity 
+                    onPress={() => setMostrarFecha(true)}
+                    className={`flex-row items-center bg-white dark:bg-neutral-800 border ${fieldErrors.fecha_nacimiento ? 'border-red' : 'border-gray-200 dark:border-neutral-700'} rounded-2xl px-4 py-4 shadow-sm`}
+                  >
+                    <Ionicons name="calendar-outline" size={20} color="#6b7280" />
+                    <Text className="flex-1 ml-3 text-gray-900 dark:text-white">
+                      {fechaNacimiento.toLocaleDateString("es-ES", { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </Text>
+                  </TouchableOpacity>
+                  {mostrarFecha && (
+                    <DateTimePicker
+                      value={fechaNacimiento}
+                      mode="date"
+                      display={Platform.OS === 'android' ? 'calendar' : 'spinner'}
+                      onChange={(_, selectedDate) => {
+                        setMostrarFecha(false);
+                        if (selectedDate) setFechaNacimiento(selectedDate);
+                      }}
+                    />
+                  )}
+                </>
+              )}
+              {fieldErrors.fecha_nacimiento && (
+                <Text className="text-red text-xs mt-1 ml-2">{fieldErrors.fecha_nacimiento}</Text>
+              )}
+            </View>
+
+            {renderInput("url_foto_perfil", "URL Foto de Perfil (Opcional)", urlFoto, setUrlFoto, "https://...", "image-outline")}
+          </View>
+
+          <TouchableOpacity 
+            className="bg-blue-600 rounded-2xl py-4 mt-8 shadow-lg shadow-blue-500/30 items-center"
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            <Text className="text-white font-bold text-lg">{loading ? "Registrando..." : "Crear Cuenta"}</Text>
+          </TouchableOpacity>
+
+          <View className="flex-row justify-center mt-8 mb-6">
+            <Text className="text-gray-500 dark:text-neutral-400">¿Ya tienes cuenta? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text className="text-blue-600 font-bold">Inicia sesión</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#fff",
-    flexGrow: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 24,
-    textAlign: "center",
-    color: "#1D4ED8",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  label: { fontWeight: "600", marginBottom: 4 },
-  button: { marginTop: 16 },
-  loginText: {
-    marginTop: 20,
-    textAlign: "center",
-    color: "#2563EB",
-    textDecorationLine: "underline",
-  },
-});
