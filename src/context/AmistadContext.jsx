@@ -4,6 +4,7 @@ import {
   encontrarUsuario,
   enviarSolicitud
 } from '../services/amistadService';
+import { AuthContext } from './AuthContext';
 
 export const AmistadContext = createContext();
 
