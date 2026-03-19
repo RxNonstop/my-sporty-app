@@ -1,44 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, Switch, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useContext } from "react";
+import { View, Text, Switch, SafeAreaView, ScrollView } from "react-native";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function ConfiguracionScreen() {
   const [notificaciones, setNotificaciones] = useState(true);
-  const [temaOscuro, setTemaOscuro] = useState(false);
+  const { isDarkMode, toggleTema } = useContext(ThemeContext);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>Configuración</Text>
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <Text className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-4">
+          Configuración
+        </Text>
 
-        <View style={styles.settingRow}>
-          <Text style={styles.label}>Notificaciones</Text>
-          <Switch
-            value={notificaciones}
-            onValueChange={setNotificaciones}
-          />
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-base text-gray-700 dark:text-gray-300">
+            Notificaciones
+          </Text>
+          <Switch value={notificaciones} onValueChange={setNotificaciones} />
         </View>
 
-        <View style={styles.settingRow}>
-          <Text style={styles.label}>Tema oscuro</Text>
-          <Switch
-            value={temaOscuro}
-            onValueChange={setTemaOscuro}
-          />
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-base text-gray-700 dark:text-gray-300">
+            Tema oscuro
+          </Text>
+          <Switch value={isDarkMode} onValueChange={toggleTema} />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scroll: { padding: 16 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#1D4ED8', marginBottom: 16 },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  label: { fontSize: 16, color: '#374151' },
-});
