@@ -4,17 +4,15 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { AmistadContext } from '../context/AmistadContext';
 import { EquipoContext } from '../context/EquipoContext'; 
-import { useNavigation } from '@react-navigation/native';
 
 
-export default function CrearEquipoScreen() {
+export default function CrearEquipoScreen({ navigation }) {
   const {amigos, cargarAmigos} = useContext(AmistadContext)
   const {createEquipo} = useContext(EquipoContext);
   const [nombreEquipo, setNombreEquipo] = useState('');
   const [deporte, setDeporte] = useState('futbol');
   const [seleccionados, setSeleccionados] = useState([]);
 
-  const navigation = useNavigation();
 console.log(amigos)
   const deportes = [
               { label: "Fútbol", value: "futbol" },

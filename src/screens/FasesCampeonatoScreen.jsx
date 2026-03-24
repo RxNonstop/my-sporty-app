@@ -11,14 +11,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '../context/AuthContext';
 import { getEquiposAmigosParaCampeonatoService, enviarInvitacionCampeonatoService } from '../services/equipoService';
 import { getFasesService, crearFaseService, eliminarFaseService, getEquiposInscritosService, getPosicionesFaseService, getEventoById } from '../services/eventoService';
 import { ThemeContext } from '../context/ThemeContext';
 
-const FasesCampeonatoScreen = ({ route }) => {
+const FasesCampeonatoScreen = ({ route, navigation }) => {
 const { campeonato, readOnly } = route.params || {};
 const { usuario } = useContext(AuthContext);
 const [campeonatoActual, setCampeonatoActual] = useState(campeonato);
@@ -88,7 +87,6 @@ const cargarDatosIniciales = async () => {
   }
 };
 
-const navigation = useNavigation();
 
 const calcularDivisores = (num) => {
   let divisores = [];

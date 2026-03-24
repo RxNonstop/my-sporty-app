@@ -19,12 +19,28 @@ function AppContent() {
   const { usuario } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
 
+  const MyTheme = {
+    dark: isDarkMode,
+    colors: {
+      primary: isDarkMode ? '#3b82f6' : '#2563eb',
+      background: isDarkMode ? '#171717' : '#f9fafb',
+      card: isDarkMode ? '#171717' : '#f9fafb',
+      text: isDarkMode ? '#ffffff' : '#111827',
+      border: isDarkMode ? '#262626' : '#e5e7eb',
+      notification: '#ef4444',
+    },
+    fonts: {
+      regular: { fontFamily: 'System', fontWeight: '400' },
+      medium: { fontFamily: 'System', fontWeight: '500' },
+      bold: { fontFamily: 'System', fontWeight: '700' },
+      heavy: { fontFamily: 'System', fontWeight: '900' },
+    },
+  };
+
   return (
-    <View className={`flex-1 ${isDarkMode ? "dark bg-neutral-900" : "bg-gray-50"}`}>
-      <NavigationContainer>
-        {usuario ? <DrawerNavigator /> : <AuthStack />}
-      </NavigationContainer>
-    </View>
+    <NavigationContainer theme={MyTheme}>
+      {usuario ? <DrawerNavigator /> : <AuthStack />}
+    </NavigationContainer>
   );
 }
 

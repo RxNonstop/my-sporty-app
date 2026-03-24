@@ -10,14 +10,12 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { EventoContext } from "../context/EventoContext";
 import { CampeonatoContext } from "../context/CampeonatoContext";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "../context/ThemeContext";
 
-export default function CrearEventoScreen() {
+export default function CrearEventoScreen({ navigation }) {
   const { agregarEvento } = useContext(EventoContext);
   const { agregarCampeonato } = useContext(CampeonatoContext);
-  const navigation = useNavigation();
   const { isDarkMode } = useContext(ThemeContext);
   const [event, setEvent] = useState("");
   const [location, setLocation] = useState("");

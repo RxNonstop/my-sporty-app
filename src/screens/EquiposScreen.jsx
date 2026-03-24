@@ -3,7 +3,6 @@ import {
   View, Text, FlatList, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator, SectionList,
   ScrollView
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { EquipoContext } from '../context/EquipoContext';
 import { AuthContext } from '../context/AuthContext';
@@ -71,10 +70,9 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete }) => {
   );
 };
 
-export default function EquiposScreen() {
+export default function EquiposScreen({ navigation }) {
   const { yourTeams, otherTeams, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
   const { usuario } = useContext(AuthContext);
-  const navigation = useNavigation();
   const { isDarkMode } = useContext(ThemeContext);
 
   const confirmarEliminar = (id) => {

@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import EventCard from '../components/EventCard';
@@ -28,8 +28,7 @@ const DATE_OPTIONS = [
   { label: 'Más antiguos', value: 'asc' },
 ];
 
-const EventosScreen = () => {
-  const navigation = useNavigation();
+const EventosScreen = ({ navigation }) => {
   const { usuario } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -103,20 +102,61 @@ const EventosScreen = () => {
 
       {/* TABS — same style as FixtureFaseScreen */}
       <View className="mx-5 mt-4 mb-2">
-        <View className="flex-row bg-gray-200 dark:bg-neutral-800 rounded-lg p-1">
+        <View 
+          style={{
+            flexDirection: 'row',
+            backgroundColor: isDarkMode ? '#262626' : '#e5e7eb',
+            borderRadius: 8,
+            padding: 4,
+          }}
+        >
           <TouchableOpacity
-            className={`flex-1 py-2.5 rounded-md items-center ${activeTab === 'propios' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              borderRadius: 6,
+              alignItems: 'center',
+              backgroundColor: activeTab === 'propios' ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: activeTab === 'propios' ? 0.1 : 0,
+              shadowRadius: 2,
+              elevation: activeTab === 'propios' ? 2 : 0,
+            }}
             onPress={() => setActiveTab('propios')}
           >
-            <Text className={`font-semibold text-[14px] ${activeTab === 'propios' ? 'text-indigo-600 dark:text-white' : 'text-gray-500 dark:text-neutral-400'}`}>
+            <Text 
+              style={{
+                fontWeight: '600',
+                fontSize: 14,
+                color: activeTab === 'propios' ? (isDarkMode ? '#ffffff' : '#4f46e5') : (isDarkMode ? '#a3a3a3' : '#6b7280'),
+              }}
+            >
               Mis Torneos
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`flex-1 py-2.5 rounded-md items-center ${activeTab === 'participando' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              borderRadius: 6,
+              alignItems: 'center',
+              backgroundColor: activeTab === 'participando' ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: activeTab === 'participando' ? 0.1 : 0,
+              shadowRadius: 2,
+              elevation: activeTab === 'participando' ? 2 : 0,
+            }}
             onPress={() => setActiveTab('participando')}
           >
-            <Text className={`font-semibold text-[14px] ${activeTab === 'participando' ? 'text-indigo-600 dark:text-white' : 'text-gray-500 dark:text-neutral-400'}`}>
+            <Text 
+              style={{
+                fontWeight: '600',
+                fontSize: 14,
+                color: activeTab === 'participando' ? (isDarkMode ? '#ffffff' : '#4f46e5') : (isDarkMode ? '#a3a3a3' : '#6b7280'),
+              }}
+            >
               Participando
             </Text>
           </TouchableOpacity>

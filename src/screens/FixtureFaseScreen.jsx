@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator, Alert, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { getPartidosFaseService, getPosicionesFaseService, actualizarPartidoService } from '../services/eventoService';
 
-const FixtureFaseScreen = ({ route }) => {
+const FixtureFaseScreen = ({ route, navigation }) => {
   const { fase, campeonato, readOnly } = route.params || {};
-  const navigation = useNavigation();
   
   const [partidos, setPartidos] = useState([]);
   const [posiciones, setPosiciones] = useState([]);
@@ -162,18 +160,43 @@ const FixtureFaseScreen = ({ route }) => {
         </View>
 
         {fase?.metodo !== 'eliminatoria' && (
-          <View className="flex-row bg-gray-200 dark:bg-neutral-800 rounded-lg p-1 mb-5">
+          <View 
+            style={{
+              flexDirection: 'row',
+              backgroundColor: '#e5e7eb', // Default gray
+              backgroundColor: Platform.OS === 'android' ? '#e5e7eb' : undefined, // Fallback for android if className fails
+              borderRadius: 8,
+              padding: 4,
+              marginBottom: 20,
+            }}
+            className="bg-gray-200 dark:bg-neutral-800"
+          >
              <TouchableOpacity 
-               className={`flex-1 py-2 rounded-md items-center ${activeTab === 'fixture' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
+               style={{
+                 flex: 1,
+                 paddingVertical: 8,
+                 borderRadius: 6,
+                 alignItems: 'center',
+                 backgroundColor: activeTab === 'fixture' ? '#ffffff' : 'transparent',
+                 backgroundColor: activeTab === 'fixture' ? (Platform.OS === 'android' ? '#ffffff' : undefined) : 'transparent',
+               }}
+               className={`${activeTab === 'fixture' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
                onPress={() => setActiveTab('fixture')}
              >
-                <Text className={`font-semibold ${activeTab === 'fixture' ? 'text-indigo-600 dark:text-white' : 'text-gray-500'}`}>Fixture</Text>
+                <Text style={{ fontWeight: '600', color: activeTab === 'fixture' ? '#4f46e5' : '#6b7280' }} className={`${activeTab === 'fixture' ? 'text-indigo-600 dark:text-white' : 'text-gray-500'}`}>Fixture</Text>
              </TouchableOpacity>
              <TouchableOpacity 
-               className={`flex-1 py-2 rounded-md items-center ${activeTab === 'posiciones' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
+               style={{
+                 flex: 1,
+                 paddingVertical: 8,
+                 borderRadius: 6,
+                 alignItems: 'center',
+                 backgroundColor: activeTab === 'posiciones' ? '#ffffff' : 'transparent',
+               }}
+               className={`${activeTab === 'posiciones' ? 'bg-white dark:bg-neutral-700 shadow-sm' : ''}`}
                onPress={() => setActiveTab('posiciones')}
              >
-                <Text className={`font-semibold ${activeTab === 'posiciones' ? 'text-indigo-600 dark:text-white' : 'text-gray-500'}`}>Posiciones</Text>
+                <Text style={{ fontWeight: '600', color: activeTab === 'posiciones' ? '#4f46e5' : '#6b7280' }} className={`${activeTab === 'posiciones' ? 'text-indigo-600 dark:text-white' : 'text-gray-500'}`}>Posiciones</Text>
              </TouchableOpacity>
           </View>
         )}

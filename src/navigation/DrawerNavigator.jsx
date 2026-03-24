@@ -18,7 +18,6 @@ import FriendsScreen from "../screens/FriendsScreen";
 import EquiposScreen from "../screens/EquiposScreen";
 import CrearEquiposScreen from "../screens/CrearEquipoScreen";
 import { StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
@@ -48,7 +47,6 @@ const headerTitle = (title, description, actionable) => (
 export default function DrawerNavigator() {
   const { logout } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
-  const navigation = useNavigation();
   const { loading, refreshCampeonatosPublicos } = useContext(CampeonatoContext);
   const { loading: NotificacionesLoading, refreshNotificaciones } = useContext(NotificacionContext);
 
@@ -85,6 +83,7 @@ export default function DrawerNavigator() {
       initialRouteName="Inicio"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
+        sceneContainerStyle: { backgroundColor: isDarkMode ? "#171717" : "#f9fafb" },
         drawerStyle: {
          backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
         },
