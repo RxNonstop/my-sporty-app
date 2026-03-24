@@ -1,6 +1,6 @@
-import { useEffect, useContext, useMemo } from 'react';
+import { useEffect, useContext } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator, SectionList,
+  View, Text, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator,
   ScrollView
 } from 'react-native';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -15,11 +15,27 @@ const SPORT_ICONS = {
   voleibol: "sports-volleyball",
 };
 
-const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete }) => {
+const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
   const iconName = SPORT_ICONS[item.deporte?.toLowerCase()] || "shield-outline";
   
   return (
-    <View className="bg-white dark:bg-neutral-800 rounded-2xl p-4 mb-4 border border-gray-100 dark:border-neutral-700 shadow-sm">
+    <TouchableOpacity 
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={{
+        backgroundColor: '#ffffff',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#f3f4f6',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 2,
+      }}
+    >
       <View className="flex-row items-center mb-3">
         <View className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 items-center justify-center mr-3">
           <MaterialIcons name={iconName} size={28} color="#1D4ED8" />
@@ -46,27 +62,41 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete }) => {
         <View className="flex-row mt-2 pt-3 border-t border-gray-50 dark:border-neutral-700 gap-2">
           <TouchableOpacity 
             onPress={onEdit}
-            className="flex-1 flex-row items-center justify-center bg-blue-50 dark:bg-blue-900/20 py-2.5 rounded-xl border border-blue-100 dark:border-blue-800"
+            style={{
+              flex: 1, flexDirection: 'row', alignItems: 'center',
+              justifyContent: 'center', backgroundColor: '#eff6ff',
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#dbeafe',
+            }}
           >
             <Ionicons name="create-outline" size={16} color="#1D4ED8" />
             <Text className="text-blue-700 dark:text-blue-400 font-bold ml-1.5 text-xs">Editar</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={onInvite}
-            className="flex-1 flex-row items-center justify-center bg-green-50 dark:bg-green-900/20 py-2.5 rounded-xl border border-green-100 dark:border-green-800"
+            style={{
+              flex: 1, flexDirection: 'row', alignItems: 'center',
+              justifyContent: 'center', backgroundColor: '#f0fdf4',
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#dcfce7',
+            }}
           >
             <Ionicons name="person-add-outline" size={16} color="#16A34A" />
             <Text className="text-green-700 dark:text-green-400 font-bold ml-1.5 text-xs">Invitar</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={onDelete}
-            className="bg-red-50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800"
+            style={{
+              backgroundColor: '#fef2f2', paddingHorizontal: 16,
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#fee2e2',
+            }}
           >
             <Ionicons name="trash-outline" size={16} color="#DC2626" />
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -135,6 +165,7 @@ export default function EquiposScreen({ navigation }) {
                   onEdit={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
                   onInvite={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
                   onDelete={() => confirmarEliminar(item.id)}
+                  onPress={() => navigation.navigate('DetalleEquipoScreen', { equipo: item, isOwner: true })}
                 />
               ))
             )}
@@ -147,7 +178,12 @@ export default function EquiposScreen({ navigation }) {
               </View>
             ) : (
               otherTeams.map(item => (
-                <TeamCard key={item.id} item={item} isOwner={false} />
+                <TeamCard 
+                  key={item.id} 
+                  item={item} 
+                  isOwner={false} 
+                  onPress={() => navigation.navigate('DetalleEquipoScreen', { equipo: item, isOwner: false })}
+                />
               ))
             )}
           </ScrollView>
@@ -157,13 +193,12 @@ export default function EquiposScreen({ navigation }) {
       <View className="absolute bottom-10 left-0 right-0 items-center">
         <TouchableOpacity
           style={{
-            shadowColor: "#1D4ED8",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8
+            flexDirection: 'row', backgroundColor: '#1d4ed8',
+            paddingHorizontal: 32, paddingVertical: 16,
+            borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+            shadowColor: "#1D4ED8", shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3, shadowRadius: 8, elevation: 8
           }}
-          className="flex-row bg-blue-700 dark:bg-blue-600 px-8 py-4 rounded-full items-center justify-center"
           onPress={() => navigation.navigate('CrearEquipo')}
         >
           <Ionicons name="add" size={24} color="#fff" />

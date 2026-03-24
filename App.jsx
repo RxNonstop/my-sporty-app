@@ -10,39 +10,9 @@ import { CampeonatoProvider } from "./src/context/CampeonatoContext";
 import AuthStack from "./src/navigation/AuthStack";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { ThemeContext, ThemeProvider } from "./src/context/ThemeContext";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { View } from "react-native";
 import { EquipoProvider } from "./src/context/EquipoContext";
-
-
-function AppContent() {
-  const { usuario } = useContext(AuthContext);
-  const { isDarkMode } = useContext(ThemeContext);
-
-  const MyTheme = {
-    dark: isDarkMode,
-    colors: {
-      primary: isDarkMode ? '#3b82f6' : '#2563eb',
-      background: isDarkMode ? '#171717' : '#f9fafb',
-      card: isDarkMode ? '#171717' : '#f9fafb',
-      text: isDarkMode ? '#ffffff' : '#111827',
-      border: isDarkMode ? '#262626' : '#e5e7eb',
-      notification: '#ef4444',
-    },
-    fonts: {
-      regular: { fontFamily: 'System', fontWeight: '400' },
-      medium: { fontFamily: 'System', fontWeight: '500' },
-      bold: { fontFamily: 'System', fontWeight: '700' },
-      heavy: { fontFamily: 'System', fontWeight: '900' },
-    },
-  };
-
-  return (
-    <NavigationContainer theme={MyTheme}>
-      {usuario ? <DrawerNavigator /> : <AuthStack />}
-    </NavigationContainer>
-  );
-}
 
 export default function App() {
   return (
@@ -55,7 +25,7 @@ export default function App() {
                 <AmistadProvider>
                   <EventoProvider>
                     <CampeonatoProvider>
-                      <AppContent />
+                      <AppMain />
                     </CampeonatoProvider>
                   </EventoProvider>
                 </AmistadProvider>
@@ -65,5 +35,37 @@ export default function App() {
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function AppMain() {
+  const { usuario } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
+
+  const MyTheme = useMemo(
+    () => ({
+      dark: isDarkMode,
+      colors: {
+        primary: isDarkMode ? "#3b82f6" : "#2563eb",
+        background: isDarkMode ? "#171717" : "#f9fafb",
+        card: isDarkMode ? "#171717" : "#f9fafb",
+        text: isDarkMode ? "#ffffff" : "#111827",
+        border: isDarkMode ? "#262626" : "#e5e7eb",
+        notification: "#ef4444",
+      },
+      fonts: {
+        regular: { fontFamily: "System", fontWeight: "400" },
+        medium: { fontFamily: "System", fontWeight: "500" },
+        bold: { fontFamily: "System", fontWeight: "700" },
+        heavy: { fontFamily: "System", fontWeight: "900" },
+      },
+    }),
+    [isDarkMode],
+  );
+
+  return (
+    <NavigationContainer theme={MyTheme}>
+      {usuario ? <DrawerNavigator /> : <AuthStack />}
+    </NavigationContainer>
   );
 }

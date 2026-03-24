@@ -1,15 +1,18 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import EventosScreen from '../screens/EventosScreen';
-import FasesCampeonatoScreen from '../screens/FasesCampeonatoScreen';
-import FixtureFaseScreen from '../screens/FixtureFaseScreen';
+import EventosScreen from "../screens/EventosScreen";
+import FasesCampeonatoScreen from "../screens/FasesCampeonatoScreen";
+import FixtureFaseScreen from "../screens/FixtureFaseScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function EventosStack() {
   return (
-    <Stack.Navigator initialRouteName="EventosScreen" screenOptions={{ headerShown: true }}>
+    <Stack.Navigator
+      initialRouteName="EventosScreen"
+      screenOptions={{ headerShown: true }}
+    >
       <Stack.Screen
         name="EventosScreen"
         component={EventosScreen}

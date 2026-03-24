@@ -29,16 +29,22 @@ import { NotificacionContext } from "../context/NotificacionContext";
 const Drawer = createDrawerNavigator();
 
 const headerTitle = (title, description, actionable) => (
-  <View className="flex-row items-center justify-between w-full">
-    <View className={`${actionable ? "w-3/4" : "w-full"}`}>
-      <Text className="text-lg font-bold text-gray-900 dark:text-gray-100 ">
+  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+    <View style={{ width: actionable ? '75%' : '100%' }}>
+      <Text 
+        style={{ fontSize: 18, fontWeight: '700' }}
+        className="text-gray-900 dark:text-gray-100"
+      >
         {title}
       </Text>
-      <Text className="text-sm text-gray-600 dark:text-gray-400">
+      <Text 
+        style={{ fontSize: 14 }}
+        className="text-gray-600 dark:text-gray-400"
+      >
         {description}
       </Text>
     </View>
-    <View className="w-1/4 contents">
+    <View style={{ width: '25%' }}>
       {actionable && actionable()}
     </View>
   </View>
@@ -148,13 +154,6 @@ export default function DrawerNavigator() {
       <Drawer.Screen
         name="Campeonatos"
         component={EventosStack}
-        listeners={({ navigation }) => ({
-          focus: () => {
-            navigation.navigate("Lista Eventos", {
-              screen: "EventosScreen", // pantalla interna del stack Eventos
-            });
-          },
-        })}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons
@@ -207,13 +206,6 @@ export default function DrawerNavigator() {
       <Drawer.Screen
         name="Equipos"
         component={EquipoStack}
-        listeners={({ navigation }) => ({
-          focus: () => {
-            navigation.navigate("Equipos", {
-              screen: "EquiposScreen", // pantalla interna del stack Equipos
-            });
-          },
-        })}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="shield-outline" size={size} color={color} />

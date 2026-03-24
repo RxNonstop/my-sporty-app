@@ -96,11 +96,12 @@ export default function HomeScreen({ navigation }) {
           {STATUS_OPTIONS.map((opt) => (
             <TouchableOpacity
               key={opt.value}
-              className={`px-3 py-2 rounded-full border ${
-                filterStatus === opt.value
-                  ? "bg-indigo-600 border-indigo-600"
-                  : "bg-white dark:bg-neutral-800 border-[#eaeaea] dark:border-neutral-700"
-              }`}
+              style={{
+                paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999,
+                borderWidth: 1,
+                backgroundColor: filterStatus === opt.value ? '#4f46e5' : '#ffffff',
+                borderColor: filterStatus === opt.value ? '#4f46e5' : '#eaeaea',
+              }}
               onPress={() => setFilterStatus(opt.value)}
             >
               <Text
@@ -157,7 +158,7 @@ export default function HomeScreen({ navigation }) {
         onRequestClose={() => setJoinModalVisible(false)}
       >
         <TouchableOpacity
-          className="flex-1 bg-black/50 justify-end"
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
           activeOpacity={1}
           onPress={() => setJoinModalVisible(false)}
         >
@@ -184,11 +185,13 @@ export default function HomeScreen({ navigation }) {
                 misEquipos.map((equipo) => (
                   <TouchableOpacity
                     key={equipo.id}
-                    className={`flex-row items-center p-4 rounded-xl mb-2 border ${
-                      selectedEquipoId === equipo.id
-                        ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30"
-                        : "border-[#eaeaea] dark:border-neutral-700 bg-white dark:bg-neutral-900"
-                    }`}
+                    style={{
+                      flexDirection: 'row', alignItems: 'center',
+                      padding: 16, borderRadius: 12, marginBottom: 8,
+                      borderWidth: 1,
+                      borderColor: selectedEquipoId === equipo.id ? '#4f46e5' : '#eaeaea',
+                      backgroundColor: selectedEquipoId === equipo.id ? '#eef2ff' : '#ffffff',
+                    }}
                     onPress={() => setSelectedEquipoId(equipo.id)}
                   >
                     <View
@@ -207,7 +210,10 @@ export default function HomeScreen({ navigation }) {
 
               {misEquipos.length > 0 && (
                 <TouchableOpacity
-                  className={`mt-4 py-3 rounded-xl items-center ${selectedEquipoId ? "bg-indigo-600" : "bg-gray-300 dark:bg-neutral-700"}`}
+                  style={{
+                    marginTop: 16, paddingVertical: 12, borderRadius: 12, alignItems: 'center',
+                    backgroundColor: selectedEquipoId ? '#4f46e5' : '#d1d5db',
+                  }}
                   onPress={handleConfirmJoin}
                   disabled={!selectedEquipoId || joinLoading}
                 >

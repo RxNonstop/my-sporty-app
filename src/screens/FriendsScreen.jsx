@@ -13,7 +13,7 @@ const FriendCard = ({ item }) => (
       <Text className="text-base font-bold text-gray-900 dark:text-white">{item.nombre}</Text>
       <Text className="text-xs text-gray-500 dark:text-neutral-400">{item.correo}</Text>
     </View>
-    <TouchableOpacity className="p-2">
+    <TouchableOpacity style={{ padding: 8 }}>
       <Ionicons name="chatbubble-ellipses-outline" size={20} color="#6B7280" />
     </TouchableOpacity>
   </View>
@@ -34,13 +34,13 @@ const UserFoundCard = ({ item, onAdd, onCancel }) => (
     <View className="flex-row gap-2">
       <TouchableOpacity 
         onPress={onAdd}
-        className="flex-1 bg-blue-600 py-3.5 rounded-2xl items-center shadow-md shadow-blue-200"
+        style={{ flex: 1, backgroundColor: '#2563eb', paddingVertical: 14, borderRadius: 16, alignItems: 'center', shadowColor: '#93c5fd', shadowOpacity: 0.4, shadowRadius: 4, elevation: 3 }}
       >
         <Text className="text-white font-black text-sm text-center">Enviar Solicitud</Text>
       </TouchableOpacity>
       <TouchableOpacity 
         onPress={onCancel}
-        className="px-5 bg-white dark:bg-neutral-800 py-3.5 rounded-2xl border border-gray-200 dark:border-neutral-700"
+        style={{ paddingHorizontal: 20, backgroundColor: '#ffffff', paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' }}
       >
         <Ionicons name="close" size={20} color="#9CA3AF" />
       </TouchableOpacity>
@@ -103,7 +103,7 @@ export default function FriendsScreen() {
             {buscando ? (
               <ActivityIndicator color="#1D4ED8" size="small" />
             ) : correoNuevo.length > 0 ? (
-              <TouchableOpacity onPress={buscarUsuarioPorCorreo}>
+              <TouchableOpacity onPress={buscarUsuarioPorCorreo} style={{ padding: 4 }}>
                 <View className="bg-blue-600 rounded-xl px-3 py-1.5">
                   <Text className="text-white font-bold text-xs">Buscar</Text>
                 </View>

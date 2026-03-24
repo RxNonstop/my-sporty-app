@@ -27,7 +27,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
 
   const isFinalized = estado === "finalizado";
   const champion    = evento.campeon_nombre;
-
   const sportIcon = SPORT_ICONS[evento.deporte] || "trophy-outline";
 
   const formatDate = (d) => {
@@ -41,9 +40,15 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
     <TouchableOpacity
       activeOpacity={0.88}
       onPress={onPress}
-      className="mx-5 mb-4 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm border border-[#eaeaea] dark:border-neutral-700 overflow-hidden"
+      style={{
+        marginHorizontal: 20, marginBottom: 16,
+        borderRadius: 16, backgroundColor: '#ffffff',
+        shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05, shadowRadius: 2, elevation: 2,
+        borderWidth: 1, borderColor: '#eaeaea', overflow: 'hidden',
+      }}
     >
-      {/* ── Header ──────────────────────────────────────────── */}
+      {/* ── Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-[#f8f8f8] dark:bg-neutral-900 border-b border-[#eaeaea] dark:border-neutral-700">
         <View className="flex-row items-center gap-2">
           <Ionicons name={sportIcon} size={15} color="#6366f1" />
@@ -52,13 +57,11 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           </Text>
         </View>
         <View className="flex-row items-center gap-2">
-          {/* Privacy */}
           <View className="border border-[#eaeaea] dark:border-neutral-700 rounded-full px-2.5 py-0.5 bg-white dark:bg-neutral-800">
             <Text className="text-[11px] font-medium text-gray-500 dark:text-neutral-400 capitalize">
               {evento.privacidad === "publico" ? "Público" : "Privado"}
             </Text>
           </View>
-          {/* Status badge */}
           <View style={{ backgroundColor: sc.bg }} className="rounded-full px-2.5 py-0.5 flex-row items-center">
             <View style={{ backgroundColor: sc.dot }} className="w-1.5 h-1.5 rounded-full mr-1.5" />
             <Text style={{ color: sc.text }} className="text-[11px] font-bold">
@@ -68,7 +71,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         </View>
       </View>
 
-      {/* ── Body ────────────────────────────────────────────── */}
+      {/* ── Body */}
       <View className="px-4 pt-3 pb-2">
         <Text className="text-[18px] font-bold text-[#1a1a1a] dark:text-white mb-1" numberOfLines={1}>
           {evento.nombre}
@@ -79,7 +82,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           </Text>
         ) : null}
 
-        {/* ── Champion Banner (if finalizado) ─────────────── */}
         {isFinalized && champion && (
           <View className="flex-row items-center bg-yellow-50 dark:bg-yellow-900/20 rounded-xl px-3 py-2.5 mb-3 border border-yellow-200 dark:border-yellow-800/40">
             <Text className="text-xl mr-2">🏆</Text>
@@ -90,7 +92,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           </View>
         )}
 
-        {/* ── Stats Row ────────────────────────────────────── */}
         <View className="flex-row bg-[#fafafa] dark:bg-neutral-900/50 rounded-xl border border-[#eaeaea] dark:border-neutral-700/50 mb-3 overflow-hidden">
           <View className="flex-1 items-center py-2.5 border-r border-[#eaeaea] dark:border-neutral-700">
             <Text className="text-[10px] text-[#8a8a8a] dark:text-neutral-500 font-medium mb-0.5">JUGADORES</Text>
@@ -108,7 +109,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           </View>
         </View>
 
-        {/* ── Dates ─────────────────────────────────────────── */}
         {evento.fecha_inicio && (
           <View className="flex-row items-center mb-2 gap-1">
             <Ionicons name="calendar-outline" size={12} color="#9ca3af" />
@@ -119,7 +119,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           </View>
         )}
 
-        {/* ── Inscriptions status (dynamic) ─────────────────── */}
         {!isFinalized && (
           <View className="flex-row items-center gap-1 mb-1">
             <View className={`w-2 h-2 rounded-full ${inscOpen ? "bg-green-500" : "bg-red-400"}`} />
@@ -135,10 +134,15 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         )}
       </View>
 
-      {/* ── Footer ──────────────────────────────────────────── */}
+      {/* ── Footer */}
       {showJoinButton ? (
         <TouchableOpacity
-          className="mx-4 mb-4 mt-1 py-3 bg-indigo-600 rounded-xl items-center flex-row justify-center gap-2"
+          style={{
+            marginHorizontal: 16, marginBottom: 16, marginTop: 4,
+            paddingVertical: 12, backgroundColor: '#4f46e5',
+            borderRadius: 12, alignItems: 'center',
+            flexDirection: 'row', justifyContent: 'center', gap: 8,
+          }}
           onPress={onJoin}
         >
           <Ionicons name="enter-outline" size={16} color="#fff" />
@@ -148,11 +152,6 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         <View className="mx-4 mb-4 mt-1 py-3 bg-green dark:bg-green/20 border border-green dark:border-green/40 rounded-xl items-center flex-row justify-center gap-2">
           <Ionicons name="shield-checkmark-outline" size={16} color="#059669" />
           <Text className="text-white dark:text-green font-bold text-sm">Inscrito con: {evento.equipo_inscrito_nombre}</Text>
-        </View>
-      ) : (evento.solicitud_pendiente_id || (evento.para_usuario_id === (evento.usuario_id || 0) && evento.tipo === 'solicitud_union')) ? ( // Simplified check, mainly relying on Backend field
-        <View className="mx-4 mb-4 mt-1 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl items-center flex-row justify-center gap-2">
-          <Ionicons name="time-outline" size={16} color="#d97706" />
-          <Text className="text-[#d97706] dark:text-amber-400 font-bold text-sm">Solicitud enviada</Text>
         </View>
       ) : (
         <View className="px-4 py-3 border-t border-[#f0f0f0] dark:border-neutral-700/50 flex-row items-center justify-center gap-1">

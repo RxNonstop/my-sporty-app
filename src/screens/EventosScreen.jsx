@@ -169,7 +169,13 @@ const EventosScreen = ({ navigation }) => {
           {filteredList.length} campeonato{filteredList.length !== 1 ? 's' : ''}
         </Text>
         <TouchableOpacity
-          className={`flex-row items-center px-3 py-2 rounded-lg border ${hasActiveFilter ? 'bg-indigo-600 border-indigo-600' : 'bg-white dark:bg-neutral-800 border-[#eaeaea] dark:border-neutral-700'}`}
+          style={{
+            flexDirection: 'row', alignItems: 'center',
+            paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
+            borderWidth: 1,
+            backgroundColor: hasActiveFilter ? '#4f46e5' : '#ffffff',
+            borderColor: hasActiveFilter ? '#4f46e5' : '#eaeaea',
+          }}
           onPress={() => setFilterModalVisible(true)}
         >
           <Ionicons name="filter" size={14} color={hasActiveFilter ? '#fff' : (isDarkMode ? '#aaa' : '#555')} />
@@ -234,7 +240,7 @@ const EventosScreen = ({ navigation }) => {
         onRequestClose={() => setFilterModalVisible(false)}
       >
         <TouchableOpacity
-          className="flex-1 bg-black/50 justify-end"
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
           activeOpacity={1}
           onPress={() => setFilterModalVisible(false)}
         >
@@ -280,13 +286,13 @@ const EventosScreen = ({ navigation }) => {
 
               <View className="flex-row gap-3">
                 <TouchableOpacity
-                  className="flex-1 py-3 rounded-xl border border-[#eaeaea] dark:border-neutral-700 items-center"
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#eaeaea', alignItems: 'center' }}
                   onPress={() => { setFilterStatus('todos'); setFilterDate('desc'); }}
                 >
                   <Text className="text-sm font-semibold text-gray-500 dark:text-neutral-400">Limpiar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="flex-1 py-3 rounded-xl bg-indigo-600 items-center"
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#4f46e5', alignItems: 'center' }}
                   onPress={() => setFilterModalVisible(false)}
                 >
                   <Text className="text-sm font-bold text-white">Aplicar</Text>

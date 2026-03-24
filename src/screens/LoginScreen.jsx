@@ -97,7 +97,7 @@ export default function LoginScreen({ navigation }) {
           ) : null}
 
           <TouchableOpacity 
-            className="bg-blue-600 rounded-2xl py-4 mt-8 shadow-lg shadow-blue-500/30 items-center"
+            style={{ backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 16, marginTop: 32, alignItems: 'center', shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 }}
             onPress={handleLogin}
             disabled={loading}
           >
@@ -106,7 +106,7 @@ export default function LoginScreen({ navigation }) {
 
           <View className="flex-row justify-center mt-10 mb-6">
             <Text className="text-gray-500 dark:text-neutral-400">¿No tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")} style={{ padding: 2 }}>
               <Text className="text-blue-600 font-bold">Regístrate</Text>
             </TouchableOpacity>
           </View>

@@ -42,7 +42,7 @@ export default function PerfilScreen() {
                 className="w-full h-full"
               />
             </View>
-            <TouchableOpacity className="absolute bottom-1 right-1 bg-blue-700 p-2 rounded-full border-2 border-white dark:border-neutral-800 shadow-lg">
+            <TouchableOpacity style={{ position: 'absolute', bottom: 4, right: 4, backgroundColor: '#1d4ed8', padding: 8, borderRadius: 999, borderWidth: 2, borderColor: '#ffffff' }}>
               <Ionicons name="camera" size={16} color="white" />
             </TouchableOpacity>
           </View>
@@ -93,7 +93,7 @@ export default function PerfilScreen() {
           </View>
         </View>
 
-        <TouchableOpacity className="flex-row items-center justify-center bg-white dark:bg-neutral-800 p-4 rounded-3xl border border-gray-200 dark:border-neutral-700 mb-10 shadow-sm">
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 40, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
           <Ionicons name="create-outline" size={20} color="#1D4ED8" />
           <Text className="text-blue-700 dark:text-blue-400 font-bold ml-2">Editar Perfil</Text>
         </TouchableOpacity>

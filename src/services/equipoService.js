@@ -22,6 +22,16 @@ export const getEquipoByIdService = async (id) => {
   return res.data;
 };
 
+export const getEstadisticasEquipoService = async (id) => {
+  const res = await axios.get(`${API_URL}/equipos/${id}/estadisticas`, await authHeader());
+  return res.data;
+};
+
+export const getMiembrosEquipoService = async (equipoId) => {
+  const res = await axios.get(`${API_URL}/miembros-equipo?equipo_id=${equipoId}`, await authHeader());
+  return res.data;
+};
+
 export const updateEquipoService = async () => {
   const res = await axios.put(`${API_URL}/equipos`, await authHeader());
   return res.data;

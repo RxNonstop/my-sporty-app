@@ -58,7 +58,7 @@ export default function ConfiguracionScreen() {
           <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3 ml-1">
             Cuenta
           </Text>
-          <TouchableOpacity className="flex-row items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-2xl mb-3 border border-gray-100 dark:border-neutral-700 shadow-sm">
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: '#ffffff', borderRadius: 16, marginBottom: 12, borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 1 }}>
             <View className="flex-row items-center flex-1">
               <View className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 items-center justify-center mr-3">
                 <Ionicons name="log-out-outline" size={22} color="#DC2626" />

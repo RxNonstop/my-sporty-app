@@ -147,7 +147,7 @@ export default function RegisterScreen({ navigation }) {
         <View className="px-8 pt-12 pb-10">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="mb-8 w-10 h-10 items-center justify-center rounded-full bg-white dark:bg-neutral-800 shadow-sm"
+            style={{ marginBottom: 32, width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 999, backgroundColor: '#ffffff', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}
           >
             <Ionicons
               name="arrow-back"
@@ -322,7 +322,7 @@ export default function RegisterScreen({ navigation }) {
                 <>
                   <TouchableOpacity
                     onPress={() => setMostrarFecha(true)}
-                    className={`flex-row items-center bg-white dark:bg-neutral-800 border ${fieldErrors.fecha_nacimiento ? "border-red" : "border-gray-200 dark:border-neutral-700"} rounded-2xl px-4 py-4 shadow-sm`}
+                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderWidth: 1, borderColor: fieldErrors.fecha_nacimiento ? '#ef4444' : '#e5e7eb', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 1, elevation: 1 }}
                   >
                     <Ionicons
                       name="calendar-outline"
@@ -370,7 +370,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            className="bg-blue-600 rounded-2xl py-4 mt-8 shadow-lg shadow-blue-500/30 items-center"
+            style={{ backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 16, marginTop: 32, alignItems: 'center', shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 }}
             onPress={handleRegister}
             disabled={loading}
           >
@@ -383,7 +383,7 @@ export default function RegisterScreen({ navigation }) {
             <Text className="text-gray-500 dark:text-neutral-400">
               ¿Ya tienes cuenta?{" "}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")} style={{ padding: 2 }}>
               <Text className="text-blue-600 font-bold">Inicia sesión</Text>
             </TouchableOpacity>
           </View>

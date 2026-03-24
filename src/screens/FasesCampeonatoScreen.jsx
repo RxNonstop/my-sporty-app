@@ -221,7 +221,7 @@ const eliminarFase = async (idFase) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <View style={{ flex: 1 }} className="px-5 pt-4 bg-[#fafafa] dark:bg-neutral-900">
         <View className="flex-row items-center mb-5">
-          <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1 rounded-full dark:bg-neutral-800">
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 12, padding: 4, borderRadius: 999 }}>
             <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#000"} className="dark:text-white" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-[#1a1a1a] dark:text-white flex-1" numberOfLines={1}>
@@ -286,11 +286,16 @@ const eliminarFase = async (idFase) => {
             
             {isCampeonato && isOwner && (
               <TouchableOpacity
-                className={`py-3 rounded-lg flex-row items-center justify-center mt-2 mb-2 ${equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'bg-gray-400 dark:bg-gray-600' : 'bg-indigo-600 dark:bg-indigo-500'}`}
                 onPress={abrirModalAmigos}
                 disabled={equiposInscritos.length >= (campeonato?.numero_equipos || 0)}
+                style={{
+                  paddingVertical: 12, borderRadius: 8,
+                  flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                  marginTop: 8, marginBottom: 8,
+                  backgroundColor: equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? '#9ca3af' : '#4f46e5',
+                }}
               >
-                 <Ionicons name="people-outline" size={18} color="#fff" className="mr-2" />
+                 <Ionicons name="people-outline" size={18} color="#fff" />
                  <Text className="text-white font-semibold text-sm ml-2">
                     {equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'Cupos Llenos' : 'Invitar Equipos de Amigos'}
                  </Text>
@@ -339,11 +344,11 @@ const eliminarFase = async (idFase) => {
 
                   {/* Buttons right */}
                   <View className="flex-row items-center space-x-2">
-                    <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-lg relative overflow-hidden">
+                    <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} style={{ backgroundColor: '#e0e7ff', padding: 8, borderRadius: 8 }}>
                       <Ionicons name="calendar-outline" size={20} className="text-indigo-600 dark:text-indigo-400" color="#4f46e5" />
                     </TouchableOpacity>
                     {isOwner && (
-                      <TouchableOpacity onPress={() => eliminarFase(item.id)} className="bg-red-50 dark:bg-red-900/40 p-2 rounded-lg">
+                      <TouchableOpacity onPress={() => eliminarFase(item.id)} style={{ backgroundColor: '#fff1f2', padding: 8, borderRadius: 8 }}>
                         <Ionicons name="trash-outline" size={20} color="#ff4d4f" />
                       </TouchableOpacity>
                     )}
@@ -388,13 +393,21 @@ const eliminarFase = async (idFase) => {
               />
               <View className="flex-row justify-around mb-4">
                 <TouchableOpacity
-                  className={`p-2.5 rounded-md mx-1 border ${metodoFase === 'liga' ? 'bg-[#e6f2ff] dark:bg-blue-900/30 border-[#b3d7ff] dark:border-blue-800' : 'bg-[#f5f5f5] dark:bg-neutral-700 border-[#eaeaea] dark:border-neutral-600'}`}
+                  style={{
+                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
+                    backgroundColor: metodoFase === 'liga' ? '#dbeafe' : '#f5f5f5',
+                    borderWidth: 1, borderColor: metodoFase === 'liga' ? '#93c5fd' : '#eaeaea',
+                  }}
                   onPress={() => setMetodoFase('liga')}
                 >
                   <Text className={`dark:text-white ${metodoFase === 'liga' && 'dark:text-blue-200'}`}>Liga</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className={`p-2.5 rounded-md mx-1 border ${metodoFase === 'eliminatoria' ? 'bg-[#e6f2ff] dark:bg-blue-900/30 border-[#b3d7ff] dark:border-blue-800' : 'bg-[#f5f5f5] dark:bg-neutral-700 border-[#eaeaea] dark:border-neutral-600'}`}
+                  style={{
+                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
+                    backgroundColor: metodoFase === 'eliminatoria' ? '#dbeafe' : '#f5f5f5',
+                    borderWidth: 1, borderColor: metodoFase === 'eliminatoria' ? '#93c5fd' : '#eaeaea',
+                  }}
                   onPress={() => setMetodoFase('eliminatoria')}
                 >
                   <Text className={`dark:text-white ${metodoFase === 'eliminatoria' && 'dark:text-blue-200'}`}>Eliminatoria</Text>
@@ -469,7 +482,7 @@ const eliminarFase = async (idFase) => {
             <View className="w-full h-2/3 bg-white dark:bg-neutral-800 rounded-t-3xl pt-5 pb-8 px-5">
               <View className="flex-row items-center justify-between mb-4">
                 <Text className="text-lg font-bold text-[#1a1a1a] dark:text-white">Equipos de Amigos</Text>
-                <TouchableOpacity onPress={() => setModalAmigosVisible(false)} className="p-1">
+                      <TouchableOpacity onPress={() => setModalAmigosVisible(false)} style={{ padding: 4 }}>
                   <Ionicons name="close" size={24} color="#8a8a8a" />
                 </TouchableOpacity>
               </View>
@@ -494,7 +507,7 @@ const eliminarFase = async (idFase) => {
                         <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
                       </View>
                       <TouchableOpacity 
-                        className="bg-indigo-600 px-4 py-2 rounded-lg"
+                        style={{ backgroundColor: '#4f46e5', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}
                         onPress={() => invitarEquipo(item)}
                       >
                         <Text className="text-white text-xs font-semibold">Invitar</Text>
@@ -510,7 +523,7 @@ const eliminarFase = async (idFase) => {
         {isOwner && (
           <View className="absolute bottom-6 left-0 right-0 items-center">
             <TouchableOpacity
-              className="bg-[#007bff] py-3.5 px-10 rounded-lg"
+              style={{ backgroundColor: '#007bff', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 8 }}
               onPress={() => setModalVisible(true)}
               disabled={
                 (

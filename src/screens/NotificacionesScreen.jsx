@@ -42,13 +42,13 @@ const EmptyBox = ({ text }) => (
 const ActionRow = ({ onAccept, onReject }) => (
   <View className="flex-row mt-4 gap-3">
     <TouchableOpacity
-      className="flex-1 py-3 bg-blue-600 dark:bg-blue-700 rounded-2xl items-center shadow-md shadow-blue-200 dark:shadow-none"
+      style={{ flex: 1, paddingVertical: 12, backgroundColor: '#2563eb', borderRadius: 16, alignItems: 'center', shadowColor: '#93c5fd', shadowOpacity: 0.4, shadowRadius: 4, elevation: 3 }}
       onPress={onAccept}
     >
       <Text className="text-white text-sm font-black">Aceptar</Text>
     </TouchableOpacity>
     <TouchableOpacity
-      className="flex-1 py-3 bg-red-50 dark:bg-red-900/20 rounded-2xl items-center border border-red-100 dark:border-red-900/50"
+      style={{ flex: 1, paddingVertical: 12, backgroundColor: '#fef2f2', borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#fee2e2' }}
       onPress={onReject}
     >
       <Text className="text-red-600 dark:text-red-400 text-sm font-black">Rechazar</Text>
