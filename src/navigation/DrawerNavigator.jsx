@@ -17,6 +17,7 @@ import CalendarioScreen from "../screens/CalendarioScreen";
 import FriendsScreen from "../screens/FriendsScreen";
 import EquiposScreen from "../screens/EquiposScreen";
 import CrearEquiposScreen from "../screens/CrearEquipoScreen";
+import MensajesStack from "./MensajesStack";
 import { StyleSheet } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -25,6 +26,7 @@ import { ThemeContext } from "../context/ThemeContext";
 import NotificacionesScreen from "../screens/NotificacionesScreen";
 import { CampeonatoContext } from "../context/CampeonatoContext";
 import { NotificacionContext } from "../context/NotificacionContext";
+import { ChatContext } from "../context/ChatContext";
 
 const Drawer = createDrawerNavigator();
 
@@ -55,6 +57,7 @@ export default function DrawerNavigator() {
   const { isDarkMode } = useContext(ThemeContext);
   const { loading, refreshCampeonatosPublicos } = useContext(CampeonatoContext);
   const { loading: NotificacionesLoading, refreshNotificaciones } = useContext(NotificacionContext);
+  const { totalUnread } = useContext(ChatContext);
 
   function CustomDrawerContent(props) {
     const { logout } = useContext(AuthContext);
@@ -200,6 +203,30 @@ export default function DrawerNavigator() {
             headerTitle(
               "Amigos",
               "Conecta con otros usuarios y comparte tus campeonatos",
+            ),
+        }}
+      />
+      <Drawer.Screen
+        name="Mensajes"
+        component={MensajesStack}
+        options={{
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1, paddingRight: 10 }}>
+              <Text style={{ color, fontWeight: '500' }}>Mensajes</Text>
+              {totalUnread > 0 && (
+                <View style={{ backgroundColor: '#ef4444', borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ color: 'white', fontSize: 11, fontWeight: 'bold' }}>{totalUnread > 99 ? '99+' : totalUnread}</Text>
+                </View>
+              )}
+            </View>
+          ),
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="chatbubbles-outline" size={size} color={color} />
+          ),
+          headerTitle: () =>
+            headerTitle(
+              "Mensajes",
+              "Chatea con tus amigos y grupos de equipo",
             ),
         }}
       />

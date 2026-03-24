@@ -32,6 +32,11 @@ export const getMiembrosEquipoService = async (equipoId) => {
   return res.data;
 };
 
+export const updateMiembroEquipoRolService = async (usuario_id, equipo_id, rol_usuario) => {
+  const res = await axios.patch(`${API_URL}/miembros-equipo`, { usuario_id, equipo_id, rol_usuario }, await authHeader());
+  return res.data;
+};
+
 export const updateEquipoService = async () => {
   const res = await axios.put(`${API_URL}/equipos`, await authHeader());
   return res.data;

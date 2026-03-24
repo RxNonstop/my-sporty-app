@@ -72,6 +72,7 @@ export default function DetalleEquipoScreen({ route, navigation }) {
           <MiembrosEquipoTab
             equipo={equipo}
             equipoId={equipo?.id}
+            isOwner={isOwner}
           />
         );
 

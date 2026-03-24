@@ -4,13 +4,17 @@ import {
   Text,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { getMiembrosEquipoService } from "../services/equipoService";
+import { useNavigation } from "@react-navigation/native";
+import { getMiembrosEquipoService, updateMiembroEquipoRolService } from "../services/equipoService";
 
 const ROL_ICONS = {
   jugador: "person-outline",
   capitan: "star-outline",
+  suplente: "time-outline",
   entrenador: "fitness-outline",
   arbitro: "flag-outline",
 };
@@ -18,14 +22,23 @@ const ROL_ICONS = {
 const ROL_COLORS = {
   jugador: "#6366f1",
   capitan: "#f59e0b",
+  suplente: "#10b981",
   entrenador: "#10b981",
   arbitro: "#ef4444",
 };
 
-export default function MiembrosEquipoTab({ equipo, equipoId }) {
+export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEnabled = true }) {
+  const navigation = useNavigation();
   const [miembros, setMiembros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [updatingRole, setUpdatingRole] = useState(false);
+  
+  const [filtroRol, setFiltroRol] = useState("todos");
+  const rolesDisponibles = ["todos", "capitan", "jugador", "suplente"];
 
   const propietarioId = equipo?.propietario_id;
 
@@ -48,6 +61,22 @@ export default function MiembrosEquipoTab({ equipo, equipoId }) {
       setError("No se pudieron cargar los miembros.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCambiarRol = async (rol) => {
+    if (!selectedMember) return;
+    try {
+      setUpdatingRole(true);
+      await updateMiembroEquipoRolService(selectedMember.usuario_id, equipoId, rol);
+      setModalVisible(false);
+      setSelectedMember(null);
+      await fetchMiembros();
+    } catch (err) {
+      console.error("Error cambiando rol:", err);
+      alert("Error al cambiar el rol. Intenta de nuevo.");
+    } finally {
+      setUpdatingRole(false);
     }
   };
 
@@ -84,21 +113,51 @@ export default function MiembrosEquipoTab({ equipo, equipoId }) {
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
       showsVerticalScrollIndicator={false}
+      scrollEnabled={scrollEnabled}
     >
-      {/* Encabezado conteo */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
-        <View style={{
-          backgroundColor: "#eef2ff", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 6,
-          flexDirection: "row", alignItems: "center", gap: 6,
-        }}>
-          <Ionicons name="people" size={16} color="#4f46e5" />
-          <Text style={{ color: "#4f46e5", fontWeight: "700", fontSize: 13 }}>
-            {miembros.length} miembro{miembros.length !== 1 ? "s" : ""}
-          </Text>
+      {/* Encabezado conteo y filtros */}
+      <View style={{ marginBottom: 16 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+          <View style={{
+            backgroundColor: "#eef2ff", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 6,
+            flexDirection: "row", alignItems: "center", gap: 6,
+          }}>
+            <Ionicons name="people" size={16} color="#4f46e5" />
+            <Text style={{ color: "#4f46e5", fontWeight: "700", fontSize: 13 }}>
+              {miembros.length} miembro{miembros.length !== 1 ? "s" : ""}
+            </Text>
+          </View>
         </View>
+
+        {/* Filtros */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {rolesDisponibles.map(rol => {
+            const isActive = filtroRol === rol;
+            return (
+              <TouchableOpacity
+                key={rol}
+                onPress={() => setFiltroRol(rol)}
+                style={{
+                  paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
+                  backgroundColor: isActive ? "#4f46e5" : "#f3f4f6",
+                  borderWidth: 1, borderColor: isActive ? "#4f46e5" : "#e5e7eb",
+                }}
+              >
+                <Text style={{
+                  color: isActive ? "#ffffff" : "#4b5563",
+                  fontSize: 12, fontWeight: "600", textTransform: "capitalize"
+                }}>
+                  {rol}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
-      {miembros.map((m) => {
+      {miembros
+        .filter(m => filtroRol === "todos" || (m.rol_usuario || "jugador") === filtroRol)
+        .map((m) => {
         const esCreador = m.usuario_id === propietarioId;
         const rol = m.rol_usuario || "jugador";
         const color = ROL_COLORS[rol] || "#6366f1";
@@ -111,8 +170,18 @@ export default function MiembrosEquipoTab({ equipo, equipoId }) {
           .slice(0, 2);
 
         return (
-          <View
+          <TouchableOpacity
             key={m.id}
+            onPress={() => {
+              navigation.push('MiembroPerfil', {
+                usuarioPerfil: {
+                  id: m.usuario_id,
+                  nombre: m.usuario_nombre,
+                  correo: m.correo,
+                  rol: m.rol_usuario
+                }
+              });
+            }}
             style={{
               backgroundColor: "white",
               borderRadius: 16,
@@ -158,19 +227,67 @@ export default function MiembrosEquipoTab({ equipo, equipoId }) {
             </View>
 
             {/* Rol badge */}
-            <View style={{
-              alignItems: "center", justifyContent: "center",
-              backgroundColor: color + "15", borderRadius: 12,
-              paddingHorizontal: 10, paddingVertical: 6, gap: 2,
-            }}>
-              <Ionicons name={icon} size={16} color={color} />
-              <Text style={{ color, fontSize: 9, fontWeight: "700", textTransform: "uppercase" }}>
-                {rol}
-              </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={{
+                alignItems: "center", justifyContent: "center",
+                backgroundColor: color + "15", borderRadius: 12,
+                paddingHorizontal: 10, paddingVertical: 6, gap: 2,
+                marginRight: isOwner && !esCreador ? 8 : 0,
+              }}>
+                <Ionicons name={icon} size={16} color={color} />
+                <Text style={{ color, fontSize: 9, fontWeight: "700", textTransform: "uppercase" }}>
+                  {rol}
+                </Text>
+              </View>
+              {isOwner && !esCreador && (
+                <TouchableOpacity
+                  style={{ padding: 6, backgroundColor: '#f3f4f6', borderRadius: 8 }}
+                  onPress={() => {
+                    setSelectedMember(m);
+                    setModalVisible(true);
+                  }}
+                >
+                  <Ionicons name="create-outline" size={18} color="#6b7280" />
+                </TouchableOpacity>
+              )}
             </View>
-          </View>
+          </TouchableOpacity>
         );
       })}
+
+      {/* Modal para cambiar rol */}
+      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 20 }}>
+          <View style={{ backgroundColor: "white", borderRadius: 16, width: "100%", padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16, textAlign: "center" }}>
+              Cambiar rol de {selectedMember?.usuario_nombre}
+            </Text>
+            
+            {updatingRole ? (
+              <ActivityIndicator size="large" color="#4f46e5" style={{ marginVertical: 20 }} />
+            ) : (
+              <>
+                {["jugador", "capitan", "suplente"].map(role => (
+                   <TouchableOpacity
+                     key={role}
+                     style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", alignItems: "center" }}
+                     onPress={() => handleCambiarRol(role)}
+                   >
+                     <Ionicons name={ROL_ICONS[role] || "person-outline"} size={20} color={ROL_COLORS[role] || "#6366f1"} style={{ marginRight: 12 }} />
+                     <Text style={{ fontSize: 16, textTransform: "capitalize", color: "#374151", fontWeight: "600" }}>{role}</Text>
+                   </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={{ marginTop: 16, padding: 14, backgroundColor: "#f3f4f6", borderRadius: 8, alignItems: "center" }}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={{ fontWeight: "600", color: "#4b5563" }}>Cancelar</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

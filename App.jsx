@@ -13,6 +13,8 @@ import { ThemeContext, ThemeProvider } from "./src/context/ThemeContext";
 import { useContext, useMemo } from "react";
 import { View } from "react-native";
 import { EquipoProvider } from "./src/context/EquipoContext";
+import { SocketProvider } from "./src/context/SocketContext";
+import { ChatProvider } from "./src/context/ChatContext";
 
 export default function App() {
   return (
@@ -20,17 +22,21 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <EquipoProvider>
-              <NotificacionProvider>
-                <AmistadProvider>
-                  <EventoProvider>
-                    <CampeonatoProvider>
-                      <AppMain />
-                    </CampeonatoProvider>
-                  </EventoProvider>
-                </AmistadProvider>
-              </NotificacionProvider>
-            </EquipoProvider>
+            <SocketProvider>
+              <EquipoProvider>
+                <NotificacionProvider>
+                  <AmistadProvider>
+                    <EventoProvider>
+                      <CampeonatoProvider>
+                        <ChatProvider>
+                          <AppMain />
+                        </ChatProvider>
+                      </CampeonatoProvider>
+                    </EventoProvider>
+                  </AmistadProvider>
+                </NotificacionProvider>
+              </EquipoProvider>
+            </SocketProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

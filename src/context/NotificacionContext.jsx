@@ -1,16 +1,25 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { 
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useContext,
+} from "react";
+import {
   getSolicitudesService,
   getInvitacionesService,
   responderSolicitudService,
   responderInvitacionService,
   getInvitacionesCampeonatosService,
-  responderInvitacionCampeonatoService
-} from '../services/notificacionService';
+  responderInvitacionCampeonatoService,
+} from "../services/notificacionService";
+import { SocketContext } from "./SocketContext";
 
 export const NotificacionContext = createContext();
 
 export const NotificacionProvider = ({ children }) => {
+  const { socket } = useContext(SocketContext);
   const [solicitudes, setSolicitudes] = useState([]);
   const [invitaciones, setInvitaciones] = useState([]);
   const [invitacionesCampeonato, setInvitacionesCampeonato] = useState([]);
@@ -22,7 +31,7 @@ export const NotificacionProvider = ({ children }) => {
       const data = await getSolicitudesService();
       setSolicitudes(data);
     } catch (err) {
-      console.error('Error al cargar solicitudes:', err);
+      console.error("Error al cargar solicitudes:", err);
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +43,7 @@ export const NotificacionProvider = ({ children }) => {
       const data = await getInvitacionesService();
       setInvitaciones(data);
     } catch (err) {
-      console.error('Error al cargar invitaciones:', err);
+      console.error("Error al cargar invitaciones:", err);
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +55,7 @@ export const NotificacionProvider = ({ children }) => {
       const data = await getInvitacionesCampeonatosService();
       setInvitacionesCampeonato(data);
     } catch (err) {
-      console.error('Error al cargar invitaciones a campeonatos:', err);
+      console.error("Error al cargar invitaciones a campeonatos:", err);
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +66,7 @@ export const NotificacionProvider = ({ children }) => {
     await Promise.all([
       cargarSolicitudes(),
       cargarInvitaciones(),
-      cargarInvitacionesCampeonatos()
+      cargarInvitacionesCampeonatos(),
     ]);
     setIsLoading(false);
   }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
@@ -67,7 +76,7 @@ export const NotificacionProvider = ({ children }) => {
     try {
       await responderSolicitudService(id, estado);
     } catch (err) {
-      console.error('Error al responder la notificacion:', err);
+      console.error("Error al responder la notificacion:", err);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +87,7 @@ export const NotificacionProvider = ({ children }) => {
     try {
       await responderInvitacionService(id, estado);
     } catch (err) {
-      console.error('Error al responder la notificacion:', err);
+      console.error("Error al responder la notificacion:", err);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +98,7 @@ export const NotificacionProvider = ({ children }) => {
     try {
       await responderInvitacionCampeonatoService(id, estado);
     } catch (err) {
-      console.error('Error al responder la invitacion a campeonato:', err);
+      console.error("Error al responder la invitacion a campeonato:", err);
     } finally {
       setIsLoading(false);
     }
@@ -101,19 +110,49 @@ export const NotificacionProvider = ({ children }) => {
     cargarInvitacionesCampeonatos();
   }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
 
-  const value = useMemo(() => ({
-    solicitudes,
-    invitaciones,
-    invitacionesCampeonato,
-    cargarSolicitudes,
-    cargarInvitaciones,
-    cargarInvitacionesCampeonatos,
-    responderSolicitud,
-    responderInvitacion,
-    responderInvitacionCampeonato,
-    refreshNotificaciones,
-    isLoading
-  }), [solicitudes, invitaciones, invitacionesCampeonato, cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos, responderSolicitud, responderInvitacion, responderInvitacionCampeonato, refreshNotificaciones, isLoading]);
+  useEffect(() => {
+    if (socket) {
+      const handleNuevaNotif = () => {
+        console.log(
+          "[Notificaciones] WebSocket ping: refrescando notificaciones",
+        );
+        refreshNotificaciones();
+      };
+      socket.on("nueva_notificacion", handleNuevaNotif);
+      return () => {
+        socket.off("nueva_notificacion", handleNuevaNotif);
+      };
+    }
+  }, [socket, refreshNotificaciones]);
+
+  const value = useMemo(
+    () => ({
+      solicitudes,
+      invitaciones,
+      invitacionesCampeonato,
+      cargarSolicitudes,
+      cargarInvitaciones,
+      cargarInvitacionesCampeonatos,
+      responderSolicitud,
+      responderInvitacion,
+      responderInvitacionCampeonato,
+      refreshNotificaciones,
+      isLoading,
+    }),
+    [
+      solicitudes,
+      invitaciones,
+      invitacionesCampeonato,
+      cargarSolicitudes,
+      cargarInvitaciones,
+      cargarInvitacionesCampeonatos,
+      responderSolicitud,
+      responderInvitacion,
+      responderInvitacionCampeonato,
+      refreshNotificaciones,
+      isLoading,
+    ],
+  );
 
   return (
     <NotificacionContext.Provider value={value}>

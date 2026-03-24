@@ -307,12 +307,21 @@ const eliminarFase = async (idFase) => {
           {equiposInscritos.length > 0 ? (
             <View className="mb-4">
               {equiposInscritos.map((equipo) => (
-                <View key={equipo.id} className="flex-row items-center p-3 bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-2">
+                <TouchableOpacity
+                  key={equipo.id}
+                  className="flex-row items-center p-3 bg-white dark:bg-neutral-800 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-2"
+                  onPress={() => {
+                    navigation.navigate("EquipoMiembrosScreen", {
+                      equipo: { ...equipo, id: equipo.equipo_id, nombre: equipo.equipo_nombre },
+                      isOwner: false
+                    });
+                  }}
+                >
                    <View className="flex-1">
                       <Text className="text-[14px] font-semibold text-[#1a1a1a] dark:text-white">{equipo.equipo_nombre}</Text>
                    </View>
-                   <Ionicons name="checkmark-circle" size={20} color="#28a745" />
-                </View>
+                   <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+                </TouchableOpacity>
               ))}
             </View>
           ) : (

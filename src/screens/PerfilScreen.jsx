@@ -26,15 +26,27 @@ const InfoRow = ({ icon, label, value }) => (
   </View>
 );
 
-export default function PerfilScreen() {
-  const { usuario } = useContext(AuthContext);
+export default function PerfilScreen({ route, navigation }) {
+  const { usuario: authUsuario } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
+
+  const usuarioPerfil = route?.params?.usuarioPerfil;
+  const usuario = usuarioPerfil || authUsuario;
+  const isSelf = !usuarioPerfil || usuarioPerfil.id === authUsuario?.id;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
       <ScrollView style={{ flex: 1 }} className="px-4" showsVerticalScrollIndicator={false}>
         {/* Header / Banner area */}
-        <View className="items-center mt-8 mb-6">
+        <View className="items-center mt-8 mb-6 relative">
+          {usuarioPerfil && (
+            <TouchableOpacity 
+              onPress={() => navigation.goBack()} 
+              style={{ position: 'absolute', left: 0, top: 0, padding: 8, zIndex: 10 }}
+            >
+              <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} />
+            </TouchableOpacity>
+          )}
           <View className="relative">
             <View className="w-32 h-32 rounded-full border-4 border-white dark:border-neutral-800 shadow-xl overflow-hidden">
               <Image
@@ -93,10 +105,12 @@ export default function PerfilScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 40, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
-          <Ionicons name="create-outline" size={20} color="#1D4ED8" />
-          <Text className="text-blue-700 dark:text-blue-400 font-bold ml-2">Editar Perfil</Text>
-        </TouchableOpacity>
+        {isSelf && (
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 40, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
+            <Ionicons name="create-outline" size={20} color="#1D4ED8" />
+            <Text className="text-blue-700 dark:text-blue-400 font-bold ml-2">Editar Perfil</Text>
+          </TouchableOpacity>
+        )}
         
         <View className="h-10" />
       </ScrollView>

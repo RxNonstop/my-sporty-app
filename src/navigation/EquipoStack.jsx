@@ -8,6 +8,7 @@ import CrearEquipoScreen from "../screens/CrearEquipoScreen";
 import EquiposScreen from "../screens/EquiposScreen";
 import InvitacionEquipoScreen from "../screens/InvitacionEquipoScreen";
 import DetalleEquipoScreen from "../screens/DetalleEquipoScreen";
+import PerfilScreen from "../screens/PerfilScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,11 @@ export default function EquipoStack() {
       <Stack.Screen
         name="DetalleEquipoScreen"
         component={DetalleEquipoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MiembroPerfil"
+        component={PerfilScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

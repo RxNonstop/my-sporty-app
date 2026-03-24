@@ -7,6 +7,8 @@ import SeleccionarEquiposScreen from "../screens/SeleccionarEquiposScreen";
 import CrearEquipoScreen from "../screens/CrearEquipoScreen";
 import FasesCampeonatoScreen from "../screens/FasesCampeonatoScreen";
 import FixtureFaseScreen from "../screens/FixtureFaseScreen";
+import EquipoMiembrosScreen from "../screens/EquipoMiembrosScreen";
+import PerfilScreen from "../screens/PerfilScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +36,16 @@ export default function EventoStack() {
       <Stack.Screen
         name="FixtureFaseScreen"
         component={FixtureFaseScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EquipoMiembrosScreen"
+        component={EquipoMiembrosScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MiembroPerfil"
+        component={PerfilScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
