@@ -59,3 +59,19 @@ export const getUser = async () => {
   });
   return res.data.data.user;
 };
+
+export const updatePushTokenService = async (token) => {
+  const authToken = await AsyncStorage.getItem("token");
+  if (!authToken) return;
+  const res = await axios.put(
+    `${API_URL}/usuarios/update/push-token`,
+    { token },
+    {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  return res.data;
+};

@@ -13,6 +13,7 @@ export const ChatProvider = ({ children }) => {
   const [resumenEquipos, setResumenEquipos] = useState({});
   const [totalUnread, setTotalUnread] = useState(0);
 
+
   const cargarResumen = useCallback(async () => {
     try {
       if (!usuario) return;
@@ -40,8 +41,8 @@ export const ChatProvider = ({ children }) => {
   useEffect(() => {
     if (socket && usuario) {
       const handleAmigoMessage = (msg) => {
-        // Only trigger unread if it's not sent by me
-        const isFromMe = msg.emisor_id === usuario.id;
+        // Only trigger unread if it's not sent by me (safe type comparison)
+        const isFromMe = String(msg.emisor_id) === String(usuario.id);
         const otherId = isFromMe ? msg.receptor_id : msg.emisor_id;
         
         setResumenAmigos(prev => {
@@ -59,7 +60,7 @@ export const ChatProvider = ({ children }) => {
 
       const handleEquipoMessage = (msg) => {
         const equipoId = msg.equipo_id;
-        const isFromMe = msg.emisor_id === usuario.id;
+        const isFromMe = String(msg.emisor_id) === String(usuario.id);
 
         setResumenEquipos(prev => {
           const prevResumen = prev[equipoId] || { unread_count: 0 };

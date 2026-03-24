@@ -15,6 +15,7 @@ import {
   responderInvitacionCampeonatoService,
 } from "../services/notificacionService";
 import { SocketContext } from "./SocketContext";
+import { showLocalNotification } from "../utils/localNotifications";
 
 export const NotificacionContext = createContext();
 
@@ -117,6 +118,10 @@ export const NotificacionProvider = ({ children }) => {
           "[Notificaciones] WebSocket ping: refrescando notificaciones",
         );
         refreshNotificaciones();
+        showLocalNotification(
+          "Nueva notificación",
+          "Tienes una nueva solicitud de amistad o invitación a equipo."
+        );
       };
       socket.on("nueva_notificacion", handleNuevaNotif);
       return () => {

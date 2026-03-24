@@ -10,11 +10,20 @@ import { CampeonatoProvider } from "./src/context/CampeonatoContext";
 import AuthStack from "./src/navigation/AuthStack";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { ThemeContext, ThemeProvider } from "./src/context/ThemeContext";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useEffect } from "react";
 import { View } from "react-native";
 import { EquipoProvider } from "./src/context/EquipoContext";
 import { SocketProvider } from "./src/context/SocketContext";
 import { ChatProvider } from "./src/context/ChatContext";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export default function App() {
   return (
@@ -68,6 +77,25 @@ function AppMain() {
     }),
     [isDarkMode],
   );
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data;
+
+        if (data.type === "amigo") {
+          // Redirigir al chat de amigo
+          // Necesitaremos que el Navigator esté listo, pero por ahora registramos el evento
+          console.log("[Push] Tapped notification for amigo:", data.id);
+        } else if (data.type === "equipo") {
+          // Redirigir al chat de equipo
+          console.log("[Push] Tapped notification for equipo:", data.id);
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   return (
     <NavigationContainer theme={MyTheme}>

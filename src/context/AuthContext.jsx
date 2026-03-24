@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as authService from "../services/AuthService";
+import { registerForPushNotificationsAsync } from "../utils/registerForPushNotificationsAsync";
 
 export const AuthContext = createContext();
 
@@ -25,6 +26,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     cargarUsuario();
   }, [cargarUsuario]);
+
+  useEffect(() => {
+    if (usuario) {
+      registerForPushNotificationsAsync().then(token => {
+        if (token) {
+          authService.updatePushTokenService(token);
+        }
+      });
+    }
+  }, [usuario]);
 
   const login = useCallback(async (email, password) => {
     const data = await authService.login(email, password);

@@ -33,6 +33,13 @@ export default function ChatRoomScreen({ route, navigation }) {
   const flatListRef = useRef(null);
   
   const { marcarAmigoLeido, marcarEquipoLeido } = useContext(ChatContext);
+  const { setActiveChat } = useContext(SocketContext);
+
+  useEffect(() => {
+    // Establecer este chat como activo para suprimir notificaciones locales redundantes
+    setActiveChat({ type, id: target.id });
+    return () => setActiveChat(null);
+  }, [type, target.id, setActiveChat]);
 
   useEffect(() => {
     if (type === "amigo") {
