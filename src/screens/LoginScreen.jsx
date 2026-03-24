@@ -42,6 +42,7 @@ export default function LoginScreen({ navigation }) {
             source={require("../../assets/sports_banner_auth.png")} // Use the generated asset
             className="h-full w-full"
             resizeMode="cover"
+            style={{ width: '100%', height: '100%' }}
           />
           <View className="absolute inset-0 bg-black/40 items-center justify-center">
             <Text className="text-4xl font-bold text-white tracking-widest uppercase">My Sporty</Text>

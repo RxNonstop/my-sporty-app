@@ -38,7 +38,7 @@ const FixtureInvitadosScreen = ({ route }) => {
       {fixture.length > 0 ? (
         <FlatList
           data={fixture}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id?.toString()}
           renderItem={renderItem}
         />
       ) : (

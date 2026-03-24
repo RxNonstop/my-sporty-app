@@ -46,7 +46,7 @@ export default function InvitarAmigosScreen() {
       <FlatList
         style={{ flex: 1 }}
         data={amigos}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id?.toString()}
         renderItem={renderAmigo}
         ListEmptyComponent={<Text>No tienes amigos disponibles</Text>}
       />

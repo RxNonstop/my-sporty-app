@@ -437,7 +437,7 @@ const eliminarFase = async (idFase) => {
                       {calcularDivisores(
                         fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes
                       ).map((div, idx) => (
-                        <Picker.Item key={idx} label={`${div}`} value={div.toString()} color="#1a1a1a" />
+                        <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color="#1a1a1a" />
                       ))}
                     </Picker>
                   </View>
