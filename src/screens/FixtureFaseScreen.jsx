@@ -17,8 +17,12 @@ import {
   getPartidosFaseService,
   getPosicionesFaseService,
   actualizarPartidoService,
+  getEscenariosService,
 } from "../services/eventoService";
 import { ThemeContext } from "../context/ThemeContext";
+import { AuthContext } from "../context/AuthContext";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 
 const FixtureFaseScreen = ({ route, navigation }) => {
   const { fase, campeonato, readOnly } = route.params || {};
@@ -31,7 +35,15 @@ const FixtureFaseScreen = ({ route, navigation }) => {
   const [selectedPartido, setSelectedPartido] = useState(null);
   const [scoreLocal, setScoreLocal] = useState("");
   const [scoreVisitante, setScoreVisitante] = useState("");
+  const [fecha, setFecha] = useState(new Date());
+  const [hora, setHora] = useState(new Date());
+  const [lugar, setLugar] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
+  const { usuario } = useContext(AuthContext);
+
+  const esPropietario = usuario?.id == campeonato?.propietario_id;
 
   useEffect(() => {
     cargarFase();
@@ -55,13 +67,26 @@ const FixtureFaseScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleUpdateScore = async (partidoId, localScore, visScore) => {
+  const handleUpdatePartido = async (status = null) => {
     try {
-      await actualizarPartidoService(partidoId, {
-        puntos_local: localScore,
-        puntos_visitante: visScore,
-        estado: "finalizado",
-      });
+      // Combinar fecha y hora
+      const combinedDate = new Date(fecha);
+      combinedDate.setHours(hora.getHours());
+      combinedDate.setMinutes(hora.getMinutes());
+
+      const dataToUpdate = {
+        puntos_local: scoreLocal !== "" ? scoreLocal : null,
+        puntos_visitante: scoreVisitante !== "" ? scoreVisitante : null,
+        fecha: combinedDate.toISOString().slice(0, 19).replace('T', ' '),
+        lugar: lugar || null,
+      };
+
+      if (status) {
+        dataToUpdate.estado = status;
+      }
+
+      await actualizarPartidoService(selectedPartido.id, dataToUpdate);
+      setModalVisible(false);
       cargarFase();
     } catch (e) {
       Alert.alert("Error", "No se pudo actualizar el partido");
@@ -115,26 +140,46 @@ const FixtureFaseScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {!readOnly && partido.estado !== "finalizado" && (
+        <View className="flex-row flex-wrap mt-2 px-1">
+          {(partido.escenario_nombre || partido.lugar) && (
+            <View className="flex-row items-center mr-4 mb-1">
+              <Ionicons name="location-outline" size={14} color="#6b7280" />
+              <Text className="text-[11px] text-gray-500 ml-1 italic" numberOfLines={1}>
+                {partido.lugar || partido.escenario_nombre}
+              </Text>
+            </View>
+          )}
+          {partido.fecha && (
+            <View className="flex-row items-center mb-1">
+              <Ionicons name="calendar-outline" size={14} color="#6b7280" />
+              <Text className="text-[11px] text-gray-500 ml-1">
+                {new Date(partido.fecha).toLocaleDateString([], { day: '2-digit', month: '2-digit' })}
+              </Text>
+              <Ionicons name="time-outline" size={14} color="#6b7280" className="ml-2" style={{marginLeft: 8}} />
+              <Text className="text-[11px] text-gray-500 ml-1">
+                {new Date(partido.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {esPropietario && partido.estado !== 'finalizado' && (
           <TouchableOpacity
             className="mt-4 bg-indigo-50 border border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800 py-2 rounded-lg items-center"
             onPress={() => {
               setSelectedPartido(partido);
-              setScoreLocal(
-                partido.puntos_local !== null
-                  ? String(partido.puntos_local)
-                  : "",
-              );
-              setScoreVisitante(
-                partido.puntos_visitante !== null
-                  ? String(partido.puntos_visitante)
-                  : "",
-              );
+              setScoreLocal(partido.puntos_local !== null ? String(partido.puntos_local) : "");
+              setScoreVisitante(partido.puntos_visitante !== null ? String(partido.puntos_visitante) : "");
+              
+              const pDate = partido.fecha ? new Date(partido.fecha) : new Date();
+              setFecha(pDate);
+              setHora(pDate);
+              setLugar(partido.lugar || "");
               setModalVisible(true);
             }}
           >
             <Text className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
-              Actualizar Resultado
+              Editar Encuentro
             </Text>
           </TouchableOpacity>
         )}
@@ -334,7 +379,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
       </View>
 
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
@@ -343,91 +388,141 @@ const FixtureFaseScreen = ({ route, navigation }) => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1 justify-center items-center bg-black/50"
         >
-          <View className="bg-white dark:bg-neutral-800 w-[85%] rounded-2xl p-6 shadow-xl">
-            <Text className="text-lg font-bold text-center mb-4 text-[#1a1a1a] dark:text-white">
-              Actualizar Marcador
-            </Text>
+          <View className="bg-white dark:bg-neutral-800 w-[90%] rounded-2xl p-6 shadow-xl max-h-[90%]">
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text className="text-lg font-bold text-center mb-4 text-[#1a1a1a] dark:text-white">
+                Editar Encuentro
+              </Text>
 
-            <View className="flex-row justify-around items-center mb-6">
-              <View className="items-center flex-1">
-                <Text
-                  className="text-xs text-gray-500 mb-2 truncate max-w-full"
-                  numberOfLines={1}
+              {/* Fecha y Hora */}
+              <Text className="text-xs font-bold text-gray-500 mb-2 uppercase">Programación</Text>
+              <View className="flex-row space-x-2 mb-4">
+                <TouchableOpacity 
+                  onPress={() => setShowDatePicker(true)}
+                  className="flex-1 bg-gray-100 dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-700 flex-row items-center justify-between"
                 >
-                  {selectedPartido?.equipo_local_nombre || "Local"}
-                </Text>
-                <TextInput
-                  className="bg-gray-100 dark:bg-neutral-900 w-16 h-16 rounded-xl text-center text-2xl font-bold dark:text-white border border-gray-200 dark:border-neutral-700"
-                  keyboardType="numeric"
-                  value={scoreLocal}
-                  onChangeText={setScoreLocal}
-                  maxLength={2}
-                />
-              </View>
-              <Text className="text-2xl font-bold text-gray-400 mx-2">-</Text>
-              <View className="items-center flex-1">
-                <Text
-                  className="text-xs text-gray-500 mb-2 truncate max-w-full"
-                  numberOfLines={1}
+                  <Text className="dark:text-white text-sm">{fecha.toLocaleDateString()}</Text>
+                  <Ionicons name="calendar-outline" size={18} color="#6366f1" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => setShowTimePicker(true)}
+                  className="flex-1 bg-gray-100 dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-700 flex-row items-center justify-between"
                 >
-                  {selectedPartido?.equipo_visitante_nombre || "Visitante"}
-                </Text>
-                <TextInput
-                  className="bg-gray-100 dark:bg-neutral-900 w-16 h-16 rounded-xl text-center text-2xl font-bold dark:text-white border border-gray-200 dark:border-neutral-700"
-                  keyboardType="numeric"
-                  value={scoreVisitante}
-                  onChangeText={setScoreVisitante}
-                  maxLength={2}
-                />
+                  <Text className="dark:text-white text-sm">
+                    {hora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                  <Ionicons name="time-outline" size={18} color="#6366f1" />
+                </TouchableOpacity>
               </View>
-            </View>
 
-            <View className="flex-row space-x-3">
-              <TouchableOpacity
-                style={{
-                  display: "flex",
-                  flex: 1,
-                  paddingVertical: 8,
-                  borderRadius: 6,
-                  alignItems: "center",
-                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fafafa",
-                }}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text className="text-center font-semibold text-gray-700 dark:text-gray-300">
-                  Cancelar
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  display: "flex",
-                  flex: 1,
-                  paddingVertical: 8,
-                  borderRadius: 6,
+              {showDatePicker && (
+                <DateTimePicker
+                  value={fecha}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setFecha(selectedDate);
+                  }}
+                />
+              )}
 
-                  backgroundColor: isDarkMode ? "#6366f1" : "#4f46e5",
-                }}
-                onPress={() => {
-                  if (scoreLocal === "" || scoreVisitante === "") {
-                    Alert.alert("Error", "Ingresa ambos marcadores");
-                    return;
-                  }
-                  handleUpdateScore(
-                    selectedPartido.id,
-                    scoreLocal,
-                    scoreVisitante,
-                  );
-                  setModalVisible(false);
-                }}
-              >
-                <Text className="text-center font-bold text-white">
-                  Guardar
-                </Text>
-              </TouchableOpacity>
-            </View>
+              {showTimePicker && (
+                <DateTimePicker
+                  value={hora}
+                  mode="time"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowTimePicker(false);
+                    if (selectedDate) setHora(selectedDate);
+                  }}
+                />
+              )}
+
+              {/* Lugar (Textarea) */}
+              <Text className="text-xs font-bold text-gray-500 mb-2 uppercase">Lugar / Dirección</Text>
+              <TextInput
+                className="bg-gray-100 dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-700 mb-6 dark:text-white text-sm"
+                placeholder="Ej: Cancha del barrio, Calle 123..."
+                multiline={true}
+                numberOfLines={3}
+                textAlignVertical="top"
+                value={lugar}
+                onChangeText={setLugar}
+                style={{ minHeight: 80 }}
+              />
+
+              {/* Marcadores */}
+              <Text className="text-xs font-bold text-gray-500 mb-2 uppercase">Marcador Actual</Text>
+              <View className="flex-row justify-around items-center mb-8">
+                <View className="items-center flex-1">
+                  <Text className="text-[10px] text-gray-400 mb-1 font-bold text-center" numberOfLines={1}>
+                    {selectedPartido?.equipo_local_nombre || "LOCAL"}
+                  </Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-neutral-900 w-16 h-16 rounded-xl text-center text-2xl font-bold dark:text-white border border-gray-200 dark:border-neutral-700"
+                    keyboardType="numeric"
+                    value={scoreLocal}
+                    onChangeText={setScoreLocal}
+                    placeholder="-"
+                  />
+                </View>
+                <Text className="text-2xl font-bold text-gray-300 mx-2">-</Text>
+                <View className="items-center flex-1">
+                  <Text className="text-[10px] text-gray-400 mb-1 font-bold text-center" numberOfLines={1}>
+                    {selectedPartido?.equipo_visitante_nombre || "VISITANTE"}
+                  </Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-neutral-900 w-16 h-16 rounded-xl text-center text-2xl font-bold dark:text-white border border-gray-200 dark:border-neutral-700"
+                    keyboardType="numeric"
+                    value={scoreVisitante}
+                    onChangeText={setScoreVisitante}
+                    placeholder="-"
+                  />
+                </View>
+              </View>
+
+              {/* Botones de Acción */}
+              <View className="space-y-3">
+                <TouchableOpacity
+                  className="bg-indigo-600 py-3 rounded-xl items-center shadow-sm"
+                  onPress={() => handleUpdatePartido()}
+                >
+                  <Text className="text-white font-bold">Guardar Cambios</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="bg-emerald-600 py-3 rounded-xl items-center shadow-sm"
+                  onPress={() => {
+                    Alert.alert(
+                      "Finalizar Partido",
+                      "¿Estás seguro? Esto bloqueará el resultado para usuarios normales y actualizará las tablas/llaves.",
+                      [
+                        { text: "Cancelar", style: "cancel" },
+                        { 
+                          text: "Sí, Finalizar", 
+                          onPress: () => handleUpdatePartido('finalizado'),
+                          style: "destructive"
+                        }
+                      ]
+                    );
+                  }}
+                >
+                  <Text className="text-white font-bold">Finalizar Partido</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="py-3 rounded-xl items-center"
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text className="text-gray-500 dark:text-gray-400 font-semibold">Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
     </View>
   );
 };

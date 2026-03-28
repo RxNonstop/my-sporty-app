@@ -143,3 +143,8 @@ export const getCampeonatosParticipando = async (userId) => {
     return [];
   }
 };
+
+export const getEscenariosService = async () => {
+  const res = await axios.get(`${API_URL}/escenarios-deportivos`, await authHeader());
+  return res.data.data || [];
+};
