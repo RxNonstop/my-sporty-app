@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {
   getPosicionesFaseService,
   actualizarPartidoService,
 } from "../services/eventoService";
+import { ThemeContext } from "../context/ThemeContext";
 
 const FixtureFaseScreen = ({ route, navigation }) => {
   const { fase, campeonato, readOnly } = route.params || {};
@@ -30,6 +31,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
   const [selectedPartido, setSelectedPartido] = useState(null);
   const [scoreLocal, setScoreLocal] = useState("");
   const [scoreVisitante, setScoreVisitante] = useState("");
+  const { isDarkMode } = useContext(ThemeContext);
 
   useEffect(() => {
     cargarFase();
@@ -231,7 +233,12 @@ const FixtureFaseScreen = ({ route, navigation }) => {
         <View className="flex-row items-center mb-5">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="mr-3 p-1 rounded-full dark:bg-neutral-800"
+            style={{
+              marginRight: 12,
+              padding: 4,
+              borderRadius: 999,
+              backgroundColor: isDarkMode ? "#1a1a1a" : "#fafafa",
+            }}
           >
             <Ionicons
               name="arrow-back"
@@ -281,7 +288,6 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                       : undefined
                     : "transparent",
               }}
-              className={`${activeTab === "fixture" ? "bg-white dark:bg-neutral-700 shadow-sm" : ""}`}
               onPress={() => setActiveTab("fixture")}
             >
               <Text
@@ -303,7 +309,6 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                 backgroundColor:
                   activeTab === "posiciones" ? "#ffffff" : "transparent",
               }}
-              className={`${activeTab === "posiciones" ? "bg-white dark:bg-neutral-700 shadow-sm" : ""}`}
               onPress={() => setActiveTab("posiciones")}
             >
               <Text
@@ -379,7 +384,14 @@ const FixtureFaseScreen = ({ route, navigation }) => {
 
             <View className="flex-row space-x-3">
               <TouchableOpacity
-                className="flex-1 py-3 rounded-lg bg-gray-200 dark:bg-neutral-700"
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  paddingVertical: 8,
+                  borderRadius: 6,
+                  alignItems: "center",
+                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fafafa",
+                }}
                 onPress={() => setModalVisible(false)}
               >
                 <Text className="text-center font-semibold text-gray-700 dark:text-gray-300">
@@ -387,7 +399,14 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="flex-1 py-3 rounded-lg bg-indigo-600 dark:bg-indigo-500"
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  paddingVertical: 8,
+                  borderRadius: 6,
+
+                  backgroundColor: isDarkMode ? "#6366f1" : "#4f46e5",
+                }}
                 onPress={() => {
                   if (scoreLocal === "" || scoreVisitante === "") {
                     Alert.alert("Error", "Ingresa ambos marcadores");
