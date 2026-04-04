@@ -18,7 +18,7 @@ import { ChatProvider } from "./src/context/ChatContext";
 import * as Notifications from "expo-notifications";
 import { LogBox } from "react-native";
 
-LogBox.ignoreLogs(['expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo GO with the release of SDK 53. Use a development build instead of Expo Go. Read more at https://docs.expo.dev/develop/development.builds/introduction/.']);
+LogBox.ignoreAllLogs(true)
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
