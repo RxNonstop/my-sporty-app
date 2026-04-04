@@ -91,7 +91,7 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           {loginError ? (
-            <View className="bg-red dark:bg-red/20 border border-red dark:border-red/40 rounded-xl p-3 mt-4">
+            <View className="dark:border-red/40 rounded-xl p-3 mt-4">
               <Text className="text-red dark:text-red text-sm text-center font-medium">{loginError}</Text>
             </View>
           ) : null}

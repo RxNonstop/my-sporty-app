@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo,useContext } from 'react';
 import {
   getAmigos,
   encontrarUsuario,
@@ -11,6 +11,7 @@ export const AmistadContext = createContext();
 export const AmistadProvider = ({ children }) => {
   const [amigos, setAmigos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { usuario } = useContext(AuthContext);
 
   const cargarAmigos = useCallback(async () => {
     setIsLoading(true);
@@ -25,8 +26,10 @@ export const AmistadProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    cargarAmigos();
-  }, [cargarAmigos]);
+    if (usuario) {
+      cargarAmigos();
+    }
+  }, [usuario,cargarAmigos]);
 
   const encontrarUsuarioPorCorreo = useCallback(async (correo) => {
     setIsLoading(true);

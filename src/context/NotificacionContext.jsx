@@ -16,11 +16,14 @@ import {
 } from "../services/notificacionService";
 import { SocketContext } from "./SocketContext";
 import { showLocalNotification } from "../utils/localNotifications";
+import { AuthContext } from "./AuthContext";
+
 
 export const NotificacionContext = createContext();
 
 export const NotificacionProvider = ({ children }) => {
   const { socket } = useContext(SocketContext);
+  const { usuario } = useContext(AuthContext);
   const [solicitudes, setSolicitudes] = useState([]);
   const [invitaciones, setInvitaciones] = useState([]);
   const [invitacionesCampeonato, setInvitacionesCampeonato] = useState([]);
@@ -106,10 +109,12 @@ export const NotificacionProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    cargarSolicitudes();
-    cargarInvitaciones();
-    cargarInvitacionesCampeonatos();
-  }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
+    if (usuario) {
+      cargarSolicitudes();
+      cargarInvitaciones();
+      cargarInvitacionesCampeonatos();
+    }
+  }, [usuario,cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
 
   useEffect(() => {
     if (socket) {

@@ -15,6 +15,11 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
+  if (Constants.appOwnership === 'expo') {
+    console.log('⚠️ Expo Go no soporta push notifications (SDK 53)');
+    return null;
+  }
+
   if (Device.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -29,9 +34,15 @@ export async function registerForPushNotificationsAsync() {
     
     // El projectId es necesario para Expo 48+
     const projectId = Constants.expoConfig?.extra?.eas?.projectId || Constants.easConfig?.projectId;
-    
-    token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-    console.log('[Push] Token obtenido:', token);
+
+    try{
+
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+      console.log('[Push] Token obtenido:', token);
+    } catch (error) {
+      console.log('Error obteniendo token:', error);
+      return null;
+    }   
   } else {
     console.log('[Push] Debes usar un dispositivo físico para notificaciones push');
   }
