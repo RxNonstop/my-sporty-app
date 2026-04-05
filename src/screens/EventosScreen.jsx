@@ -1,49 +1,309 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useContext } from "react";
-import { CampeonatoContext } from "../context/CampeonatoContext";
-import { ThemeContext } from "../context/ThemeContext";
-import EventCard from "../components/EventCard";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  RefreshControl,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
+import EventCard from '../components/EventCard';
+import { getMisEventos, getCampeonatosParticipando } from '../services/eventoService';
 
-const EventosScreen = () => {
-  const [events, setEvents] = useState([]);
-  const navigation = useNavigation();
-  const { misCampeonatos } = useContext(CampeonatoContext);
+const STATUS_OPTIONS = [
+  { label: 'Todos', value: 'todos' },
+  { label: 'Activo / En Curso', value: 'activo' },
+  { label: 'Borrador / Programado', value: 'borrador' },
+  { label: 'Finalizado', value: 'finalizado' },
+];
+
+const DATE_OPTIONS = [
+  { label: 'Más recientes', value: 'desc' },
+  { label: 'Más antiguos', value: 'asc' },
+];
+
+const EventosScreen = ({ navigation }) => {
+  const { usuario } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
 
-  useEffect(() => {
-    const campeonatosBorrador = misCampeonatos.filter(
-      (c) => c.estado === "borrador",
-    );
-    setEvents(campeonatosBorrador);
-  }, [misCampeonatos]);
+  const [activeTab, setActiveTab] = useState('propios'); // 'propios' | 'participando'
+  const [filterStatus, setFilterStatus] = useState('todos');
+  const [filterDate, setFilterDate] = useState('desc');
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+
+  const [propiosData, setPropiosData] = useState([]);
+  const [participandoData, setParticipandoData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    if (!usuario?.id) return;
+    try {
+      const [propios, participando] = await Promise.all([
+        getMisEventos(usuario.id),
+        getCampeonatosParticipando(usuario.id),
+      ]);
+      setPropiosData(Array.isArray(propios) ? propios : []);
+      setParticipandoData(Array.isArray(participando) ? participando : []);
+    } catch (err) {
+      console.error('Error fetching campeonatos:', err);
+    }
+  };
+
+  const loadData = async () => {
+    setLoading(true);
+    await fetchData();
+    setLoading(false);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [usuario])
+  );
+
+  const getFilteredList = () => {
+    const base = activeTab === 'propios' ? propiosData : participandoData;
+
+    let filtered = base.filter((c) => {
+      if (filterStatus === 'todos') return true;
+      return c.estado === filterStatus;
+    });
+
+    filtered = [...filtered].sort((a, b) => {
+      const dA = new Date(a.fecha_inicio || a.fecha_creacion || 0);
+      const dB = new Date(b.fecha_inicio || b.fecha_creacion || 0);
+      return filterDate === 'desc' ? dB - dA : dA - dB;
+    });
+
+    return filtered;
+  };
+
+  const filteredList = getFilteredList();
+
+  const activeStatusLabel = STATUS_OPTIONS.find((o) => o.value === filterStatus)?.label;
+  const activeDateLabel = DATE_OPTIONS.find((o) => o.value === filterDate)?.label;
+  const hasActiveFilter = filterStatus !== 'todos' || filterDate !== 'desc';
 
   return (
-    <View className="flex-1 bg-[#fafafa] dark:bg-neutral-900 ">
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <EventCard
-            key={item.id}
-            evento={item}
-            onPress={() =>
-              navigation.navigate("FasesCampeonatoScreen", {
-                campeonato: item,
-              })
-            }
-          />
-        )}
-        ListEmptyComponent={
-          <View className="flex-1 items-center justify-center p-8 mt-10">
-            <Text className="text-center text-[#8a8a8a] dark:text-neutral-500 text-sm">
-              No tienes campeonatos creados.
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
+
+      {/* TABS — same style as FixtureFaseScreen */}
+      <View className="mx-5 mt-4 mb-2">
+        <View 
+          style={{
+            flexDirection: 'row',
+            backgroundColor: isDarkMode ? '#262626' : '#e5e7eb',
+            borderRadius: 8,
+            padding: 4,
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              borderRadius: 6,
+              alignItems: 'center',
+              backgroundColor: activeTab === 'propios' ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: activeTab === 'propios' ? 0.1 : 0,
+              shadowRadius: 2,
+              elevation: activeTab === 'propios' ? 2 : 0,
+            }}
+            onPress={() => setActiveTab('propios')}
+          >
+            <Text 
+              style={{
+                fontWeight: '600',
+                fontSize: 14,
+                color: activeTab === 'propios' ? (isDarkMode ? '#ffffff' : '#4f46e5') : (isDarkMode ? '#a3a3a3' : '#6b7280'),
+              }}
+            >
+              Mis Torneos
             </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              borderRadius: 6,
+              alignItems: 'center',
+              backgroundColor: activeTab === 'participando' ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: activeTab === 'participando' ? 0.1 : 0,
+              shadowRadius: 2,
+              elevation: activeTab === 'participando' ? 2 : 0,
+            }}
+            onPress={() => setActiveTab('participando')}
+          >
+            <Text 
+              style={{
+                fontWeight: '600',
+                fontSize: 14,
+                color: activeTab === 'participando' ? (isDarkMode ? '#ffffff' : '#4f46e5') : (isDarkMode ? '#a3a3a3' : '#6b7280'),
+              }}
+            >
+              Participando
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* FILTER BUTTON */}
+      <View className="mx-5 mb-3 flex-row items-center justify-between">
+        <Text className="text-xs text-gray-500 dark:text-neutral-400">
+          {filteredList.length} campeonato{filteredList.length !== 1 ? 's' : ''}
+        </Text>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row', alignItems: 'center',
+            paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
+            borderWidth: 1,
+            backgroundColor: hasActiveFilter ? '#4f46e5' : '#ffffff',
+            borderColor: hasActiveFilter ? '#4f46e5' : '#eaeaea',
+          }}
+          onPress={() => setFilterModalVisible(true)}
+        >
+          <Ionicons name="filter" size={14} color={hasActiveFilter ? '#fff' : (isDarkMode ? '#aaa' : '#555')} />
+          <Text className={`ml-1.5 text-xs font-semibold ${hasActiveFilter ? 'text-white' : 'text-gray-600 dark:text-neutral-400'}`}>
+            {hasActiveFilter ? `${activeStatusLabel} · ${activeDateLabel}` : 'Filtrar'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* LIST */}
+      <View style={{ flex: 1 }}>
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#4f46e5" />
           </View>
-        }
-      />
-    </View>
+        ) : (
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{ paddingBottom: 100 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#4f46e5']}
+                tintColor={isDarkMode ? '#ffffff' : '#4f46e5'}
+              />
+            }
+          >
+            {filteredList.length === 0 ? (
+              <View className="mx-5 mt-4 p-8 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
+                <Ionicons name="trophy-outline" size={40} color={isDarkMode ? '#555' : '#ccc'} />
+                <Text className="text-center text-[#8a8a8a] dark:text-neutral-500 font-medium mt-3 mb-1">
+                  {activeTab === 'propios' ? 'No has creado ningún torneo.' : 'No estás participando en ningún torneo.'}
+                </Text>
+                {hasActiveFilter && (
+                  <Text className="text-center text-[#a1a1a1] dark:text-neutral-600 text-xs mt-1">
+                    Prueba cambiando los filtros.
+                  </Text>
+                )}
+              </View>
+            ) : (
+              filteredList.map((item) => (
+                <EventCard
+                  key={item.id}
+                  evento={item}
+                  onPress={() => navigation.navigate('FasesCampeonatoScreen', {
+                    campeonato: item,
+                    readOnly: item.propietario_id != usuario?.id,
+                  })}
+                />
+              ))
+            )}
+          </ScrollView>
+        )}
+      </View>
+
+      {/* FILTER MODAL POPUP */}
+      <Modal
+        visible={filterModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFilterModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+          activeOpacity={1}
+          onPress={() => setFilterModalVisible(false)}
+        >
+          <TouchableOpacity activeOpacity={1}>
+            <View className="bg-white dark:bg-neutral-800 rounded-t-3xl px-5 pt-5 pb-10">
+              <View className="w-10 h-1 bg-gray-300 dark:bg-neutral-600 rounded-full self-center mb-5" />
+
+              {/* Estado */}
+              <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3">
+                Estado
+              </Text>
+              <View className="flex-row flex-wrap gap-2 mb-5">
+                {STATUS_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    className={`px-4 py-2 rounded-full border ${filterStatus === opt.value ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-[#eaeaea] dark:border-neutral-700'}`}
+                    onPress={() => setFilterStatus(opt.value)}
+                  >
+                    <Text className={`text-sm font-semibold ${filterStatus === opt.value ? 'text-white' : 'text-gray-600 dark:text-neutral-300'}`}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Fecha */}
+              <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3">
+                Ordenar por fecha
+              </Text>
+              <View className="flex-row gap-2 mb-6">
+                {DATE_OPTIONS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    className={`px-4 py-2 rounded-full border ${filterDate === opt.value ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-[#eaeaea] dark:border-neutral-700'}`}
+                    onPress={() => setFilterDate(opt.value)}
+                  >
+                    <Text className={`text-sm font-semibold ${filterDate === opt.value ? 'text-white' : 'text-gray-600 dark:text-neutral-300'}`}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#eaeaea', alignItems: 'center' }}
+                  onPress={() => { setFilterStatus('todos'); setFilterDate('desc'); }}
+                >
+                  <Text className="text-sm font-semibold text-gray-500 dark:text-neutral-400">Limpiar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#4f46e5', alignItems: 'center' }}
+                  onPress={() => setFilterModalVisible(false)}
+                >
+                  <Text className="text-sm font-bold text-white">Aplicar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
+    </SafeAreaView>
   );
 };
 

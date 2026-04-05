@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/drawer";
 import { View, Text, SafeAreaView, ScrollView, Pressable } from "react-native";
 import StackNavigator from "./EventoStack";
-import HomeScreen from "../screens/HomeScreen";
+import HomeStack from "./HomeStack";
 import PerfilScreen from "../screens/PerfilScreen";
 import ConfiguracionScreen from "../screens/ConfiguracionScreen";
 import EventoStack from "./EventoStack"; // stack con pantalla oculta
@@ -17,36 +17,47 @@ import CalendarioScreen from "../screens/CalendarioScreen";
 import FriendsScreen from "../screens/FriendsScreen";
 import EquiposScreen from "../screens/EquiposScreen";
 import CrearEquiposScreen from "../screens/CrearEquipoScreen";
+import MensajesStack from "./MensajesStack";
 import { StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import NotificacionesScreen from "../screens/NotificacionesScreen";
 import { CampeonatoContext } from "../context/CampeonatoContext";
+import { NotificacionContext } from "../context/NotificacionContext";
+import { ChatContext } from "../context/ChatContext";
 
 const Drawer = createDrawerNavigator();
 
 const headerTitle = (title, description, actionable) => (
-  <View className="flex-row items-center justify-between ">
-    <View className={`${actionable ? "w-3/4" : "w-full"}`}>
-      <Text className="text-lg font-bold text-gray-900 dark:text-gray-100 ">
+  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+    <View style={{ width: actionable ? '75%' : '100%' }}>
+      <Text 
+        style={{ fontSize: 18, fontWeight: '700' }}
+        className="text-gray-900 dark:text-gray-100"
+      >
         {title}
       </Text>
-      <Text className="text-sm text-gray-600 dark:text-gray-400">
+      <Text 
+        style={{ fontSize: 14 }}
+        className="text-gray-600 dark:text-gray-400"
+      >
         {description}
       </Text>
     </View>
-    {actionable && actionable()}
+    <View style={{ width: '25%' }}>
+      {actionable && actionable()}
+    </View>
   </View>
 );
 
 export default function DrawerNavigator() {
   const { logout } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
-  const navigation = useNavigation();
   const { loading, refreshCampeonatosPublicos } = useContext(CampeonatoContext);
+  const { loading: NotificacionesLoading, refreshNotificaciones } = useContext(NotificacionContext);
+  const { totalUnread } = useContext(ChatContext);
 
   function CustomDrawerContent(props) {
     const { logout } = useContext(AuthContext);
@@ -58,7 +69,7 @@ export default function DrawerNavigator() {
         contentContainerStyle={{ flex: 1 }}
         scrollEnabled={false}
       >
-        <View className="flex-1 bg-white dark:bg-gray-900 ">
+        <View className={`flex-1 bg-white dark:bg-[#171717]`}>
           <DrawerItemList {...props} />
         </View>
 
@@ -81,11 +92,12 @@ export default function DrawerNavigator() {
       initialRouteName="Inicio"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
+        sceneContainerStyle: { backgroundColor: isDarkMode ? "#171717" : "#f9fafb" },
         drawerStyle: {
-          backgroundColor: isDarkMode ? "#111827" : "#ffffff",
+         backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
         },
         headerStyle: {
-          backgroundColor: isDarkMode ? "#111827" : "#ffffff",
+          backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
           height: 120,
         },
         headerTintColor: isDarkMode ? "#ffffff" : "#111827",
@@ -95,7 +107,7 @@ export default function DrawerNavigator() {
     >
       <Drawer.Screen
         name="Inicio"
-        component={HomeScreen}
+        component={HomeStack}
         screenOptions={{ headerShown: false }}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -106,15 +118,13 @@ export default function DrawerNavigator() {
               "Inicio",
               "Explora los campeonatos públicos disponibles",
               () => (
-                <View className="flex-row gap-3">
-                  <Pressable
-                    className={`p-3 flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
                     onPress={async () => await refreshCampeonatosPublicos()}
                     disabled={loading}
                   >
                     <Ionicons name="reload" size={25} color="#3b82f6" />
-                  </Pressable>
-                </View>
+                  </Pressable>             
               ),
             ),
         }}
@@ -145,15 +155,8 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Mis campeonatos"
+        name="Campeonatos"
         component={EventosStack}
-        listeners={({ navigation }) => ({
-          focus: () => {
-            navigation.navigate("Lista Eventos", {
-              screen: "EventosScreen", // pantalla interna del stack Eventos
-            });
-          },
-        })}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons
@@ -163,7 +166,7 @@ export default function DrawerNavigator() {
             />
           ),
           headerTitle: () =>
-            headerTitle("Mis campeonatos", "Gestiona tus campeonatos creados"),
+            headerTitle("Campeonatos", "Gestiona y explora tus campeonatos"),
         }}
       />
       <Drawer.Screen
@@ -177,6 +180,15 @@ export default function DrawerNavigator() {
             headerTitle(
               "Calendario",
               "Visualiza tus eventos y fechas importantes",
+                   () => (
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                    onPress={async () => await refreshCampeonatosPublicos()}
+                    disabled={loading}
+                  >
+                    <Ionicons name="reload" size={25} color="#3b82f6" />
+                  </Pressable>             
+              ),
             ),
         }}
       />
@@ -195,15 +207,32 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
+        name="Mensajes"
+        component={MensajesStack}
+        options={{
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1, paddingRight: 10 }}>
+              <Text style={{ color, fontWeight: '500' }}>Mensajes</Text>
+              {totalUnread > 0 && (
+                <View style={{ backgroundColor: '#ef4444', borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ color: 'white', fontSize: 11, fontWeight: 'bold' }}>{totalUnread > 99 ? '99+' : totalUnread}</Text>
+                </View>
+              )}
+            </View>
+          ),
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="chatbubbles-outline" size={size} color={color} />
+          ),
+          headerTitle: () =>
+            headerTitle(
+              "Mensajes",
+              "Chatea con tus amigos y grupos de equipo",
+            ),
+        }}
+      />
+      <Drawer.Screen
         name="Equipos"
         component={EquipoStack}
-        listeners={({ navigation }) => ({
-          focus: () => {
-            navigation.navigate("Equipos", {
-              screen: "EquiposScreen", // pantalla interna del stack Equipos
-            });
-          },
-        })}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="shield-outline" size={size} color={color} />
@@ -226,7 +255,17 @@ export default function DrawerNavigator() {
             headerTitle(
               "Notificaciones",
               "Mantente al día con las novedades de tus campeonatos",
+                () => (
+                             <Pressable
+                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                    onPress={async () => await refreshNotificaciones()}
+                    disabled={NotificacionesLoading}
+                  >
+                    <Ionicons name="reload" size={25} color="#3b82f6" />
+                  </Pressable>             
+              ),
             ),
+            
         }}
       />
       <Drawer.Screen

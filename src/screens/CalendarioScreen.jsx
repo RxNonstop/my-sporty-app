@@ -1,7 +1,6 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useNavigation } from '@react-navigation/native';
 import { EventoContext } from '../context/EventoContext';
 import { CampeonatoContext } from '../context/CampeonatoContext';
 import { ThemeContext } from '../context/ThemeContext';
@@ -16,8 +15,7 @@ LocaleConfig.locales['es'] = {
 };
 LocaleConfig.defaultLocale = 'es';
 
-export default function CalendarioScreen() {
-  const navigation = useNavigation();
+export default function CalendarioScreen({ navigation }) {
   const { misCampeonatos, campeonatosPublicos } = useContext(CampeonatoContext);
   const { isDarkMode } = useContext(ThemeContext);
   
@@ -100,8 +98,8 @@ export default function CalendarioScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#fafafa] dark:bg-neutral-900">
-      <ScrollView className="flex-1 pt-4 px-5" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
+      <ScrollView style={{ flex: 1 }} className="pt-4 px-5" showsVerticalScrollIndicator={false}>
    
 
         <View className="rounded-xl overflow-hidden border border-[#eaeaea] dark:border-neutral-700 mb-6 bg-white dark:bg-neutral-800">

@@ -46,9 +46,40 @@ export const responderInvitacionService = async (id, estado) => {
   return res.data;
 };
 
+export const getInvitacionesCampeonatosService = async () => {
+  const res = await axios.get(
+    `${API_URL}/invitaciones-campeonatos`,
+    await authHeader(),
+  );
+  return res.data.data;
+};
+
+export const responderInvitacionCampeonatoService = async (id, estado) => {
+  const res = await axios.put(
+    `${API_URL}/invitaciones-campeonatos/${id}`,
+    { estado },
+    await authHeader(),
+  );
+  return res.data;
+};
+
 export const eliminarSolicitudPorIdService = async (id) => {
   const res = await axios.delete(
     `${API_URL}/amistades/${id}`,
+    await authHeader(),
+  );
+  return res.data;
+};
+
+export const getSolicitudesUnionCampeonatoService = async () => {
+  const res = await axios.get(`${API_URL}/invitaciones-campeonatos/solicitudes-recibidas`, await authHeader());
+  return res.data.data || [];
+};
+
+export const enviarSolicitudUnionService = async (campeonato_id, equipo_id) => {
+  const res = await axios.post(
+    `${API_URL}/invitaciones-campeonatos/solicitud-union`,
+    { campeonato_id, equipo_id },
     await authHeader(),
   );
   return res.data;

@@ -10,14 +10,13 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { EventoContext } from "../context/EventoContext";
 import { CampeonatoContext } from "../context/CampeonatoContext";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "../context/ThemeContext";
 
-export default function CrearEventoScreen() {
+export default function CrearEventoScreen({ navigation }) {
   const { agregarEvento } = useContext(EventoContext);
   const { agregarCampeonato } = useContext(CampeonatoContext);
-  const navigation = useNavigation();
-
+  const { isDarkMode } = useContext(ThemeContext);
   const [event, setEvent] = useState("");
   const [location, setLocation] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -32,10 +31,17 @@ export default function CrearEventoScreen() {
   const [fechaFin, setFechaFin] = useState(new Date());
   const [mostrarInicio, setMostrarInicio] = useState(false);
   const [mostrarFin, setMostrarFin] = useState(false);
-
+   console.log(deporte)
   const handleContinuar = () => {
-    const formattedInicio = fechaInicio.toISOString().split("T")[0];
-    const formattedFin = fechaFin.toISOString().split("T")[0];
+    const formatDateLocal = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const formattedInicio = formatDateLocal(fechaInicio);
+    const formattedFin = formatDateLocal(fechaFin);
 
     console.log(formattedInicio)
 
@@ -43,19 +49,40 @@ export default function CrearEventoScreen() {
       return alert("Nombre, Lugar y Fecha de inicio son obligatorios");
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inicioDate = new Date(fechaInicio);
+    inicioDate.setHours(0, 0, 0, 0);
+    const finDate = new Date(fechaFin);
+    finDate.setHours(0, 0, 0, 0);
+
+    let estado = 'borrador';
+    if (tipoActividad === 'campeonato' && finDate.getTime() < today.getTime()) {
+      estado = 'finalizado';
+    } else if (inicioDate.getTime() > today.getTime()) {
+      estado = 'programado';
+    } else if (inicioDate.getTime() <= today.getTime()) {
+      estado = 'activo';
+    }
+ 
     const eventoData = {
       nombre: event,
       location,
       descripcion,
       dotColor:
-        deporte === "Fútbol"
+        deporte === "futbol"
           ? "green"
-          : deporte === "Béisbol"
-            ? "blue"
-            : "orange",
+          : deporte === "baloncesto"
+            ? "orange"
+            : deporte === "beisbol"
+              ? "blue"
+              : "purple",
       tipoActividad,
       deporte,
-      inscripciones_abiertas: privacidad === "privado" ? 1 : 0,
+      // Public championships always have inscriptions open by default;
+      // private ones start closed (invited only)
+      inscripciones_abiertas: privacidad === 'privado' ? 0 : 1,
+      estado,
       numero_jugadores: jugadores,
       numero_suplentes: suplentes,
       numero_equipos: numEquipos,
@@ -93,7 +120,7 @@ export default function CrearEventoScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-gray-950">
+    <ScrollView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <View className="bg-terniary dark:bg-blue-900 ">
         <Text className="text-1xl font-bold text-white  p-2 text-center">
           Crear {tipoActividad === "campeonato" ? "Campeonato" : "Evento"}
@@ -206,6 +233,7 @@ export default function CrearEventoScreen() {
               { label: "Fútbol", value: "futbol" },
               { label: "Baloncesto", value: "baloncesto" },
               { label: "Béisbol", value: "beisbol" },
+              { label: "Voleibol", value: "voleibol" },
             ].map((dep) => (
               <TouchableOpacity
                 key={dep.value}
@@ -298,7 +326,7 @@ export default function CrearEventoScreen() {
                   borderRadius: '8px',
                   border: '1px solid #d1d5db',
                   backgroundColor: 'transparent',
-                  color: 'var(--tw-text-opacity, inherit)'
+                  color: isDarkMode ? "#fff" : "#000",
                 }}
                 value={fechaInicio.toISOString().split("T")[0]}
                 onChange={(e) => {

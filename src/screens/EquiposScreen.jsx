@@ -1,163 +1,210 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import {
-  View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator
+  View, Text, TouchableOpacity, Alert, SafeAreaView, ActivityIndicator,
+  ScrollView
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { EquipoContext } from '../context/EquipoContext';
+import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 
-export default function EquiposScreen() {
-  const { yourTeams, otherTeams, usuario, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
+const SPORT_ICONS = {
+  futbol: "sports-soccer",
+  baloncesto: "sports-basketball",
+  beisbol: "sports-baseball",
+  voleibol: "sports-volleyball",
+};
+
+const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
+  const iconName = SPORT_ICONS[item.deporte?.toLowerCase()] || "shield-outline";
   
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const cargarEquipos = async () => {
-      try {
-        await getEquipos();
-      } catch (err) {
-        console.error('Error cargando equipos', err);
-      }
-    };
-    cargarEquipos();
-  },[])
-
-  // useEffect(()=>{
-  //   if (usuario && equipos && equipos.length !== 0) {
-  //     equipos.map(equipo => {
-  //       if (equipo.propietario_id === usuario?.id) { 
-  //         setYourTeams(prev => [...prev, equipo]);
-  //       } else {
-  //         setOtherTeams(prev => [...prev, equipo]);
-  //       }
-  //       console.log(otherTeams, "equipo")
-  //     });
-  //   }
-  // },[])
-
-  const confirmarEliminar = async (id) => {
-    // Alert.alert(
-    //   '¿Eliminar equipo?',
-    //   'Esta acción no se puede deshacer',
-    //   [
-    //     { text: 'Cancelar', style: 'cancel' },
-    //     {
-    //       text: 'Eliminar',
-    //       style: 'destructive',
-    //       onPress: async () => {
-    //         await deleteEquipo(id);
-    //         // cargarEquipos();
-    //       },
-    //     },
-    //   ]
-    // );
-    await deleteEquipo(id);
-  };
-
-  const renderItem = ({ item }) => {
-    return(
-      <View style={styles.card}>
-        <Text style={styles.nombre}>{item.nombre}</Text>
-        <Text>Deporte: {item.deporte}</Text>
-        <Text>Miembros: {item.miembros?.length || 0}</Text>
-
-        {/* <View style={styles.actions}>
-          <Button
-            title="Editar"
-            onPress={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
-          />
-          <Button
-            title="Invitar"
-            onPress={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
-          />
-          <Button
-            title="Eliminar"
-            color="red"
-            onPress={() => confirmarEliminar(item.id)}
-          />
-        </View> */}
-      </View>
-    );
-  };
-
-  const renderYourItem = ({ item }) => {
-    return (
-      <View style={styles.card}>
-        <Text style={styles.nombre}>{item.nombre}</Text>
-        <Text>Deporte: {item.deporte}</Text>
-        <Text>Miembros: {item.miembros?.length || 0}</Text>
-
-        <View style={styles.actions}>
-          <Button
-            title="Editar"
-            onPress={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
-          />
-          <Button
-            title="Invitar"
-            onPress={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
-          />
-          <Button
-            title="Eliminar"
-            color="red"
-            onPress={() => confirmarEliminar(item.id)}
-          />
+  return (
+    <TouchableOpacity 
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={{
+        backgroundColor: '#ffffff',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#f3f4f6',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 2,
+      }}
+    >
+      <View className="flex-row items-center mb-3">
+        <View className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 items-center justify-center mr-3">
+          <MaterialIcons name={iconName} size={28} color="#1D4ED8" />
+        </View>
+        <View className="flex-1">
+          <Text className="text-lg font-bold text-gray-900 dark:text-white" numberOfLines={1}>
+            {item.nombre}
+          </Text>
+          <View className="flex-row items-center">
+            <Text className="text-xs text-gray-500 dark:text-neutral-400 capitalize bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 rounded-md mr-2">
+              {item.deporte}
+            </Text>
+            <View className="flex-row items-center">
+              <Ionicons name="people-outline" size={14} color="#6B7280" />
+              <Text className="text-xs text-gray-500 dark:text-neutral-400 ml-1">
+                {item.miembros?.length || 0} miembros
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
+
+      {isOwner && (
+        <View className="flex-row mt-2 pt-3 border-t border-gray-50 dark:border-neutral-700 gap-2">
+          <TouchableOpacity 
+            onPress={onEdit}
+            style={{
+              flex: 1, flexDirection: 'row', alignItems: 'center',
+              justifyContent: 'center', backgroundColor: '#eff6ff',
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#dbeafe',
+            }}
+          >
+            <Ionicons name="create-outline" size={16} color="#1D4ED8" />
+            <Text className="text-blue-700 dark:text-blue-400 font-bold ml-1.5 text-xs">Editar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={onInvite}
+            style={{
+              flex: 1, flexDirection: 'row', alignItems: 'center',
+              justifyContent: 'center', backgroundColor: '#f0fdf4',
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#dcfce7',
+            }}
+          >
+            <Ionicons name="person-add-outline" size={16} color="#16A34A" />
+            <Text className="text-green-700 dark:text-green-400 font-bold ml-1.5 text-xs">Invitar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={onDelete}
+            style={{
+              backgroundColor: '#fef2f2', paddingHorizontal: 16,
+              paddingVertical: 10, borderRadius: 12,
+              borderWidth: 1, borderColor: '#fee2e2',
+            }}
+          >
+            <Ionicons name="trash-outline" size={16} color="#DC2626" />
+          </TouchableOpacity>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+export default function EquiposScreen({ navigation }) {
+  const { yourTeams, otherTeams, getEquipos, deleteEquipo, isLoading } = useContext(EquipoContext);
+  const { usuario } = useContext(AuthContext);
+  const { isDarkMode } = useContext(ThemeContext);
+
+  const confirmarEliminar = (id) => {
+    Alert.alert(
+      '¿Eliminar equipo?',
+      'Esta acción no se puede deshacer y eliminará a todos los miembros.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteEquipo(id);
+          },
+        },
+      ]
     );
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mis Equipos</Text>
-
-      {isLoading ? <ActivityIndicator size="large" color="#1D4ED8" /> : (
-      <FlatList
-        data={yourTeams}
-        keyExtractor={(item) => item?.id?.toString()}
-        renderItem={renderYourItem}
-        ListEmptyComponent={<Text style={styles.empty}>No tienes equipos aún</Text>}
-      />
-      )}
-
-      <Text style={styles.title}>Otros equipos</Text>
-
-      <FlatList
-        data={otherTeams}
-        keyExtractor={(item) => item?.id?.toString()}
-        renderItem={renderItem}
-        ListEmptyComponent={<Text style={styles.empty}>No estas inscrito en  nigun equipo</Text>}
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('CrearEquipo')}
-      >
-        <Text style={styles.addButtonText}>+ Crear Equipo</Text>
-      </TouchableOpacity>
+  const renderSectionHeader = (title, count) => (
+    <View className="flex-row items-center justify-between mt-6 mb-4 px-1">
+      <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest ">
+        {title}
+      </Text>
+      <View className="bg-gray-200 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+        <Text className="text-[10px] font-bold text-gray-600 dark:text-neutral-400">{count}</Text>
+      </View>
     </View>
   );
-}
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12, color: '#1D4ED8' },
-  card: {
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 12,
-    backgroundColor: '#f9f9f9',
-  },
-  nombre: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
-  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  empty: { fontStyle: 'italic', textAlign: 'center', marginTop: 40, color: '#888' },
-  addButton: {
-    backgroundColor: '#1D4ED8',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  addButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-});
+  useEffect(() => {
+    getEquipos();
+  }, []);
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
+      <View style={{ flex: 1 }} className="px-4">
+        {isLoading && yourTeams.length === 0 && otherTeams.length === 0 ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator color="#1D4ED8" size="large" />
+          </View>
+        ) : (
+          <ScrollView 
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 120 }}
+          >
+            {renderSectionHeader("Mis Equipos", yourTeams.length)}
+            {yourTeams.length === 0 ? (
+              <View className="py-8 items-center bg-white dark:bg-neutral-800 rounded-3xl border border-dashed border-gray-200 dark:border-neutral-700 mb-4">
+                <Ionicons name="shield-outline" size={40} color="#9CA3AF" />
+                <Text className="text-gray-400 dark:text-neutral-500 mt-2 text-sm italic">No tienes equipos aún</Text>
+              </View>
+            ) : (
+              yourTeams.map(item => (
+                <TeamCard 
+                  key={item.id} 
+                  item={item} 
+                  isOwner={true} 
+                  onEdit={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
+                  onInvite={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
+                  onDelete={() => confirmarEliminar(item.id)}
+                  onPress={() => navigation.navigate('DetalleEquipoScreen', { equipo: item, isOwner: true })}
+                />
+              ))
+            )}
+
+            {renderSectionHeader("Inscrito en", otherTeams.length)}
+            {otherTeams.length === 0 ? (
+              <View className="py-8 items-center bg-white dark:bg-neutral-800 rounded-3xl border border-dashed border-gray-200 dark:border-neutral-700 mb-4">
+                <Ionicons name="people-outline" size={40} color="#9CA3AF" />
+                <Text className="text-gray-400 dark:text-neutral-500 mt-2 text-sm italic">No estás en otros equipos</Text>
+              </View>
+            ) : (
+              otherTeams.map(item => (
+                <TeamCard 
+                  key={item.id} 
+                  item={item} 
+                  isOwner={false} 
+                  onPress={() => navigation.navigate('DetalleEquipoScreen', { equipo: item, isOwner: false })}
+                />
+              ))
+            )}
+          </ScrollView>
+        )}
+      </View>
+
+      <View className="absolute bottom-10 left-0 right-0 items-center">
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row', backgroundColor: '#1d4ed8',
+            paddingHorizontal: 32, paddingVertical: 16,
+            borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+            shadowColor: "#1D4ED8", shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3, shadowRadius: 8, elevation: 8
+          }}
+          onPress={() => navigation.navigate('CrearEquipo')}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+          <Text className="text-white font-bold text-lg ml-2">Crear Equipo</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}

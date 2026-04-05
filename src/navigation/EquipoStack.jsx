@@ -1,20 +1,23 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+import HomeScreen from "../screens/HomeScreen";
+import CrearEventoScreen from "../screens/CrearEventoScreen";
+import SeleccionarEquiposScreen from "../screens/SeleccionarEquiposScreen";
+import CrearEquipoScreen from "../screens/CrearEquipoScreen";
+import EquiposScreen from "../screens/EquiposScreen";
+import InvitacionEquipoScreen from "../screens/InvitacionEquipoScreen";
+import DetalleEquipoScreen from "../screens/DetalleEquipoScreen";
+import PerfilScreen from "../screens/PerfilScreen";
 
-import HomeScreen from '../screens/HomeScreen';
-import CrearEventoScreen from '../screens/CrearEventoScreen';
-import SeleccionarEquiposScreen from '../screens/SeleccionarEquiposScreen';
-import CrearEquipoScreen from '../screens/CrearEquipoScreen';
-import EquiposScreen from '../screens/EquiposScreen';
-import InvitacionEquipoScreen from '../screens/InvitacionEquipoScreen';
-
+const Stack = createNativeStackNavigator();
 
 export default function EquipoStack() {
-  const Stack = createNativeStackNavigator();
-
   return (
-    <Stack.Navigator initialRouteName='EquiposScreen' screenOptions={{ headerShown: true }}>
+    <Stack.Navigator
+      initialRouteName="EquiposScreen"
+      screenOptions={{ headerShown: true }}
+    >
       <Stack.Screen
         name="EquiposScreen"
         component={EquiposScreen}
@@ -28,7 +31,17 @@ export default function EquipoStack() {
       <Stack.Screen
         name="InvitacionEquipoScreen"
         component={InvitacionEquipoScreen}
-        options={{ title: 'Invitar Amigos' }}
+        options={{ title: "Invitar Amigos" }}
+      />
+      <Stack.Screen
+        name="DetalleEquipoScreen"
+        component={DetalleEquipoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MiembroPerfil"
+        component={PerfilScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

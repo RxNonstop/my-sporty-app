@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 import { EventoContext } from '../context/EventoContext';
 
 const EQUIPOS_DISPONIBLES = [
@@ -54,11 +54,23 @@ export default function SeleccionarEquiposScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Selecciona {numEquipos} equipos</Text>
-      <FlatList
-        data={EQUIPOS_DISPONIBLES}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-      />
+      <ScrollView 
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {EQUIPOS_DISPONIBLES.map((item) => {
+          const seleccionado = seleccionados.find((e) => e.id === item.id);
+          return (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.row, seleccionado && styles.selectedRow]}
+              onPress={() => toggleEquipo(item)}
+            >
+              <Text style={styles.rowText}>{item.nombre}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
       <View style={styles.submit}>
         <Button title="Crear Campeonato" onPress={handleCrear} />
       </View>

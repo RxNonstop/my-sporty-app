@@ -2,16 +2,15 @@ import React, { useEffect, useState, useContext } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, Button, Alert,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { AmistadContext } from '../context/AmistadContext';
 import { EquipoContext } from '../context/EquipoContext';
 
-export default function InvitarAmigosScreen() {
+export default function InvitarAmigosScreen({ navigation }) {
   const { amigos, cargarAmigos } = useContext(AmistadContext);
   const { enviarInvitacion } = useContext(EquipoContext);
   const [enviando, setEnviando] = useState(null);
   const route = useRoute();
-  const navigation = useNavigation();
   const { equipoId } = route.params;
 
   useEffect(() => {
@@ -44,8 +43,9 @@ export default function InvitarAmigosScreen() {
   return (
     <View style={styles.container}>
       <FlatList
+        style={{ flex: 1 }}
         data={amigos}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id?.toString()}
         renderItem={renderAmigo}
         ListEmptyComponent={<Text>No tienes amigos disponibles</Text>}
       />

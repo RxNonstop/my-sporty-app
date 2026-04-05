@@ -1,7 +1,7 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import EventosScreen from "../screens/EventosScreen";
+import HomeScreen from "../screens/HomeScreen";
 import FasesCampeonatoScreen from "../screens/FasesCampeonatoScreen";
 import FixtureFaseScreen from "../screens/FixtureFaseScreen";
 import EquipoMiembrosScreen from "../screens/EquipoMiembrosScreen";
@@ -9,31 +9,21 @@ import PerfilScreen from "../screens/PerfilScreen";
 
 const Stack = createNativeStackNavigator();
 
-export default function EventosStack() {
+export default function HomeStack() {
   return (
     <Stack.Navigator
-      initialRouteName="EventosScreen"
-      screenOptions={{ headerShown: true }}
+      initialRouteName="HomeScreen"
+      screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen
-        name="EventosScreen"
-        component={EventosScreen}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen
         name="FasesCampeonatoScreen"
         component={FasesCampeonatoScreen}
-        options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="FixtureFaseScreen"
-        component={FixtureFaseScreen}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="FixtureFaseScreen" component={FixtureFaseScreen} />
       <Stack.Screen
         name="EquipoMiembrosScreen"
         component={EquipoMiembrosScreen}
-        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="MiembroPerfil"
