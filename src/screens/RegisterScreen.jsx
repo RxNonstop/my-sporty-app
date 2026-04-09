@@ -49,7 +49,8 @@ export default function RegisterScreen({ navigation }) {
     }
 
     setLoading(true);
-    const formattedFecha = fechaNacimiento.toISOString().split("T")[0];
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    const formattedFecha = `${fechaNacimiento.getFullYear()}-${pad(fechaNacimiento.getMonth() + 1)}-${pad(fechaNacimiento.getDate())}`;
 
     try {
       const data = {

@@ -73,11 +73,15 @@ const FixtureFaseScreen = ({ route, navigation }) => {
       const combinedDate = new Date(fecha);
       combinedDate.setHours(hora.getHours());
       combinedDate.setMinutes(hora.getMinutes());
+      combinedDate.setSeconds(0);
+
+      const pad = (n) => (n < 10 ? '0' + n : n);
+      const formattedDate = `${combinedDate.getFullYear()}-${pad(combinedDate.getMonth() + 1)}-${pad(combinedDate.getDate())} ${pad(combinedDate.getHours())}:${pad(combinedDate.getMinutes())}:${pad(combinedDate.getSeconds())}`;
 
       const dataToUpdate = {
         puntos_local: scoreLocal !== "" ? scoreLocal : null,
         puntos_visitante: scoreVisitante !== "" ? scoreVisitante : null,
-        fecha: combinedDate.toISOString().slice(0, 19).replace('T', ' '),
+        fecha: formattedDate,
         lugar: lugar || null,
       };
 
