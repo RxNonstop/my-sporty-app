@@ -286,9 +286,9 @@ export default function ChatRoomScreen({ route, navigation }) {
       </View>
 
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        style={{ flex: 1 , marginBottom:50}}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 :120}
       >
         <FlatList
           ref={flatListRef}

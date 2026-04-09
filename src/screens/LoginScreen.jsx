@@ -39,7 +39,7 @@ export default function LoginScreen({ navigation }) {
         {/* Banner Section */}
         <View className="h-64 w-full relative">
           <Image 
-            source={require("../../assets/sports_banner_auth.png")} // Use the generated asset
+            source={require("../../assets/banner.png")} // Use the generated asset
             className="h-full w-full"
             resizeMode="cover"
             style={{ width: '100%', height: '100%' }}
