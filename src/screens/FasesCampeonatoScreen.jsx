@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Modal,
   SafeAreaView,
+  KeyboardAvoidingView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -488,7 +489,7 @@ const eliminarFase = async (idFase) => {
           onRequestClose={() => setModalAmigosVisible(false)}
         >
           <View className="flex-1 bg-black/40 dark:bg-black/60 justify-end">
-            <View className="w-full h-2/3 bg-white dark:bg-neutral-800 rounded-t-3xl pt-5 pb-8 px-5">
+            <KeyboardAvoidingView className="w-full h-2/3 bg-white dark:bg-neutral-800 rounded-t-3xl pt-5 pb-8 px-5 mb-5">
               <View className="flex-row items-center justify-between mb-4">
                 <Text className="text-lg font-bold text-[#1a1a1a] dark:text-white">Equipos de Amigos</Text>
                       <TouchableOpacity onPress={() => setModalAmigosVisible(false)} style={{ padding: 4 }}>
@@ -525,7 +526,7 @@ const eliminarFase = async (idFase) => {
                   ))}
                 </ScrollView>
               )}
-            </View>
+            </KeyboardAvoidingView>
           </View>
         </Modal>
 

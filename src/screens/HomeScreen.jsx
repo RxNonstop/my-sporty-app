@@ -22,7 +22,7 @@ import { enviarSolicitudUnionService } from "../services/notificacionService";
 const STATUS_OPTIONS = [
   { label: "Todos", value: "todos" },
   { label: "Activos", value: "activo" },
-  { label: "Borradores", value: "borrador" },
+  { label: "Programados", value: "programado" },
   { label: "Finalizados", value: "finalizado" },
 ];
 

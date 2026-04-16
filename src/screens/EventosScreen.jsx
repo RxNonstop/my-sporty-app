@@ -19,7 +19,7 @@ import { getMisEventos, getCampeonatosParticipando } from '../services/eventoSer
 const STATUS_OPTIONS = [
   { label: 'Todos', value: 'todos' },
   { label: 'Activo / En Curso', value: 'activo' },
-  { label: 'Borrador / Programado', value: 'borrador' },
+  { label: 'Borrador / Programado', value: 'programado' },
   { label: 'Finalizado', value: 'finalizado' },
 ];
 

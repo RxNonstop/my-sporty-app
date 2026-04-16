@@ -4,6 +4,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { AmistadContext } from '../context/AmistadContext';
 import { EquipoContext } from '../context/EquipoContext'; 
+import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from '../context/ThemeContext';
 
 
 export default function CrearEquipoScreen({ navigation }) {
@@ -12,6 +14,7 @@ export default function CrearEquipoScreen({ navigation }) {
   const [nombreEquipo, setNombreEquipo] = useState('');
   const [deporte, setDeporte] = useState('futbol');
   const [seleccionados, setSeleccionados] = useState([]);
+  const { isDarkMode } = useContext(ThemeContext);
 
 console.log(amigos)
   const deportes = [
@@ -61,15 +64,34 @@ console.log(deporte)
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Crear equipo</Text>
+    <View className="p-5">
+      <View className="flex-row items-center">
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 12, padding: 4, borderRadius: 999 }}>
+          <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#000"} className="dark:text-white" />
+        </TouchableOpacity>
+        <Text className="text-lg font-semibold text-[#1a1a1a] dark:text-white flex-1" numberOfLines={1}>
+          Crear equipo
+        </Text>
+      </View>
 
+      {/* 
       <TextInput
         style={styles.input}
         placeholder="Nombre del equipo"
         value={nombreEquipo}
         onChangeText={setNombreEquipo}
-      />
+      /> */}
+      
+      <Text style={styles.label}>Nombre:</Text>
+      <View className="flex-row items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 border border-gray-100 dark:border-neutral-700 shadow-sm">
+        <TextInput
+          placeholder="Nombre del equipo..."
+          placeholderTextColor="#9CA3AF"
+          className="flex-1 h-12 ml-2 text-base text-gray-900 dark:text-white"
+          value={nombreEquipo}
+          onChangeText={setNombreEquipo}
+        />
+      </View>
 
       <Text style={styles.label}>Deporte:</Text>
       <View style={styles.row}>
@@ -102,23 +124,30 @@ console.log(deporte)
         ListEmptyComponent={<Text style={styles.empty}>No tienes amigos disponibles</Text>}
       /> */}
 
-      <Button title="Crear Equipo" onPress={crearNuevoEquipo} />
+      {/* <Button title="Crear Equipo" onPress={crearNuevoEquipo} /> */}
+      <TouchableOpacity
+        onPress={crearNuevoEquipo}
+        className="flex-row py-3 px-3 rounded-xl border bg-blue-600 border-blue-600 dark:border-gray-300 dark:border-gray-700 justify-center items-center"
+      >
+        <Text className="text-md font-medium text-white dark:text-gray-700 dark:text-gray-300">
+          Crear equipo
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12, color: '#1D4ED8' },
   input: {
     borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
     padding: 10, marginBottom: 12
   },
   label: { marginTop: 16, fontWeight: '600' },
-  row: { flexDirection: 'row', gap: 10, marginBottom: 12, marginTop: 6 },
+  row: { flexDirection: 'row', gap: 10, marginBottom: 12, marginTop: 6, alignSelf: 'center'},
   option: {
     paddingHorizontal: 12, paddingVertical: 6,
-    borderWidth: 1, borderRadius: 8, borderColor: '#ccc'
+    borderWidth: 0.5, borderRadius: 8, borderColor: '#cccccc'
   },
   selected: { backgroundColor: '#DBEAFE', borderColor: '#3B82F6' },
   amigo: {
