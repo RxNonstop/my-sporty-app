@@ -45,7 +45,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         borderRadius: 16, backgroundColor: '#ffffff',
         shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05, shadowRadius: 2, elevation: 2,
-        borderWidth: 1, borderColor: '#eaeaea', overflow: 'hidden',
+        borderWidth: 0.5 , overflow: 'hidden', borderColor: '#eaeaea',
       }}
     >
       {/* ── Header */}
@@ -72,7 +72,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
       </View>
 
       {/* ── Body */}
-      <View className="px-4 pt-3 pb-2">
+      <View className="px-4 pt-3 pb-2 dark:bg-neutral-800">
         <Text className="text-[18px] font-bold text-[#1a1a1a] dark:text-white mb-1" numberOfLines={1}>
           {evento.nombre}
         </Text>
@@ -110,7 +110,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         </View>
 
         {evento.fecha_inicio && (
-          <View className="flex-row items-center mb-2 gap-1">
+          <View className="flex-row items-center mb-2 gap-1 ">
             <Ionicons name="calendar-outline" size={12} color="#9ca3af" />
             <Text className="text-[12px] text-gray-400 dark:text-neutral-500">
               {formatDate(evento.fecha_inicio)}
@@ -154,7 +154,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
           <Text className="text-white dark:text-green font-bold text-sm">Inscrito con: {evento.equipo_inscrito_nombre}</Text>
         </View>
       ) : (
-        <View className="px-4 py-3 border-t border-[#f0f0f0] dark:border-neutral-700/50 flex-row items-center justify-center gap-1">
+        <View className="px-4 py-3 bg-[#fafafa] dark:bg-neutral-900 border-t border-[#f0f0f0] dark:border-neutral-700/50 flex-row items-center justify-center gap-1">
           <Ionicons name="eye-outline" size={14} color="#6366f1" />
           <Text className="text-center text-[13px] text-indigo-600 dark:text-indigo-400 font-semibold">
             Ver detalles
