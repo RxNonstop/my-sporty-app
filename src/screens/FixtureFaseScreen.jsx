@@ -18,6 +18,7 @@ import {
   getPosicionesFaseService,
   actualizarPartidoService,
   getEscenariosService,
+  getEquiposInscritosService,
 } from "../services/eventoService";
 import { ThemeContext } from "../context/ThemeContext";
 import { AuthContext } from "../context/AuthContext";
@@ -29,6 +30,8 @@ const FixtureFaseScreen = ({ route, navigation }) => {
 
   const [partidos, setPartidos] = useState([]);
   const [posiciones, setPosiciones] = useState([]);
+  const [equipos, setEquipos] = useState([]);
+  const [grupos, setGrupos] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("fixture"); // 'fixture' | 'posiciones'
   const [modalVisible, setModalVisible] = useState(false);
@@ -58,13 +61,155 @@ const FixtureFaseScreen = ({ route, navigation }) => {
 
       if (fase.metodo !== "eliminatoria") {
         const dbPosiciones = await getPosicionesFaseService(fase.id);
-        setPosiciones(dbPosiciones || []);
+
+        // Si es fase de grupos y la respuesta tiene la estructura agrupada
+        let posicionesProcesadas = dbPosiciones || [];
+        if (fase.metodo === 'grupos' && Array.isArray(dbPosiciones) && dbPosiciones.length > 0 && dbPosiciones[0].posiciones) {
+          // Aplanar la estructura agrupada para compatibilidad con el resto del código
+          posicionesProcesadas = dbPosiciones.flatMap(grupo =>
+            grupo.posiciones.map(pos => ({
+              ...pos,
+              grupo: grupo.grupo,
+              grupo_nombre: grupo.nombre
+            }))
+          );
+        }
+
+        setPosiciones(posicionesProcesadas);
+      }
+
+      // Obtener equipos inscritos para construir grupos si es fase de grupos
+      if (fase.metodo === 'grupos' && (fase.numeroGrupos || fase.tamanoGrupo)) {
+        const dbEquipos = await getEquiposInscritosService(campeonato.id);
+        setEquipos(dbEquipos || []);
+        const gruposConstruidos = construirGrupos(
+          dbEquipos || [],
+          fase.numeroGrupos ? parseInt(fase.numeroGrupos, 10) : null,
+          fase.tamanoGrupo ? parseInt(fase.tamanoGrupo, 10) : null
+        );
+        setGrupos(gruposConstruidos);
       }
     } catch (error) {
       console.error("Error cargando fixture:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const construirGrupos = (equiposList, numeroGrupos, tamanoGrupo) => {
+    const grupos = {};
+    const groupSize = numeroGrupos
+      ? equiposList.length / numeroGrupos
+      : tamanoGrupo || equiposList.length;
+
+    equiposList.forEach((equipo, index) => {
+      const grupoNum = Math.floor(index / groupSize) + 1;
+      const grupoKey = String(grupoNum);
+      if (!grupos[grupoKey]) grupos[grupoKey] = [];
+      grupos[grupoKey].push(equipo);
+    });
+    return grupos;
+  };
+
+  const normalizeEquipoId = (equipo) => {
+    if (!equipo) return null;
+    return equipo.equipo_id ?? equipo.id ?? equipo.id_equipo ?? null;
+  };
+
+  const getGroupForEquipo = (equipoId) => {
+    if (!equipoId) return '1';
+    for (const [grupo, equiposGrupo] of Object.entries(grupos)) {
+      if (equiposGrupo.some(e => {
+        const id = normalizeEquipoId(e);
+        return id !== null && String(id) === String(equipoId);
+      })) {
+        return grupo;
+      }
+    }
+    return '1';
+  };
+
+  const getPartidoEquipoId = (partido, lado) => {
+    return partido[`${lado}_equipo_id`] ?? partido[`${lado}_id`] ?? partido[`${lado}Id`] ?? null;
+  };
+
+  const getGroupForPartido = (partido) => {
+    const localGroup = getGroupForEquipo(getPartidoEquipoId(partido, 'equipo_local') || getPartidoEquipoId(partido, 'local'));
+    const visitanteGroup = getGroupForEquipo(getPartidoEquipoId(partido, 'equipo_visitante') || getPartidoEquipoId(partido, 'visitante'));
+    return localGroup === visitanteGroup ? localGroup : localGroup || visitanteGroup || '1';
+  };
+
+  const getGroupLabel = (item) => {
+    // Priorizar grupo_numero ya que es el campo que envía el backend
+    if (item.grupo_numero !== undefined && item.grupo_numero !== null) {
+      return String(item.grupo_numero);
+    }
+
+    const backendGroup = (
+      item.grupo_nombre ||
+      item.grupo ||
+      item.group_name ||
+      item.group ||
+      item.grupo_id ||
+      item.group_id
+    );
+
+    if (backendGroup) return String(backendGroup);
+
+    if (fase.metodo === 'grupos') {
+      if (item.equipo_local_id || item.local_id || item.equipo_localId) {
+        return getGroupForPartido(item);
+      }
+      const equipoId = item.equipo_id ?? item.id ?? item.id_equipo ?? null;
+      return getGroupForEquipo(equipoId);
+    }
+
+    return '1';
+  };
+
+  const orderGroups = (a, b) => {
+    const parsedA = parseInt(a, 10);
+    const parsedB = parseInt(b, 10);
+    if (!Number.isNaN(parsedA) && !Number.isNaN(parsedB)) {
+      return parsedA - parsedB;
+    }
+    return String(a).localeCompare(String(b));
+  };
+
+  const groupPartidosByGroupAndJornada = (items) => {
+    const groups = {};
+    items.forEach((partido) => {
+      let grupo = String(getGroupLabel(partido) || '1');
+
+      // Si no hay información de grupo del backend y estamos en fase de grupos,
+      // asignar grupo basado en la construcción de grupos
+      if (fase.metodo === 'grupos' && grupo === '1' && Object.keys(grupos).length > 0) {
+        grupo = getGroupForPartido(partido);
+      }
+
+      const jornada = partido.jornada || 1;
+      if (!groups[grupo]) groups[grupo] = {};
+      if (!groups[grupo][jornada]) groups[grupo][jornada] = [];
+      groups[grupo][jornada].push(partido);
+    });
+    return groups;
+  };
+
+  const groupPosicionesByGroup = (items) => {
+    const groups = {};
+    items.forEach((pos) => {
+      const grupo = String(getGroupLabel(pos) || '1');
+      if (!groups[grupo]) groups[grupo] = [];
+      groups[grupo].push(pos);
+    });
+    Object.keys(groups).forEach((grupo) => {
+      groups[grupo].sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if ((b.dg || 0) !== (a.dg || 0)) return (b.dg || 0) - (a.dg || 0);
+        return (b.gf || 0) - (a.gf || 0);
+      });
+    });
+    return groups;
   };
 
   const handleUpdatePartido = async (status = null) => {
@@ -201,69 +346,153 @@ const FixtureFaseScreen = ({ route, navigation }) => {
           {partidos.map(renderPartido)}
         </ScrollView>
       );
-    } else {
-      // Agrupar por jornada
-      const groups = {};
-      partidos.forEach((p) => {
-        const j = p.jornada || 1;
-        if (!groups[j]) groups[j] = [];
-        groups[j].push(p);
-      });
-
-      return (
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          {Object.keys(groups)
-            .sort((a, b) => a - b)
-            .map((j) => (
-              <View key={j}>
-                <Text className="font-bold text-lg mb-3 mt-2 dark:text-white">
-                  Jornada {j}
-                </Text>
-                {groups[j].map(renderPartido)}
-              </View>
-            ))}
-        </ScrollView>
-      );
     }
+
+    const groups = groupPartidosByGroupAndJornada(partidos);
+    const groupKeys = Object.keys(groups).sort(orderGroups);
+
+    return (
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        {groupKeys.map((group) => {
+          // Determinar el nombre del grupo
+          let groupName = `Grupo ${group}`;
+          if (fase.metodo === 'grupos' && posiciones.length > 0 && posiciones[0].grupo) {
+            // Si tenemos información de grupos del backend, usar el nombre correcto
+            const grupoInfo = posiciones.find(p => String(p.grupo) === String(group));
+            if (grupoInfo && grupoInfo.grupo_nombre) {
+              groupName = grupoInfo.grupo_nombre;
+            }
+          }
+
+          return (
+            <View key={group}>
+              {fase.metodo === 'grupos' && groupKeys.length > 1 && (
+                <Text className="font-bold text-lg mb-3 mt-4 dark:text-white">
+                  {groupName}
+                </Text>
+              )}
+              {Object.keys(groups[group])
+                .sort(orderGroups)
+                .map((j) => (
+                  <View key={`${group}-${j}`}>
+                    <Text className="font-semibold text-sm mb-2 dark:text-neutral-200">
+                      Jornada {j}
+                    </Text>
+                    {groups[group][j].map(renderPartido)}
+                  </View>
+                ))}
+            </View>
+          );
+        })}
+      </ScrollView>
+    );
   };
 
   const renderPosiciones = () => {
+    if (fase.metodo === 'grupos') {
+      // Si las posiciones ya vienen agrupadas del backend, usar esa estructura
+      if (posiciones.length > 0 && posiciones[0].grupo) {
+        const gruposAgrupados = {};
+        posiciones.forEach(pos => {
+          const grupoKey = pos.grupo;
+          if (!gruposAgrupados[grupoKey]) {
+            gruposAgrupados[grupoKey] = {
+              nombre: pos.grupo_nombre,
+              posiciones: []
+            };
+          }
+          gruposAgrupados[grupoKey].posiciones.push(pos);
+        });
+
+        return (
+          <View className="space-y-6">
+            {Object.keys(gruposAgrupados).sort(orderGroups).map((groupKey) => {
+              const grupo = gruposAgrupados[groupKey];
+              return (
+                <View key={groupKey} className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 overflow-hidden">
+                  <View className="px-4 py-3 border-b border-[#eaeaea] dark:border-neutral-700 bg-gray-100 dark:bg-neutral-900">
+                    <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white">{grupo.nombre}</Text>
+                  </View>
+                  <View className="flex-row bg-gray-100 dark:bg-neutral-900 p-3 border-b border-[#eaeaea] dark:border-neutral-700">
+                    <Text className="flex-[3] font-bold text-xs text-gray-600 dark:text-gray-400">Equipo</Text>
+                    <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">PJ</Text>
+                    <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">DG</Text>
+                    <Text className="flex-1 font-bold text-xs text-center text-indigo-600 dark:text-indigo-400">PTS</Text>
+                  </View>
+                  {grupo.posiciones.map((pos, index) => (
+                    <View
+                      key={`${groupKey}-${pos.equipo_id}-${index}`}
+                      className="flex-row p-3 border-b border-[#eaeaea] dark:border-neutral-700 items-center"
+                    >
+                      <Text className="flex-[3] font-semibold text-sm text-[#1a1a1a] dark:text-white" numberOfLines={1}>
+                        {index + 1}. {pos.nombre}
+                      </Text>
+                      <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.pj}</Text>
+                      <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.dg > 0 ? `+${pos.dg}` : pos.dg}</Text>
+                      <Text className="flex-1 font-bold text-sm text-center text-indigo-600 dark:text-indigo-400">{pos.pts}</Text>
+                    </View>
+                  ))}
+                </View>
+              );
+            })}
+          </View>
+        );
+      }
+
+      // Fallback: usar la lógica anterior si no viene agrupada
+      const grouped = groupPosicionesByGroup(posiciones);
+      const groupKeys = Object.keys(grouped).sort(orderGroups);
+      return (
+        <View className="space-y-6">
+          {groupKeys.map((group) => (
+            <View key={group} className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 overflow-hidden">
+              <View className="px-4 py-3 border-b border-[#eaeaea] dark:border-neutral-700 bg-gray-100 dark:bg-neutral-900">
+                <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white">Grupo {group}</Text>
+              </View>
+              <View className="flex-row bg-gray-100 dark:bg-neutral-900 p-3 border-b border-[#eaeaea] dark:border-neutral-700">
+                <Text className="flex-[3] font-bold text-xs text-gray-600 dark:text-gray-400">Equipo</Text>
+                <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">PJ</Text>
+                <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">DG</Text>
+                <Text className="flex-1 font-bold text-xs text-center text-indigo-600 dark:text-indigo-400">PTS</Text>
+              </View>
+              {grouped[group].map((pos, index) => (
+                <View
+                  key={`${group}-${pos.equipo_id}-${index}`}
+                  className="flex-row p-3 border-b border-[#eaeaea] dark:border-neutral-700 items-center"
+                >
+                  <Text className="flex-[3] font-semibold text-sm text-[#1a1a1a] dark:text-white" numberOfLines={1}>
+                    {index + 1}. {pos.nombre}
+                  </Text>
+                  <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.pj}</Text>
+                  <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.dg > 0 ? `+${pos.dg}` : pos.dg}</Text>
+                  <Text className="flex-1 font-bold text-sm text-center text-indigo-600 dark:text-indigo-400">{pos.pts}</Text>
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      );
+    }
+
     return (
       <View className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 overflow-hidden">
         <View className="flex-row bg-gray-100 dark:bg-neutral-900 p-3 border-b border-[#eaeaea] dark:border-neutral-700">
-          <Text className="flex-[3] font-bold text-xs text-gray-600 dark:text-gray-400">
-            Equipo
-          </Text>
-          <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">
-            PJ
-          </Text>
-          <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">
-            DG
-          </Text>
-          <Text className="flex-1 font-bold text-xs text-center text-indigo-600 dark:text-indigo-400">
-            PTS
-          </Text>
+          <Text className="flex-[3] font-bold text-xs text-gray-600 dark:text-gray-400">Equipo</Text>
+          <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">PJ</Text>
+          <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">DG</Text>
+          <Text className="flex-1 font-bold text-xs text-center text-indigo-600 dark:text-indigo-400">PTS</Text>
         </View>
         {posiciones.map((pos, index) => (
           <View
             key={pos.equipo_id}
             className="flex-row p-3 border-b border-[#eaeaea] dark:border-neutral-700 items-center"
           >
-            <Text
-              className="flex-[3] font-semibold text-sm text-[#1a1a1a] dark:text-white"
-              numberOfLines={1}
-            >
+            <Text className="flex-[3] font-semibold text-sm text-[#1a1a1a] dark:text-white" numberOfLines={1}>
               {index + 1}. {pos.nombre}
             </Text>
-            <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">
-              {pos.pj}
-            </Text>
-            <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">
-              {pos.dg > 0 ? `+${pos.dg}` : pos.dg}
-            </Text>
-            <Text className="flex-1 font-bold text-sm text-center text-indigo-600 dark:text-indigo-400">
-              {pos.pts}
-            </Text>
+            <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.pj}</Text>
+            <Text className="flex-1 text-sm text-center text-gray-600 dark:text-gray-300">{pos.dg > 0 ? `+${pos.dg}` : pos.dg}</Text>
+            <Text className="flex-1 font-bold text-sm text-center text-indigo-600 dark:text-indigo-400">{pos.pts}</Text>
           </View>
         ))}
       </View>

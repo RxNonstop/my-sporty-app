@@ -27,7 +27,7 @@ const [posicionesLiga, setPosicionesLiga] = useState({});
 const [modalVisible, setModalVisible] = useState(false);
 const [nuevaFase, setNuevaFase] = useState('');
 const [metodoFase, setMetodoFase] = useState('');
-const [tamanoGrupo, setTamanoGrupo] = useState('');
+const [numeroGrupos, setNumeroGrupos] = useState('');
 const [clasificadosPorGrupo, setClasificadosPorGrupo] = useState('');
 const [errorGrupo, setErrorGrupo] = useState('');
 const [equiposInscritos, setEquiposInscritos] = useState([]);
@@ -57,12 +57,35 @@ const cargarDatosIniciales = async () => {
       }
 
       const dbFases = await getFasesService(campeonatoActual.id);
+
+      const calcularEquiposRestantesFase = (f) => {
+        const metodo = f.tipo === 'fase_grupos' ? 'grupos' : f.tipo;
+        const equiposIniciales = f.numero_equipos;
+        const tamanoGrupo = parseInt(f.tamano_grupo, 10);
+        const clasificados = parseInt(f.clasificados_por_grupo, 10);
+
+        if (metodo === 'liga') return 1;
+        if (metodo === 'eliminatoria') {
+          return equiposIniciales % 2 !== 0
+            ? Math.ceil((equiposIniciales - 1) / 2) + 1
+            : equiposIniciales / 2;
+        }
+        if (metodo === 'grupos' && tamanoGrupo && clasificados) {
+          const grupos = equiposIniciales / tamanoGrupo;
+          return grupos * clasificados;
+        }
+        return equiposIniciales;
+      };
+
       const mappedFases = dbFases.map(f => ({
         id: f.id,
         nombre: f.nombre,
         metodo: f.tipo === 'fase_grupos' ? 'grupos' : f.tipo,
         equiposIniciales: f.numero_equipos,
-        equiposRestantes: f.numero_equipos
+        equiposRestantes: calcularEquiposRestantesFase(f),
+        numeroGrupos: f.numero_grupos || (f.tamano_grupo ? Math.floor(f.numero_equipos / f.tamano_grupo) : ''),
+        tamanoGrupo: f.tamano_grupo || '',
+        clasificadosPorGrupo: f.clasificados_por_grupo || '',
       }));
       setFases(mappedFases);
 
@@ -71,11 +94,66 @@ const cargarDatosIniciales = async () => {
 
       // Fetch points for `liga` to display the leader
       const positions = {};
+      const getGroupLabel = (item) => {
+        return (
+          item.grupo_nombre ||
+          item.grupo ||
+          item.group_name ||
+          item.group ||
+          item.grupo_id ||
+          item.group_id ||
+          '1'
+        );
+      };
+
+      const orderGroups = (a, b) => {
+        const parsedA = parseInt(a, 10);
+        const parsedB = parseInt(b, 10);
+        if (!Number.isNaN(parsedA) && !Number.isNaN(parsedB)) {
+          return parsedA - parsedB;
+        }
+        return String(a).localeCompare(String(b));
+      };
+
+      const extractGroupLeaders = (posFase) => {
+        if (!posFase || posFase.length === 0) return [];
+
+        // Si la respuesta ya viene agrupada del backend (nueva estructura)
+        if (posFase[0] && posFase[0].posiciones) {
+          return posFase.map((grupo) => {
+            const sorted = grupo.posiciones.sort((a, b) => {
+              if (b.pts !== a.pts) return b.pts - a.pts;
+              if ((b.dg || 0) !== (a.dg || 0)) return (b.dg || 0) - (a.dg || 0);
+              return (b.gf || 0) - (a.gf || 0);
+            });
+            return { ...sorted[0], grupo: grupo.grupo, grupo_nombre: grupo.nombre };
+          });
+        }
+
+        // Estructura anterior: posiciones planas
+        const groupMap = {};
+        posFase.forEach((pos) => {
+          const grupo = String(getGroupLabel(pos) || '1');
+          if (!groupMap[grupo]) groupMap[grupo] = [];
+          groupMap[grupo].push(pos);
+        });
+        return Object.keys(groupMap)
+          .sort(orderGroups)
+          .map((grupo) => {
+            const sorted = groupMap[grupo].sort((a, b) => {
+              if (b.pts !== a.pts) return b.pts - a.pts;
+              if ((b.dg || 0) !== (a.dg || 0)) return (b.dg || 0) - (a.dg || 0);
+              return (b.gf || 0) - (a.gf || 0);
+            });
+            return { ...sorted[0], grupo };
+          });
+      };
+
       for (const f of mappedFases) {
         if (f.metodo === 'liga' || f.metodo === 'grupos') {
            const posFase = await getPosicionesFaseService(f.id);
            if (posFase && posFase.length > 0) {
-              positions[f.id] = posFase[0]; // the 1st place
+              positions[f.id] = extractGroupLeaders(posFase);
            }
         }
       }
@@ -136,8 +214,13 @@ const agregarFase = () => {
 
   let equiposRestantes = equiposAnteriores;
 
+  if (equiposAnteriores <= 0) {
+    alert('No hay equipos suficientes para crear una fase.');
+    return;
+  }
+
   if (metodoFase === "liga") {
-    equiposRestantes = equiposAnteriores-(equiposAnteriores-1);
+    equiposRestantes = 1;
   } else if (metodoFase === "eliminatoria") {
     if (equiposAnteriores % 2 !== 0) {
       equiposRestantes = Math.ceil((equiposAnteriores - 1) / 2) + 1;
@@ -145,24 +228,36 @@ const agregarFase = () => {
       equiposRestantes = equiposAnteriores / 2;
     }
   } else if (metodoFase === "grupos") {
-    const grupo = parseInt(tamanoGrupo, 10);
+    const grupos = parseInt(numeroGrupos, 10);
     const clasificados = parseInt(clasificadosPorGrupo, 10);
 
-    const divisoresValidos = calcularDivisores(equiposAnteriores);
-    if (!divisoresValidos.includes(grupo)) {
-      setErrorGrupo("El tamaño de grupo no divide equitativamente los equipos.");
-      return;
-    }
-    if (!grupo || !clasificados) {
+    if (!grupos || !clasificados) {
       setErrorGrupo("Debes ingresar valores válidos.");
       return;
     }
-    if (clasificados >= grupo) {
-      setErrorGrupo("Los clasificados deben ser menores que el tamaño del grupo.");
+    if (grupos < 2 || grupos > equiposAnteriores) {
+      setErrorGrupo("El número de grupos debe ser al menos 2 y menor o igual al número de equipos.");
+      return;
+    }
+    if (grupos % 2 !== 0) {
+      setErrorGrupo("El número de grupos debe ser par.");
+      return;
+    }
+    if (equiposAnteriores % grupos !== 0) {
+      setErrorGrupo("El número de grupos debe dividir equitativamente los equipos.");
       return;
     }
 
-    const grupos = equiposAnteriores / grupo; // garantizado equitativo
+    const tamano = equiposAnteriores / grupos;
+    if (tamano < 2) {
+      setErrorGrupo("Cada grupo debe tener al menos 2 equipos.");
+      return;
+    }
+    if (clasificados >= tamano) {
+      setErrorGrupo("Los clasificados deben ser menores que el tamaño de cada grupo.");
+      return;
+    }
+
     equiposRestantes = grupos * clasificados;
   }
 
@@ -175,8 +270,13 @@ const agregarFase = () => {
     campeonato_id: campeonato.id,
     nombre: nuevaFase.trim(),
     tipo: metodoFase === 'grupos' ? 'fase_grupos' : metodoFase,
-    numero_equipos: equiposRestantes,
-    orden: fases.length + 1
+    numero_equipos: equiposAnteriores,
+    orden: fases.length + 1,
+    ...(metodoFase === 'grupos' ? {
+      numero_grupos: parseInt(numeroGrupos, 10),
+      tamano_grupo: equiposAnteriores / parseInt(numeroGrupos, 10),
+      clasificados_por_grupo: parseInt(clasificadosPorGrupo, 10),
+    } : {}),
   };
   
   crearFaseService(nuevaFaseParams)
@@ -184,7 +284,7 @@ const agregarFase = () => {
       cargarDatosIniciales();
       setNuevaFase('');
       setMetodoFase('');
-      setTamanoGrupo('');
+      setNumeroGrupos('');
       setClasificadosPorGrupo('');
       setErrorGrupo('');
       setModalVisible(false);
@@ -344,7 +444,7 @@ const eliminarFase = async (idFase) => {
                     <Text className="text-[15px] font-semibold text-[#1a1a1a] dark:text-neutral-200 mb-1">{index + 1}. {item.nombre}</Text>
                     <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
                       Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
-                      {item.metodo === "grupos" && ` (Grupos de ${item.tamanoGrupo})`}
+                      {item.metodo === "grupos" && ` (${item.numeroGrupos} grupos de ${item.tamanoGrupo}, ${item.clasificadosPorGrupo} clas.)`}
                     </Text>
                     <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
                       Equipos: {item.metodo === 'liga' ? `${equiposInscritos.length} → 1` : `${item.equiposIniciales} → ${item.equiposRestantes}`}
@@ -365,18 +465,30 @@ const eliminarFase = async (idFase) => {
                 </View>
 
                 {/* Leader badge */}
-                {posicionesLiga[item.id] && (
+                {posicionesLiga[item.id] && posicionesLiga[item.id].length > 0 && (
                   <View className="mt-4 p-2.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800/30 shadow-sm">
                      <Text className="text-[11px] text-yellow-700 dark:text-yellow-500 font-bold uppercase mb-1 tracking-wider">
-                        {campeonatoActual?.estado === 'finalizado' ? '🏆 Campeón' : '⭐ Líder Actual de Liga'}
+                        {item.metodo === 'grupos' ? '⭐ Líderes por grupo' : campeonatoActual?.estado === 'finalizado' ? '🏆 Campeón' : '⭐ Líder Actual de Liga'}
                      </Text>
-                     <View className="flex-row justify-between items-center">
-                        <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white truncate flex-1" numberOfLines={1}>{posicionesLiga[item.id].nombre}</Text>
-                        <View className="flex-row items-center border-l pl-2 border-yellow-200 dark:border-yellow-800 ml-2">
-                           <Text className="text-xs font-bold text-gray-400 dark:text-gray-400 mr-2 uppercase tracking-wide">DG: {posicionesLiga[item.id].dg > 0 ? '+'+posicionesLiga[item.id].dg : posicionesLiga[item.id].dg}</Text>
-                           <Text className="text-[15px] font-black text-indigo-600 dark:text-indigo-400">{posicionesLiga[item.id].pts} PTS</Text>
-                        </View>
-                     </View>
+                     {item.metodo === 'grupos' ? (
+                       posicionesLiga[item.id].map((lider, idx) => (
+                         <View key={idx} className="flex-row justify-between items-center mb-2 last:mb-0">
+                           <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white truncate flex-1" numberOfLines={1}>Grupo {lider.grupo}: {lider.nombre}</Text>
+                           <View className="flex-row items-center border-l pl-2 border-yellow-200 dark:border-yellow-800 ml-2">
+                             <Text className="text-xs font-bold text-gray-400 dark:text-gray-400 mr-2 uppercase tracking-wide">DG: {lider.dg > 0 ? '+'+lider.dg : lider.dg}</Text>
+                             <Text className="text-[15px] font-black text-indigo-600 dark:text-indigo-400">{lider.pts} PTS</Text>
+                           </View>
+                         </View>
+                       ))
+                     ) : (
+                       <View className="flex-row justify-between items-center">
+                          <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white truncate flex-1" numberOfLines={1}>{posicionesLiga[item.id][0].nombre}</Text>
+                          <View className="flex-row items-center border-l pl-2 border-yellow-200 dark:border-yellow-800 ml-2">
+                             <Text className="text-xs font-bold text-gray-400 dark:text-gray-400 mr-2 uppercase tracking-wide">DG: {posicionesLiga[item.id][0].dg > 0 ? '+'+posicionesLiga[item.id][0].dg : posicionesLiga[item.id][0].dg}</Text>
+                             <Text className="text-[15px] font-black text-indigo-600 dark:text-indigo-400">{posicionesLiga[item.id][0].pts} PTS</Text>
+                          </View>
+                       </View>
+                     )}
                   </View>
                 )}
               </View>
@@ -444,23 +556,34 @@ const eliminarFase = async (idFase) => {
               {metodoFase === 'grupos' && (
                 <>
                   <Text className="font-semibold mb-1.5 mt-2 dark:text-neutral-200">
-                    Tamaño del grupo:
+                    Número de grupos:
                   </Text>
                   <View className="border border-[#ccc] dark:border-neutral-600 rounded-md mb-3 pb-1.5 pt-1.5 dark:bg-neutral-900">
                     <Picker
-                      selectedValue={tamanoGrupo}
-                      onValueChange={(value) => setTamanoGrupo(value)}
+                      selectedValue={numeroGrupos}
+                      onValueChange={(value) => setNumeroGrupos(value)}
                       style={{ borderWidth:0, color: '#1a1a1a' }}
-                      dropdownIconColor="#8a8a8a"
+                      dropdownIconColor="#1a1a1a"
                     >
-                      <Picker.Item label="Seleccione tamaño de grupo" value="" color="#1a1a1a" />
+                      <Picker.Item label="Seleccione número de grupos" value="" color="#1a1a1a" />
                       {calcularDivisores(
                         fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes
-                      ).map((div, idx) => (
-                        <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color="#1a1a1a" />
-                      ))}
+                      )
+                        .filter((div) => {
+                          const equiposActuales = fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes;
+                          return div % 2 === 0 && equiposActuales / div >= 2;
+                        })
+                        .map((div, idx) => (
+                          <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color="#1a1a1a" />
+                        ))}
                     </Picker>
                   </View>
+
+                  {numeroGrupos ? (
+                    <Text className="text-sm text-[#6a6a6a] dark:text-neutral-400 mb-2">
+                      Equipos por grupo: {Math.floor((fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes) / parseInt(numeroGrupos, 10))}
+                    </Text>
+                  ) : null}
 
                   <TextInput
                     className="border border-[#eaeaea] dark:border-neutral-600 rounded-md p-2.5 mb-3 bg-[#fafafa] dark:bg-neutral-900 text-sm text-[#1a1a1a] dark:text-white"
