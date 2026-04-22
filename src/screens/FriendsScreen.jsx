@@ -115,8 +115,8 @@ export default function FriendsScreen() {
             />
           </View>
           <TouchableOpacity onPress={abrirModalAdd} style={{ padding: 4 }}>
-            <View className="bg-white rounded-xl px-3 py-3 border border-gray-200">
-              <Ionicons name="person-add" size={24} color="#1D4ED8" />
+            <View className="bg-white dark:bg-neutral-800 rounded-xl px-3 py-3 border border-gray-200 dark:border-neutral-500">
+              <Ionicons name="person-add" size={24} color="#1D4ED8"/>
             </View>
           </TouchableOpacity>
         </View>

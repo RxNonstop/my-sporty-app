@@ -50,7 +50,7 @@ export default function PerfilScreen({ route, navigation }) {
           <View className="relative">
             <View className="w-32 h-32 rounded-full border-4 border-white dark:border-neutral-800 shadow-xl overflow-hidden">
               <Image
-                source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
+                source={{ uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
                 className="w-full h-full"
               />
             </View>
@@ -106,7 +106,7 @@ export default function PerfilScreen({ route, navigation }) {
         </View>
 
         {isSelf && (
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 40, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: isDarkMode ? '#222222' : '#ffffff', padding: 16, borderRadius: 24, borderWidth: 1, borderColor: isDarkMode ? '#aaa' : '#e5e7eb', marginBottom: 40, shadowColor: isDarkMode ? '#aaa' : '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
             <Ionicons name="create-outline" size={20} color="#1D4ED8" />
             <Text className="text-blue-700 dark:text-blue-400 font-bold ml-2">Editar Perfil</Text>
           </TouchableOpacity>

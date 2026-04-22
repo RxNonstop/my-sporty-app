@@ -155,7 +155,7 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Campeonatos"
+        name="Eventos"
         component={EventosStack}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -166,7 +166,7 @@ export default function DrawerNavigator() {
             />
           ),
           headerTitle: () =>
-            headerTitle("Campeonatos", "Gestiona y explora tus campeonatos"),
+            headerTitle("Eventos", "Gestiona y explora tus eventos"),
         }}
       />
       <Drawer.Screen

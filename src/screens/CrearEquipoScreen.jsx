@@ -64,7 +64,7 @@ console.log(deporte)
   };
 
   return (
-    <View className="p-5">
+    <View className="p-5 gap-3">
       <View className="flex-row items-center">
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 12, padding: 4, borderRadius: 999 }}>
           <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#000"} className="dark:text-white" />
@@ -82,7 +82,7 @@ console.log(deporte)
         onChangeText={setNombreEquipo}
       /> */}
       
-      <Text style={styles.label}>Nombre:</Text>
+      <Text className= "text-[#1a1a1a] dark:text-white font-semibold">Nombre:</Text>
       <View className="flex-row items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 border border-gray-100 dark:border-neutral-700 shadow-sm">
         <TextInput
           placeholder="Nombre del equipo..."
@@ -93,15 +93,15 @@ console.log(deporte)
         />
       </View>
 
-      <Text style={styles.label}>Deporte:</Text>
-      <View style={styles.row}>
+      <Text className= "text-[#1a1a1a] dark:text-white font-semibold">Deporte:</Text>
+      <View className="flex-row gap-5 mb-5 self-center">
         {deportes.map((dep) => (
           <TouchableOpacity
             key={dep.value}
             style={[styles.option, deporte === dep.value && styles.selected]}
             onPress={() => setDeporte(dep.value)}
           >
-            <Text>{dep.label}</Text>
+            <Text className="text-[#1a1a1a] dark:text-white">{dep.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -129,7 +129,7 @@ console.log(deporte)
         onPress={crearNuevoEquipo}
         className="flex-row py-3 px-3 rounded-xl border bg-blue-600 border-blue-600 dark:border-gray-300 dark:border-gray-700 justify-center items-center"
       >
-        <Text className="text-md font-medium text-white dark:text-gray-700 dark:text-gray-300">
+        <Text className="text-md font-medium text-white ">
           Crear equipo
         </Text>
       </TouchableOpacity>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
     padding: 10, marginBottom: 12
   },
-  label: { marginTop: 16, fontWeight: '600' },
+  label: { marginTop: 16, fontWeight: '600', color: '#000' },
   row: { flexDirection: 'row', gap: 10, marginBottom: 12, marginTop: 6, alignSelf: 'center'},
   option: {
     paddingHorizontal: 12, paddingVertical: 6,
