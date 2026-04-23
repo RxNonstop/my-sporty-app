@@ -19,7 +19,7 @@ import { getMisEventos, getCampeonatosParticipando } from '../services/eventoSer
 const STATUS_OPTIONS = [
   { label: 'Todos', value: 'todos' },
   { label: 'Activo / En Curso', value: 'activo' },
-  { label: 'Borrador / Programado', value: 'borrador' },
+  { label: 'Borrador / Programado', value: 'programado' },
   { label: 'Finalizado', value: 'finalizado' },
 ];
 
@@ -52,7 +52,7 @@ const EventosScreen = ({ navigation }) => {
       setPropiosData(Array.isArray(propios) ? propios : []);
       setParticipandoData(Array.isArray(participando) ? participando : []);
     } catch (err) {
-      console.error('Error fetching campeonatos:', err);
+      console.error('Error fetching eventos:', err);
     }
   };
 
@@ -132,7 +132,7 @@ const EventosScreen = ({ navigation }) => {
                 color: activeTab === 'propios' ? (isDarkMode ? '#ffffff' : '#4f46e5') : (isDarkMode ? '#a3a3a3' : '#6b7280'),
               }}
             >
-              Mis Torneos
+              Mis Eventos
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -166,15 +166,15 @@ const EventosScreen = ({ navigation }) => {
       {/* FILTER BUTTON */}
       <View className="mx-5 mb-3 flex-row items-center justify-between">
         <Text className="text-xs text-gray-500 dark:text-neutral-400">
-          {filteredList.length} campeonato{filteredList.length !== 1 ? 's' : ''}
+          {filteredList.length} evento{filteredList.length !== 1 ? 's' : ''}
         </Text>
         <TouchableOpacity
           style={{
             flexDirection: 'row', alignItems: 'center',
             paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
             borderWidth: 1,
-            backgroundColor: hasActiveFilter ? '#4f46e5' : '#ffffff',
-            borderColor: hasActiveFilter ? '#4f46e5' : '#eaeaea',
+            backgroundColor: hasActiveFilter ? '#4f46e5' : isDarkMode? '#222222' :'#ffffff',
+            borderColor: hasActiveFilter ? '#4f46e5' : isDarkMode? '#aaa' : '#e5e7eb',
           }}
           onPress={() => setFilterModalVisible(true)}
         >

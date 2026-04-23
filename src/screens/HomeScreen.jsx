@@ -22,7 +22,7 @@ import { enviarSolicitudUnionService } from "../services/notificacionService";
 const STATUS_OPTIONS = [
   { label: "Todos", value: "todos" },
   { label: "Activos", value: "activo" },
-  { label: "Borradores", value: "borrador" },
+  { label: "Programados", value: "programado" },
   { label: "Finalizados", value: "finalizado" },
 ];
 
@@ -99,14 +99,14 @@ export default function HomeScreen({ navigation }) {
               style={{
                 paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999,
                 borderWidth: 1,
-                backgroundColor: filterStatus === opt.value ? '#4f46e5' : '#ffffff',
+                backgroundColor: filterStatus === opt.value ? '#4f46e5' : isDarkMode ? "#171717": "#ffffff",
                 borderColor: filterStatus === opt.value ? '#4f46e5' : '#eaeaea',
               }}
               onPress={() => setFilterStatus(opt.value)}
             >
               <Text
                 className={`text-[12px] font-semibold ${
-                  filterStatus === opt.value ? "text-white" : "text-gray-600 dark:text-neutral-400"
+                  filterStatus === opt.value ? "text-white" : "text-gray-600 dark:text-white"
                 }`}
               >
                 {opt.label}

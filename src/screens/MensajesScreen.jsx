@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  TextInput,
   Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +20,8 @@ export default function MensajesScreen({ navigation }) {
   const { amigos } = useContext(AmistadContext);
   const { yourTeams, otherTeams } = useContext(EquipoContext);
   const { usuario } = useContext(AuthContext);
+  const [buscarChatAmigo, setBuscarChatAmigo] = useState('');
+  const [buscarChatEquipo, setBuscarChatEquipo] = useState('');
   const { resumenAmigos, resumenEquipos } = useContext(ChatContext);
   const [activeTab, setActiveTab] = useState("amigos");
 
@@ -28,6 +31,10 @@ export default function MensajesScreen({ navigation }) {
   const unreadEquipos = Object.values(resumenEquipos).reduce((acc, curr) => acc + (curr.unread_count || 0), 0);
 
   const renderAmigos = () => {
+    const amigosFiltrados = amigos.filter((amigo) => {
+      return amigo?.nombre.toLowerCase().includes(buscarChatAmigo?.toLowerCase());
+    });
+
     if (amigos.length === 0) {
       return (
         <View className="flex-1 items-center justify-center pt-20">
@@ -42,69 +49,90 @@ export default function MensajesScreen({ navigation }) {
           </Text>
         </View>
       );
-    }
-
-    return amigos.map((amigo) => {
-      const elAmigo = amigo;
-
+    } else{
       return (
-        <TouchableOpacity
-          key={`amigo-${amigo.id}`}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            padding: 16,
-            backgroundColor: isDarkMode ? "#262626" : "#ffffff",
-            borderRadius: 12,
-            marginBottom: 12,
-            borderWidth: 1,
-            borderColor: isDarkMode ? "#404040" : "#f3f4f6",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 2,
-            elevation: 2,
-          }}
-          onPress={() =>
-            navigation.navigate("ChatRoomScreen", {
-              type: "amigo",
-              target: elAmigo,
-            })
-          }
-        >
-        <View className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full items-center justify-center mr-4">
-          <Text className="text-indigo-600 dark:text-indigo-300 font-bold text-lg">
-            {elAmigo.nombre?.charAt(0).toUpperCase()}
-          </Text>
-        </View>
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text className="text-base font-bold text-gray-900 dark:text-gray-100" numberOfLines={1}>
-            {elAmigo.nombre}
-          </Text>
-          <Text className="text-sm text-gray-500 dark:text-gray-400" numberOfLines={1}>
-            {resumenAmigos[elAmigo.id]?.ultimo_mensaje || `Toca para chatear con ${elAmigo.nombre}`}
-          </Text>
-        </View>
-        
-        {resumenAmigos[elAmigo.id]?.unread_count > 0 ? (
-          <View style={{ backgroundColor: '#10b981', borderRadius: 999, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 }}>
-            <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
-              {resumenAmigos[elAmigo.id].unread_count > 99 ? '99+' : resumenAmigos[elAmigo.id].unread_count}
-            </Text>
+        <View className="flex-1 items-center justify-center">
+          <View className="flex-row flex-1 items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 py-1 border border-gray-100 dark:border-neutral-700 shadow-sm">
+            <Ionicons name="search" size={20} color="#9CA3AF" />
+            <TextInput
+              placeholder="Busca a tu amigo por su nombre..."
+              placeholderTextColor="#9CA3AF"
+              className="flex-1 h-12 ml-2 text-base text-gray-900 dark:text-white"
+              value={buscarChatAmigo}
+              onChangeText={(text) => setBuscarChatAmigo(text)}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
           </View>
-        ) : (
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={24}
-            color={isDarkMode ? "#9ca3af" : "#6b7280"}
-          />
-        )}
-      </TouchableOpacity>
+          {amigosFiltrados.map((amigo) => {
+            const elAmigo = amigo;
+
+            return (
+              <TouchableOpacity
+                key={`amigo-${amigo.id}`}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  padding: 16,
+                  backgroundColor: isDarkMode ? "#262626" : "#ffffff",
+                  borderRadius: 12,
+                  marginTop: 12,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? "#404040" : "#f3f4f6",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 2,
+                }}
+                onPress={() =>
+                  navigation.navigate("ChatRoomScreen", {
+                    type: "amigo",
+                    target: elAmigo,
+                  })
+                }
+              >
+                <View className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full items-center justify-center mr-4">
+                  <Text className="text-indigo-600 dark:text-indigo-300 font-bold text-lg">
+                    {elAmigo.nombre?.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <Text className="text-base font-bold text-gray-900 dark:text-gray-100" numberOfLines={1}>
+                    {elAmigo.nombre}
+                  </Text>
+                  <Text className="text-sm text-gray-500 dark:text-gray-400" numberOfLines={1}>
+                    {resumenAmigos[elAmigo.id]?.ultimo_mensaje || `Toca para chatear con ${elAmigo.nombre}`}
+                  </Text>
+                </View>
+                
+                {resumenAmigos[elAmigo.id]?.unread_count > 0 ? (
+                  <View style={{ backgroundColor: '#10b981', borderRadius: 999, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 }}>
+                    <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+                      {resumenAmigos[elAmigo.id].unread_count > 99 ? '99+' : resumenAmigos[elAmigo.id].unread_count}
+                    </Text>
+                  </View>
+                ) : (
+                  <Ionicons
+                    name="chatbubble-ellipses-outline"
+                    size={24}
+                    color={isDarkMode ? "#9ca3af" : "#6b7280"}
+                  />
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       );
-    });
+    }
   };
 
   const renderEquipos = () => {
+
+    const equiposFiltrados = equiposCombinados.filter((equipo) => {
+      return equipo?.nombre.toLowerCase().includes(buscarChatEquipo?.toLowerCase());
+    });
+
     if (equiposCombinados.length === 0) {
       return (
         <View className="flex-1 items-center justify-center pt-20">
@@ -119,63 +147,80 @@ export default function MensajesScreen({ navigation }) {
           </Text>
         </View>
       );
-    }
-
-    return equiposCombinados.map((equipo) => (
-      <TouchableOpacity
-        key={`equipo-${equipo.id}`}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          padding: 16,
-          backgroundColor: isDarkMode ? "#262626" : "#ffffff",
-          borderRadius: 12,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: isDarkMode ? "#404040" : "#f3f4f6",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 2,
-          elevation: 2,
-        }}
-        onPress={() =>
-          navigation.navigate("ChatRoomScreen", {
-            type: "equipo",
-            target: equipo,
-          })
-        }
-      >
-        <View className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-full items-center justify-center mr-4">
-          <Ionicons
-            name="shield-checkmark"
-            size={20}
-            color={isDarkMode ? "#34d399" : "#10b981"}
-          />
-        </View>
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text className="text-base font-bold text-gray-900 dark:text-gray-100" numberOfLines={1}>
-            {equipo.nombre}
-          </Text>
-          <Text className="text-sm text-gray-500 dark:text-gray-400" numberOfLines={1}>
-            {resumenEquipos[equipo.id]?.ultimo_mensaje || "Chat grupal del equipo"}
-          </Text>
-        </View>
-        {resumenEquipos[equipo.id]?.unread_count > 0 ? (
-          <View style={{ backgroundColor: '#10b981', borderRadius: 999, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 }}>
-            <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
-              {resumenEquipos[equipo.id].unread_count > 99 ? '99+' : resumenEquipos[equipo.id].unread_count}
-            </Text>
+    }else{
+      return(
+        <View className="flex-1 items-center justify-center">
+          <View className="flex-row flex-1 items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 py-1 border border-gray-100 dark:border-neutral-700 shadow-sm">
+            <Ionicons name="search" size={20} color="#9CA3AF" />
+            <TextInput
+              placeholder="Busca a tu equipo por su nombre..."
+              placeholderTextColor="#9CA3AF"
+              className="flex-1 h-12 ml-2 text-base text-gray-900 dark:text-white"
+              value={buscarChatEquipo}
+              onChangeText={(text) => setBuscarChatEquipo(text)}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
           </View>
-        ) : (
-          <Ionicons
-            name="chatbubbles-outline"
-            size={24}
-            color={isDarkMode ? "#9ca3af" : "#6b7280"}
-          />
-        )}
-      </TouchableOpacity>
-    ));
+          {
+            equiposFiltrados.map((equipo) => (
+              <TouchableOpacity
+                key={`equipo-${equipo.id}`}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  padding: 16,
+                  backgroundColor: isDarkMode ? "#262626" : "#ffffff",
+                  borderRadius: 12,
+                  marginTop: 12,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? "#404040" : "#f3f4f6",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 2,
+                }}
+                onPress={() =>
+                  navigation.navigate("ChatRoomScreen", {
+                    type: "equipo",
+                    target: equipo,
+                  })
+                }
+              >
+                <View className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-full items-center justify-center mr-4">
+                  <Ionicons
+                    name="shield-checkmark"
+                    size={20}
+                    color={isDarkMode ? "#34d399" : "#10b981"}
+                  />
+                </View>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <Text className="text-base font-bold text-gray-900 dark:text-gray-100" numberOfLines={1}>
+                    {equipo.nombre}
+                  </Text>
+                  <Text className="text-sm text-gray-500 dark:text-gray-400" numberOfLines={1}>
+                    {resumenEquipos[equipo.id]?.ultimo_mensaje || "Chat grupal del equipo"}
+                  </Text>
+                </View>
+                {resumenEquipos[equipo.id]?.unread_count > 0 ? (
+                  <View style={{ backgroundColor: '#10b981', borderRadius: 999, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 }}>
+                    <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+                      {resumenEquipos[equipo.id].unread_count > 99 ? '99+' : resumenEquipos[equipo.id].unread_count}
+                    </Text>
+                  </View>
+                ) : (
+                  <Ionicons
+                    name="chatbubbles-outline"
+                    size={24}
+                    color={isDarkMode ? "#9ca3af" : "#6b7280"}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+        </View>
+      )
+    }
   };
 
   return (

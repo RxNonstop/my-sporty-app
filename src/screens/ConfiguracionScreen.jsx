@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { View, Text, Switch, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "../context/ThemeContext";
+import { AuthContext } from "../context/AuthContext";
 
 const SettingItem = ({ icon, label, description, value, onValueChange, showSwitch = true }) => (
   <View className="flex-row items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-2xl mb-3 border border-gray-100 dark:border-neutral-700 shadow-sm">
@@ -28,6 +29,7 @@ const SettingItem = ({ icon, label, description, value, onValueChange, showSwitc
 export default function ConfiguracionScreen() {
   const [notificaciones, setNotificaciones] = useState(true);
   const { isDarkMode, toggleTema } = useContext(ThemeContext);
+  const { logout } = useContext(AuthContext);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
@@ -58,7 +60,10 @@ export default function ConfiguracionScreen() {
           <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3 ml-1">
             Cuenta
           </Text>
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: '#ffffff', borderRadius: 16, marginBottom: 12, borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 1 }}>
+          <TouchableOpacity
+          onPress={logout}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: isDarkMode ? "#222222" : "#ffffff", borderRadius: 16, marginBottom: 12, borderWidth: 1, borderColor: isDarkMode ? "#374151" : "#f3f4f6", shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 2, elevation: 1 }}
+          >
             <View className="flex-row items-center flex-1">
               <View className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 items-center justify-center mr-3">
                 <Ionicons name="log-out-outline" size={22} color="#DC2626" />
@@ -68,12 +73,12 @@ export default function ConfiguracionScreen() {
                 <Text className="text-xs text-red-400/80 dark:text-white">Salir de tu cuenta actual</Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#DC2626" />
+            <Ionicons name="chevron-forward" size={20} color="#dc2626" />
           </TouchableOpacity>
         </View>
 
         <View className="items-center mt-4 mb-10">
-          <Text className="text-xs text-gray-400 dark:text-neutral-500">Versión 1.2.0</Text>
+          <Text className="text-xs text-gray-400 dark:text-neutral-500">Versión 1.3.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
