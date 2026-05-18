@@ -405,11 +405,11 @@ const FixtureFaseScreen = ({ route, navigation }) => {
         });
 
         return (
-          <View className="space-y-6">
+          <View className="space-y-6 gap-3">
             {Object.keys(gruposAgrupados).sort(orderGroups).map((groupKey) => {
               const grupo = gruposAgrupados[groupKey];
               return (
-                <View key={groupKey} className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 overflow-hidden">
+                <View key={groupKey} className="bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 overflow-hidden ">
                   <View className="px-4 py-3 border-b border-[#eaeaea] dark:border-neutral-700 bg-gray-100 dark:bg-neutral-900">
                     <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white">{grupo.nombre}</Text>
                   </View>
@@ -419,7 +419,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                     <Text className="flex-1 font-bold text-xs text-center text-gray-600 dark:text-gray-400">DG</Text>
                     <Text className="flex-1 font-bold text-xs text-center text-indigo-600 dark:text-indigo-400">PTS</Text>
                   </View>
-                  {grupo.posiciones.map((pos, index) => (
+                  {grupo?.posiciones.map((pos, index) => (
                     <View
                       key={`${groupKey}-${pos.equipo_id}-${index}`}
                       className="flex-row p-3 border-b border-[#eaeaea] dark:border-neutral-700 items-center"
@@ -521,13 +521,12 @@ const FixtureFaseScreen = ({ route, navigation }) => {
             <Ionicons
               name="arrow-back"
               size={24}
-              color="#1a1a1a"
-              className="dark:text-white"
+              color={isDarkMode ? "#fafafa" : "#1a1a1a"}
             />
           </TouchableOpacity>
-          <View>
+          <View className="flex-1 align-items-center">
             <Text
-              className="text-lg font-semibold text-[#1a1a1a] dark:text-white flex-1"
+              className="text-lg font-semibold text-[#1a1a1a] dark:text-white"
               numberOfLines={1}
             >
               Fase: {fase?.nombre}
@@ -544,7 +543,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               flexDirection: "row",
               backgroundColor: "#e5e7eb", // Default gray
               backgroundColor:
-                Platform.OS === "android" ? "#e5e7eb" : undefined, // Fallback for android if className fails
+                isDarkMode ? '#262626' : '#e5e7eb', // Fallback for android if className fails
               borderRadius: 8,
               padding: 4,
               marginBottom: 20,
@@ -558,12 +557,10 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                 borderRadius: 6,
                 alignItems: "center",
                 backgroundColor:
-                  activeTab === "fixture" ? "#ffffff" : "transparent",
+                  activeTab === "fixture" ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
                 backgroundColor:
                   activeTab === "fixture"
-                    ? Platform.OS === "android"
-                      ? "#ffffff"
-                      : undefined
+                    ? isDarkMode ? '#404040' : '#ffffff'
                     : "transparent",
               }}
               onPress={() => setActiveTab("fixture")}
@@ -571,7 +568,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               <Text
                 style={{
                   fontWeight: "600",
-                  color: activeTab === "fixture" ? "#4f46e5" : "#6b7280",
+                  color: activeTab === "fixture" ? (isDarkMode ? '#fff' : '#4f46e5') : "#6b7280",
                 }}
                 className={`${activeTab === "fixture" ? "text-indigo-600 dark:text-white" : "text-gray-500"}`}
               >
@@ -585,14 +582,14 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                 borderRadius: 6,
                 alignItems: "center",
                 backgroundColor:
-                  activeTab === "posiciones" ? "#ffffff" : "transparent",
+                  activeTab === "posiciones" ? (isDarkMode ? '#404040' : '#ffffff') : 'transparent',
               }}
               onPress={() => setActiveTab("posiciones")}
             >
               <Text
                 style={{
                   fontWeight: "600",
-                  color: activeTab === "posiciones" ? "#4f46e5" : "#6b7280",
+                  color: activeTab === "posiciones" ? (isDarkMode ? '#fff' : '#4f46e5') : "#6b7280",
                 }}
                 className={`${activeTab === "posiciones" ? "text-indigo-600 dark:text-white" : "text-gray-500"}`}
               >

@@ -21,6 +21,11 @@ export const getHistorialEquipoService = async (equipoId, page = 1, limit = 30) 
   return res.data;
 };
 
+export const getHistorialCampeonatoService = async (campeonatoId, page = 1, limit = 30) => {
+  const res = await axios.get(`${API_URL}/mensajes/campeonato/${campeonatoId}?page=${page}&limit=${limit}`, await authHeader());
+  return res.data;
+};
+
 export const getResumenMensajesService = async () => {
   const res = await axios.get(`${API_URL}/mensajes/resumen`, await authHeader());
   return res.data;
@@ -33,5 +38,15 @@ export const marcarAmigoLeidoService = async (amigoId) => {
 
 export const marcarEquipoLeidoService = async (equipoId) => {
   const res = await axios.post(`${API_URL}/mensajes/equipo/${equipoId}/leer`, {}, await authHeader());
+  return res.data;
+};
+
+export const marcarCampeonatoLeidoService = async (campeonatoId) => {
+  const res = await axios.post(`${API_URL}/mensajes/campeonato/${campeonatoId}/leer`, {}, await authHeader());
+  return res.data;
+};
+
+export const getChatMembersService = async (type, id) => {
+  const res = await axios.get(`${API_URL}/mensajes/${type}/${id}/miembros`, await authHeader());
   return res.data;
 };

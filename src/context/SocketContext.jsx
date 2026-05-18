@@ -29,14 +29,15 @@ export const SocketProvider = ({ children }) => {
             transports: ["websocket"], // Forzar websocket para mejor rendimiento nativo
           });
 
-          newSocket.on("connect", () => {
+            newSocket.on("connect", () => {
             console.log(
               "[Socket] Conectado exitosamente con ID:",
               newSocket.id,
             );
             setConectado(true);
-            // Se inscribe en los canales de sus equipos al iniciar
+            // Se inscribe en los canales de sus equipos y campeonatos al iniciar
             newSocket.emit("join_teams");
+            newSocket.emit("join_campeonatos");
           });
 
           newSocket.on("disconnect", () => {
@@ -72,6 +73,21 @@ export const SocketProvider = ({ children }) => {
                 msg.equipo_nombre || "Mensaje de equipo",
                 `${msg.emisor_nombre || "Alguien"}: ${msg.mensaje}`,
                 { type: "equipo", id: msg.equipo_id },
+              );
+            }
+          });
+
+          newSocket.on("receive_message_campeonato", (msg) => {
+            const isFromMe = String(msg.emisor_id) === String(usuario.id);
+            const isInThisChat =
+              activeChat?.type === "campeonato" &&
+              String(activeChat?.id) === String(msg.campeonato_id);
+
+            if (!isFromMe && !isInThisChat) {
+              showLocalNotification(
+                msg.campeonato_nombre || "Mensaje de campeonato",
+                `${msg.emisor_nombre || "Alguien"}: ${msg.mensaje}`,
+                { type: "campeonato", id: msg.campeonato_id },
               );
             }
           });

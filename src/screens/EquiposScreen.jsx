@@ -17,18 +17,19 @@ const SPORT_ICONS = {
 
 const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
   const iconName = SPORT_ICONS[item.deporte?.toLowerCase()] || "shield-outline";
+  const { isDarkMode } = useContext(ThemeContext);
   
   return (
     <TouchableOpacity 
       onPress={onPress}
       activeOpacity={0.7}
       style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
         borderRadius: 16,
         padding: 16,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: '#f3f4f6',
+        borderColor: isDarkMode ? '#374151' : '#f3f4f6',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,

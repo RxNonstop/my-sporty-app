@@ -6,6 +6,7 @@ import {
   actualizarEvento,
   eliminarEvento,
   getEventosPublicos,
+  getCampeonatosParticipando,
 } from "../services/eventoService";
 import { AuthContext } from "./AuthContext";
 
@@ -25,8 +26,18 @@ export const CampeonatoProvider = ({ children }) => {
   }, []);
 
   const getMisCampeonatos = useCallback(async (userId) => {
-    const data = await getMisEventos(userId);
-    setMisCampeonatos(data);
+    const owned = await getMisEventos(userId);
+    const participating = await getCampeonatosParticipando(userId);
+    
+    // Merge and remove duplicates by ID
+    const combined = [...owned];
+    participating.forEach(p => {
+      if (!combined.some(c => c.id === p.id)) {
+        combined.push(p);
+      }
+    });
+    
+    setMisCampeonatos(combined);
   }, []);
 
   useEffect(() => {

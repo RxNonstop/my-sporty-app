@@ -14,6 +14,7 @@ import { AmistadContext } from "../context/AmistadContext";
 import { EquipoContext } from "../context/EquipoContext";
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
+import { CampeonatoContext } from "../context/CampeonatoContext";
 
 export default function MensajesScreen({ navigation }) {
   const { isDarkMode } = useContext(ThemeContext);
@@ -22,13 +23,16 @@ export default function MensajesScreen({ navigation }) {
   const { usuario } = useContext(AuthContext);
   const [buscarChatAmigo, setBuscarChatAmigo] = useState('');
   const [buscarChatEquipo, setBuscarChatEquipo] = useState('');
-  const { resumenAmigos, resumenEquipos } = useContext(ChatContext);
+  const [buscarChatEvento, setBuscarChatEvento] = useState('');
+  const { resumenAmigos, resumenEquipos, resumenCampeonatos } = useContext(ChatContext);
+  const { misCampeonatos } = useContext(CampeonatoContext);
   const [activeTab, setActiveTab] = useState("amigos");
 
   const equiposCombinados = [...yourTeams, ...otherTeams];
 
   const unreadAmigos = Object.values(resumenAmigos).reduce((acc, curr) => acc + (curr.unread_count || 0), 0);
   const unreadEquipos = Object.values(resumenEquipos).reduce((acc, curr) => acc + (curr.unread_count || 0), 0);
+  const unreadCampeonatos = Object.values(resumenCampeonatos).reduce((acc, curr) => acc + (curr.unread_count || 0), 0);
 
   const renderAmigos = () => {
     const amigosFiltrados = amigos.filter((amigo) => {
@@ -223,6 +227,98 @@ export default function MensajesScreen({ navigation }) {
     }
   };
 
+  const renderEventos = () => {
+    const eventosFiltrados = misCampeonatos.filter((evento) => {
+      return evento?.nombre.toLowerCase().includes(buscarChatEvento?.toLowerCase());
+    });
+
+    if (misCampeonatos.length === 0) {
+      return (
+        <View className="flex-1 items-center justify-center pt-20">
+          <Ionicons
+            name="trophy-outline"
+            size={64}
+            color={isDarkMode ? "#404040" : "#d1d5db"}
+          />
+          <Text className="text-gray-500 dark:text-gray-400 mt-4 text-center px-8">
+            No participas en ningún campeonato. Únete a uno para participar en el chat del evento.
+          </Text>
+        </View>
+      );
+    } else {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <View className="flex-row flex-1 items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 py-1 border border-gray-100 dark:border-neutral-700 shadow-sm">
+            <Ionicons name="search" size={20} color="#9CA3AF" />
+            <TextInput
+              placeholder="Busca por el nombre del campeonato..."
+              placeholderTextColor="#9CA3AF"
+              className="flex-1 h-12 ml-2 text-base text-gray-900 dark:text-white"
+              value={buscarChatEvento}
+              onChangeText={(text) => setBuscarChatEvento(text)}
+              autoCapitalize="none"
+            />
+          </View>
+          {eventosFiltrados.map((evento) => (
+            <TouchableOpacity
+              key={`evento-${evento.id}`}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 16,
+                backgroundColor: isDarkMode ? "#262626" : "#ffffff",
+                borderRadius: 12,
+                marginTop: 12,
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#404040" : "#f3f4f6",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+              onPress={() =>
+                navigation.navigate("ChatRoomScreen", {
+                  type: "campeonato",
+                  target: evento,
+                })
+              }
+            >
+              <View className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 rounded-full items-center justify-center mr-4">
+                <Ionicons
+                  name="trophy"
+                  size={20}
+                  color={isDarkMode ? "#fbbf24" : "#f59e0b"}
+                />
+              </View>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <Text className="text-base font-bold text-gray-900 dark:text-gray-100" numberOfLines={1}>
+                  {evento.nombre}
+                </Text>
+                <Text className="text-sm text-gray-500 dark:text-gray-400" numberOfLines={1}>
+                  {resumenCampeonatos[evento.id]?.ultimo_mensaje || "Chat del campeonato"}
+                </Text>
+              </View>
+              {resumenCampeonatos[evento.id]?.unread_count > 0 ? (
+                <View style={{ backgroundColor: '#f59e0b', borderRadius: 999, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 }}>
+                  <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
+                    {resumenCampeonatos[evento.id].unread_count > 99 ? '99+' : resumenCampeonatos[evento.id].unread_count}
+                  </Text>
+                </View>
+              ) : (
+                <Ionicons
+                  name="chatbubbles-outline"
+                  size={24}
+                  color={isDarkMode ? "#9ca3af" : "#6b7280"}
+                />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      );
+    }
+  };
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}
@@ -284,11 +380,38 @@ export default function MensajesScreen({ navigation }) {
               )}
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              alignItems: "center",
+              paddingVertical: 10,
+              borderRadius: 8,
+              backgroundColor: activeTab === "eventos" ? (isDarkMode ? "#404040" : "#ffffff") : "transparent",
+              shadowColor: activeTab === "eventos" ? "#000" : "transparent",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: activeTab === "eventos" ? 0.05 : 0,
+              elevation: activeTab === "eventos" ? 1 : 0,
+            }}
+            onPress={() => setActiveTab("eventos")}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Text
+                className={`font-bold ${activeTab === "eventos" ? "text-amber-600 dark:text-amber-400" : "text-gray-500 dark:text-gray-400"}`}
+              >
+                Eventos
+              </Text>
+              {unreadCampeonatos > 0 && (
+                <View style={{ backgroundColor: '#ef4444', borderRadius: 10, minWidth: 18, height: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 6, paddingHorizontal: 4 }}>
+                  <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>{unreadCampeonatos > 99 ? '99+' : unreadCampeonatos}</Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView className="flex-1 px-4 pt-2">
-        {activeTab === "amigos" ? renderAmigos() : renderEquipos()}
+        {activeTab === "amigos" ? renderAmigos() : activeTab === "equipos" ? renderEquipos() : renderEventos()}
       </ScrollView>
     </SafeAreaView>
   );
