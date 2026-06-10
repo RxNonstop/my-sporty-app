@@ -269,10 +269,6 @@ export default function PerfilScreen({ route, navigation }) {
             icon="call-outline"
             label="Teléfono"
             value={usuario?.telefono || "No registrado"}
-          <InfoRow
-            icon="call-outline"
-            label="Teléfono"
-            value={usuario?.telefono || "No registrado"}
           />
           <View className="py-4 flex-row items-center justify-between">
             <View className="flex-row items-center">
@@ -282,7 +278,6 @@ export default function PerfilScreen({ route, navigation }) {
               <Text className="text-gray-500 dark:text-neutral-400 text-sm">Miembro desde</Text>
             </View>
             <Text className="text-gray-900 dark:text-white font-semibold text-sm">{usuario?.fecha_registro ? new Date(usuario.fecha_registro).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : "No especificada"}</Text>
-            <Text className="text-gray-900 dark:text-white font-semibold text-sm">{miembroDesde}</Text>
           </View>
         </View>
 
