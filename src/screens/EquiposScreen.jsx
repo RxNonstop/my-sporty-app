@@ -52,7 +52,7 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
             <View className="flex-row items-center">
               <Ionicons name="people-outline" size={14} color="#6B7280" />
               <Text className="text-xs text-gray-500 dark:text-neutral-400 ml-1">
-                {item.miembros?.length || 0} miembros
+                {item.total_miembros ?? 0} miembros
               </Text>
             </View>
           </View>
