@@ -57,13 +57,24 @@ export const AuthProvider = ({ children }) => {
     setUsuario(null);
   }, []);
 
+  const updateUsuario = useCallback(async (data) => {
+    if (!usuario?.id) return;
+    const updatedUser = await authService.updateUser(usuario.id, data);
+    if (updatedUser) {
+      setUsuario(updatedUser);
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+      return updatedUser;
+    }
+  }, [usuario]);
+
   const value = useMemo(() => ({
     usuario,
     login,
     logout,
     register,
+    updateUsuario,
     cargando
-  }), [usuario, login, logout, register, cargando]);
+  }), [usuario, login, logout, register, updateUsuario, cargando]);
 
   return (
     <AuthContext.Provider value={value}>

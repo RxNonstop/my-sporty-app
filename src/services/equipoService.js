@@ -12,8 +12,9 @@ const authHeader = async () => {
   };
 };
 
-export const getEquiposService = async () => {
-  const res = await axios.get(`${API_URL}/equipos/mis-equipos`, await authHeader());
+export const getEquiposService = async (usuarioId = null) => {
+  const url = usuarioId ? `${API_URL}/equipos/mis-equipos?usuario_id=${usuarioId}` : `${API_URL}/equipos/mis-equipos`;
+  const res = await axios.get(url, await authHeader());
   return res.data;
 };
 

@@ -60,6 +60,17 @@ export const getUser = async () => {
   return res.data.data.user;
 };
 
+export const updateUser = async (id, data) => {
+  const token = await AsyncStorage.getItem("token");
+  const res = await axios.put(`${API_URL}/usuarios/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return res.data.data;
+};
+
 export const updatePushTokenService = async (token) => {
   const authToken = await AsyncStorage.getItem("token");
   if (!authToken) return;

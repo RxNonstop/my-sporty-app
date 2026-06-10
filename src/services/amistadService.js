@@ -12,8 +12,9 @@ const authHeader = async () => {
   };
 };
 
-export const getAmigos = async () => {
-  const res = await axios.get(`${API_URL}/amistades`, await authHeader());
+export const getAmigos = async (usuarioId = null) => {
+  const url = usuarioId ? `${API_URL}/amistades?usuario_id=${usuarioId}` : `${API_URL}/amistades`;
+  const res = await axios.get(url, await authHeader());
   return res.data.data.amigos;
 };
 
