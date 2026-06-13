@@ -59,16 +59,6 @@ const cargarDatosIniciales = async () => {
 
       const dbFases = await getFasesService(campeonatoActual.id);
 
-      // Auto-redirect if it's a standalone match
-      if (campeonatoActual.tipo_actividad === 'partido' && dbFases && dbFases.length > 0) {
-        navigation.replace('FixtureFaseScreen', {
-          fase: dbFases[0],
-          campeonato: campeonatoActual,
-          readOnly: !isOwner
-        });
-        return; // Stop further loading in this screen
-      }
-
       const calcularEquiposRestantesFase = (f) => {
         const metodo = f.tipo === 'fase_grupos' ? 'grupos' : f.tipo;
         const equiposIniciales = f.numero_equipos;
@@ -326,7 +316,7 @@ const eliminarFase = async (idFase) => {
     </View>
   );
 
-  const isCampeonato = campeonato?.tipo !== 'partido';
+  const isCampeonato = campeonato?.tipo_actividad !== 'partido';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
@@ -395,7 +385,7 @@ const eliminarFase = async (idFase) => {
               ) : null}
             </View>
             
-            {isCampeonato && isOwner && (
+            {isOwner && (
               <TouchableOpacity
                 onPress={abrirModalAmigos}
                 disabled={equiposInscritos.length >= (campeonato?.numero_equipos || 0)}
@@ -441,7 +431,9 @@ const eliminarFase = async (idFase) => {
             </View>
           )}
 
-          <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-2">Fases del campeonato</Text>
+          <Text className="text-base font-semibold text-[#1a1a1a] dark:text-white mb-3 mt-2">
+            {isCampeonato ? "Fases del campeonato" : "Encuentro Programado"}
+          </Text>
           
           {fases.length === 0 ? (
             <View className="p-6 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
@@ -452,11 +444,15 @@ const eliminarFase = async (idFase) => {
               <View key={index} className="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 pr-3">
-                    <Text className="text-[15px] font-semibold text-[#1a1a1a] dark:text-neutral-200 mb-1">{index + 1}. {item.nombre}</Text>
-                    <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
-                      Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
-                      {item.metodo === "grupos" && ` (${item.numeroGrupos} grupos de ${item.tamanoGrupo}, ${item.clasificadosPorGrupo} clas.)`}
+                    <Text className="text-[15px] font-semibold text-[#1a1a1a] dark:text-neutral-200 mb-1">
+                      {isCampeonato ? `${index + 1}. ` : ''}{item.nombre}
                     </Text>
+                    {isCampeonato && (
+                      <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
+                        Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
+                        {item.metodo === "grupos" && ` (${item.numeroGrupos} grupos de ${item.tamanoGrupo}, ${item.clasificadosPorGrupo} clas.)`}
+                      </Text>
+                    )}
                     <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
                       Equipos: {item.metodo === 'liga' ? `${equiposInscritos.length} → 1` : `${item.equiposIniciales} → ${item.equiposRestantes}`}
                     </Text>
@@ -467,7 +463,7 @@ const eliminarFase = async (idFase) => {
                     <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} style={{ backgroundColor: '#e0e7ff', padding: 8, borderRadius: 8 }}>
                       <Ionicons name="calendar-outline" size={20} className="text-indigo-600 dark:text-indigo-400" color="#4f46e5" />
                     </TouchableOpacity>
-                    {isOwner && (
+                    {isCampeonato && isOwner && (
                       <TouchableOpacity onPress={() => eliminarFase(item.id)} style={{ backgroundColor: '#fff1f2', padding: 8, borderRadius: 8 }}>
                         <Ionicons name="trash-outline" size={20} color="#ff4d4f" />
                       </TouchableOpacity>
@@ -663,7 +659,7 @@ const eliminarFase = async (idFase) => {
           </View>
         </Modal>
 
-        {isOwner && (
+        {isCampeonato && isOwner && (
           <View className="absolute bottom-6 left-0 right-0 items-center">
             <TouchableOpacity
               style={{ backgroundColor: '#007bff', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 8 }}
