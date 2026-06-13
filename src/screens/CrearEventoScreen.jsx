@@ -12,6 +12,9 @@ import { EventoContext } from "../context/EventoContext";
 import { CampeonatoContext } from "../context/CampeonatoContext";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "../context/ThemeContext";
+import { getEquiposService } from "../services/equipoService";
+import { AuthContext } from "../context/AuthContext";
+import { Modal, ActivityIndicator } from "react-native";
 
 export default function CrearEventoScreen({ navigation }) {
   const { agregarEvento } = useContext(EventoContext);
@@ -31,8 +34,15 @@ export default function CrearEventoScreen({ navigation }) {
   const [fechaFin, setFechaFin] = useState(new Date());
   const [mostrarInicio, setMostrarInicio] = useState(false);
   const [mostrarFin, setMostrarFin] = useState(false);
-   console.log(deporte)
-  const handleContinuar = () => {
+  
+  const { usuario } = useContext(AuthContext);
+  const [teamModalVisible, setTeamModalVisible] = useState(false);
+  const [userTeams, setUserTeams] = useState([]);
+  const [loadingTeams, setLoadingTeams] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [pendingEventoData, setPendingEventoData] = useState(null);
+
+  const handleContinuar = async () => {
     const formatDateLocal = (date) => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -107,16 +117,36 @@ export default function CrearEventoScreen({ navigation }) {
       setNumEquipos("");
       setFechaInicio(new Date());
       setFechaFin(new Date());
-      // navigation.navigate('SeleccionarEquipos', {
-      //   eventoBase: eventoData,
-      //   numEquipos: parseInt(numEquipos),
-      // });
       alert("Campeonato creado exitosamente");
       navigation.navigate("Inicio");
     } else {
-      agregarCampeonato(eventoData);
-      navigation.navigate("Calendario");
+      setPendingEventoData(eventoData);
+      setLoadingTeams(true);
+      setTeamModalVisible(true);
+      getEquiposService().then(res => {
+        const allTeams = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+        const myTeams = allTeams.filter(t => t.propietario_id === usuario?.id && t.deporte === deporte);
+        setUserTeams(myTeams);
+      }).catch(err => {
+        console.error(err);
+        setUserTeams([]);
+      }).finally(() => {
+        setLoadingTeams(false);
+      });
     }
+  };
+
+  const confirmarCreacionPartido = async () => {
+    if (!selectedTeam) {
+      return alert("Selecciona un equipo local");
+    }
+    const finalData = { ...pendingEventoData, equipo_local_id: selectedTeam };
+    await agregarCampeonato(finalData);
+    setTeamModalVisible(false);
+    setSelectedTeam(null);
+    setPendingEventoData(null);
+    alert("Partido creado exitosamente");
+    navigation.navigate("Inicio");
   };
 
   return (
@@ -430,6 +460,83 @@ export default function CrearEventoScreen({ navigation }) {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={teamModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setTeamModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+          activeOpacity={1}
+          onPress={() => setTeamModalVisible(false)}
+        >
+          <TouchableOpacity activeOpacity={1}>
+            <View className="bg-white dark:bg-neutral-800 rounded-t-3xl px-5 pt-5 pb-10">
+              <View className="w-10 h-1 bg-gray-300 dark:bg-neutral-600 rounded-full self-center mb-4" />
+              <Text className="text-base font-bold text-[#1a1a1a] dark:text-white mb-1">
+                Selecciona tu Equipo Local
+              </Text>
+              <Text className="text-xs text-gray-500 dark:text-neutral-400 mb-4">
+                Elige el equipo que jugará como local en este partido:
+              </Text>
+
+              {loadingTeams ? (
+                <ActivityIndicator color="#4f46e5" className="my-6" />
+              ) : userTeams.length === 0 ? (
+                <View className="items-center py-6">
+                  <Ionicons name="shield-outline" size={36} color="#aaa" />
+                  <Text className="text-sm text-gray-500 dark:text-neutral-400 mt-2 text-center">
+                    No tienes equipos en este deporte ({deporte}). Crea uno primero.
+                  </Text>
+                </View>
+              ) : (
+                <ScrollView style={{ maxHeight: 250 }} showsVerticalScrollIndicator={false}>
+                  {userTeams.map((equipo) => (
+                    <TouchableOpacity
+                      key={equipo.id}
+                      style={{
+                        flexDirection: 'row', alignItems: 'center',
+                        padding: 16, borderRadius: 12, mb: 8,
+                        borderWidth: 1,
+                        borderColor: selectedTeam === equipo.id ? '#4f46e5' : '#eaeaea',
+                        backgroundColor: selectedTeam === equipo.id ? '#eef2ff' : '#ffffff',
+                        marginBottom: 8
+                      }}
+                      onPress={() => setSelectedTeam(equipo.id)}
+                    >
+                      <View
+                        className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
+                          selectedTeam === equipo.id ? "border-indigo-600 bg-indigo-600" : "border-gray-400"
+                        }`}
+                      >
+                        {selectedTeam === equipo.id && (
+                          <View className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </View>
+                      <Text className="text-sm font-semibold text-[#1a1a1a] dark:text-white">{equipo.nombre}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+
+              {userTeams.length > 0 && (
+                <TouchableOpacity
+                  style={{
+                    marginTop: 16, paddingVertical: 12, borderRadius: 12, alignItems: 'center',
+                    backgroundColor: selectedTeam ? '#4f46e5' : '#d1d5db',
+                  }}
+                  onPress={confirmarCreacionPartido}
+                  disabled={!selectedTeam}
+                >
+                  <Text className="text-white font-bold text-sm">Crear Partido</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </ScrollView>
   );
 }

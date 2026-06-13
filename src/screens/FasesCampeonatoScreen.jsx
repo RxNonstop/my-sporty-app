@@ -59,6 +59,16 @@ const cargarDatosIniciales = async () => {
 
       const dbFases = await getFasesService(campeonatoActual.id);
 
+      // Auto-redirect if it's a standalone match
+      if (campeonatoActual.tipo_actividad === 'partido' && dbFases && dbFases.length > 0) {
+        navigation.replace('FixtureFaseScreen', {
+          fase: dbFases[0],
+          campeonato: campeonatoActual,
+          readOnly: !isOwner
+        });
+        return; // Stop further loading in this screen
+      }
+
       const calcularEquiposRestantesFase = (f) => {
         const metodo = f.tipo === 'fase_grupos' ? 'grupos' : f.tipo;
         const equiposIniciales = f.numero_equipos;
