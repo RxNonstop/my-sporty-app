@@ -338,12 +338,31 @@ const FixtureFaseScreen = ({ route, navigation }) => {
 
   const renderFixture = () => {
     if (fase.metodo === "eliminatoria") {
+      const jornadas = {};
+
+      partidos.forEach((partido) => {
+        const jornada = partido.jornada || 1;
+        if (!jornadas[jornada]) jornadas[jornada] = [];
+        jornadas[jornada].push(partido);
+      });
+
+      const jornadasOrdenadas = Object.keys(jornadas).sort(
+        (a, b) => Number(a) - Number(b)
+      );
+
       return (
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
           <Text className="text-center text-sm text-gray-500 mb-4 mt-2">
             Árbol de Eliminatoria (Llaves)
           </Text>
-          {partidos.map(renderPartido)}
+          {jornadasOrdenadas.map((jornada) => (
+            <View key={jornada}>
+              <Text className="font-semibold text-sm mb-2 mt-4 dark:text-neutral-200">
+                Jornada {jornada}
+              </Text>
+              {jornadas[jornada].map(renderPartido)}
+            </View>
+          ))}
         </ScrollView>
       );
     }
