@@ -180,9 +180,19 @@ const calcularDivisores = (num) => {
 const abrirModalAmigos = async () => {
   setModalAmigosVisible(true);
   setLoadingAmigos(true);
+  const campId = campeonatoActual?.id || campeonato?.id;
+  const campDeporte = campeonatoActual?.deporte || campeonato?.deporte;
   try {
-    const response = await getEquiposAmigosParaCampeonatoService(campeonato.id);
-    setEquiposAmigos(response.data || response); // depends on if res.data is nested
+    const response = await getEquiposAmigosParaCampeonatoService(campId);
+    let data = response.data || response;
+    // Filtrar por el deporte del evento
+    if (campDeporte) {
+      data = data.filter(equipo => 
+        equipo.deporte && 
+        equipo.deporte.toLowerCase() === campDeporte.toLowerCase()
+      );
+    }
+    setEquiposAmigos(data);
   } catch (error) {
     if (error.response?.status === 404) {
       setEquiposAmigos([]);
@@ -195,14 +205,21 @@ const abrirModalAmigos = async () => {
 };
 
 const invitarEquipo = async (equipo) => {
+  const isMyTeam = equipo.propietario_id === usuario?.id;
+  const campId = campeonatoActual?.id || campeonato?.id;
   try {
-    await enviarInvitacionCampeonatoService(campeonato.id, equipo.propietario_id, equipo.id);
-    alert('Invitación enviada a ' + equipo.nombre);
+    const res = await enviarInvitacionCampeonatoService(campId, equipo.propietario_id, equipo.id);
+    if (isMyTeam || res?.inscrito) {
+      alert('Equipo ' + equipo.nombre + ' inscrito correctamente al evento');
+      await cargarDatosIniciales();
+    } else {
+      alert('Invitación enviada a ' + equipo.nombre);
+    }
     // Remove the team from the list so they can't be invited again immediately
     setEquiposAmigos(prev => prev.filter(e => e.id !== equipo.id));
   } catch (error) {
     console.error('Error invitar equipo:', error);
-    alert('Error al enviar invitación');
+    alert('Error al invitar o inscribir equipo');
   }
 };
 
@@ -398,7 +415,7 @@ const eliminarFase = async (idFase) => {
               >
                  <Ionicons name="people-outline" size={18} color="#fff" />
                  <Text className="text-white font-semibold text-sm ml-2">
-                    {equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'Cupos Llenos' : 'Invitar Equipos de Amigos'}
+                    {equiposInscritos.length >= (campeonato?.numero_equipos || 0) ? 'Cupos Llenos' : 'Invitar o Inscribir Equipos'}
                  </Text>
               </TouchableOpacity>
             )}
@@ -610,7 +627,7 @@ const eliminarFase = async (idFase) => {
           </View>
         </Modal>
 
-        {/* Modal for Inviting Friends */}
+        {/* Modal for Inviting Friends / Adding Own Teams */}
         <Modal
           visible={modalAmigosVisible}
           animationType="slide"
@@ -620,8 +637,8 @@ const eliminarFase = async (idFase) => {
           <View className="flex-1 bg-black/40 dark:bg-black/60 justify-end">
             <KeyboardAvoidingView className="w-full h-2/3 bg-white dark:bg-neutral-800 rounded-t-3xl pt-5 pb-8 px-5 mb-5">
               <View className="flex-row items-center justify-between mb-4">
-                <Text className="text-lg font-bold text-[#1a1a1a] dark:text-white">Equipos de Amigos</Text>
-                      <TouchableOpacity onPress={() => setModalAmigosVisible(false)} style={{ padding: 4 }}>
+                <Text className="text-lg font-bold text-[#1a1a1a] dark:text-white">Invitar o Inscribir Equipos</Text>
+                <TouchableOpacity onPress={() => setModalAmigosVisible(false)} style={{ padding: 4 }}>
                   <Ionicons name="close" size={24} color="#8a8a8a" />
                 </TouchableOpacity>
               </View>
@@ -632,27 +649,50 @@ const eliminarFase = async (idFase) => {
                 </View>
               ) : equiposAmigos.length === 0 ? (
                 <View className="flex-1 justify-center items-center">
-                  <Text className="text-gray-500">No se encontraron equipos para invitar.</Text>
+                  <Text className="text-gray-500">No se encontraron equipos disponibles para este deporte.</Text>
                 </View>
               ) : (
                 <ScrollView
                   className="flex-1"
                   showsVerticalScrollIndicator={false}
                 >
-                  {equiposAmigos.map((item) => (
-                    <View key={item.id} className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3 rounded-lg border border-[#eaeaea] dark:border-neutral-700 mb-3">
-                      <View className="flex-1">
-                        <Text className="font-semibold text-[15px] dark:text-white">{item.nombre}</Text>
-                        <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
+                  {equiposAmigos.map((item) => {
+                    const isMyTeam = item.propietario_id === usuario?.id;
+                    const ownerName = isMyTeam
+                      ? `${usuario?.nombre || 'Tú'} (Tú)`
+                      : (item.propietario_nombre || 'Desconocido');
+
+                    return (
+                      <View key={item.id} className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3.5 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
+                        <View className="flex-1 mr-3">
+                          <Text className="font-bold text-[15px] text-[#1a1a1a] dark:text-white mb-0.5">{item.nombre}</Text>
+                          <View className="flex-row items-center flex-wrap gap-y-1">
+                            <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
+                            <Text className="text-xs text-gray-400 mx-1.5">•</Text>
+                            <View className="flex-row items-center">
+                              <Ionicons name="person-circle-outline" size={13} color="#6366f1" style={{ marginRight: 3 }} />
+                              <Text className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                                Dueño: {ownerName}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <TouchableOpacity 
+                          style={{ 
+                            backgroundColor: isMyTeam ? '#059669' : '#4f46e5', 
+                            paddingHorizontal: 16, 
+                            paddingVertical: 8, 
+                            borderRadius: 8 
+                          }}
+                          onPress={() => invitarEquipo(item)}
+                        >
+                          <Text className="text-white text-xs font-semibold">
+                            {isMyTeam ? 'Inscribir' : 'Invitar'}
+                          </Text>
+                        </TouchableOpacity>
                       </View>
-                      <TouchableOpacity 
-                        style={{ backgroundColor: '#4f46e5', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}
-                        onPress={() => invitarEquipo(item)}
-                      >
-                        <Text className="text-white text-xs font-semibold">Invitar</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </ScrollView>
               )}
             </KeyboardAvoidingView>
