@@ -242,9 +242,46 @@ const FixtureFaseScreen = ({ route, navigation }) => {
     }
   };
 
+  const puedeEditarPartido = (partido) => {
+    if (!esPropietario || partido.estado === 'finalizado') return false;
+    if (fase.metodo !== 'eliminatoria') return true;
+
+    const jornada = Number(partido.jornada || 1);
+    if (jornada <= 1) return true;
+
+    const partidosJornadaAnterior = partidos.filter(
+      (item) => Number(item.jornada || 1) === jornada - 1
+    );
+
+    return partidosJornadaAnterior.length > 0 && partidosJornadaAnterior.every(
+      (item) => item.estado === 'finalizado'
+    );
+  };
+
+  const abrirEditorPartido = (partido) => {
+    if (!puedeEditarPartido(partido)) {
+      Alert.alert(
+        "Encuentro bloqueado",
+        "Este encuentro se habilitará cuando todos los partidos de la jornada anterior hayan finalizado."
+      );
+      return;
+    }
+
+    setSelectedPartido(partido);
+    setScoreLocal(partido.puntos_local !== null ? String(partido.puntos_local) : "");
+    setScoreVisitante(partido.puntos_visitante !== null ? String(partido.puntos_visitante) : "");
+
+    const pDate = partido.fecha ? new Date(partido.fecha) : new Date();
+    setFecha(pDate);
+    setHora(pDate);
+    setLugar(partido.lugar || "");
+    setModalVisible(true);
+  };
+
   const renderPartido = (partido) => {
     const localName = partido.equipo_local_nombre || "Por Definir / Descanso";
     const visName = partido.equipo_visitante_nombre || "Por Definir / Descanso";
+    const puedeEditar = puedeEditarPartido(partido);
 
     return (
       <View
@@ -314,21 +351,17 @@ const FixtureFaseScreen = ({ route, navigation }) => {
 
         {esPropietario && partido.estado !== 'finalizado' && (
           <TouchableOpacity
-            className="mt-4 bg-indigo-50 border border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800 py-2 rounded-lg items-center"
-            onPress={() => {
-              setSelectedPartido(partido);
-              setScoreLocal(partido.puntos_local !== null ? String(partido.puntos_local) : "");
-              setScoreVisitante(partido.puntos_visitante !== null ? String(partido.puntos_visitante) : "");
-
-              const pDate = partido.fecha ? new Date(partido.fecha) : new Date();
-              setFecha(pDate);
-              setHora(pDate);
-              setLugar(partido.lugar || "");
-              setModalVisible(true);
-            }}
+            className={`mt-4 py-2 rounded-lg items-center ${
+              puedeEditar
+                ? "bg-indigo-50 border border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800"
+                : "bg-gray-100 border border-gray-200 dark:bg-neutral-700 dark:border-neutral-600"
+            }`}
+            onPress={() => abrirEditorPartido(partido)}
           >
-            <Text className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
-              Editar Encuentro
+            <Text className={`font-semibold text-sm ${
+              puedeEditar ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-neutral-400"
+            }`}>
+              {puedeEditar ? "Editar Encuentro" : "Esperando jornada anterior"}
             </Text>
           </TouchableOpacity>
         )}
