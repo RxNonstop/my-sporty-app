@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { AmistadContext } from '../context/AmistadContext';
 import { ThemeContext } from '../context/ThemeContext';
 
-const FriendCard = ({ item }) => (
+const FriendCard = ({ item, onPressChat }) => (
   <View className="flex-row items-center p-4 bg-white dark:bg-neutral-800 rounded-2xl mb-3 border border-gray-100 dark:border-neutral-700 shadow-sm">
     <View className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/10 items-center justify-center mr-4">
       <Ionicons name="person" size={24} color="#1D4ED8" />
@@ -13,7 +13,7 @@ const FriendCard = ({ item }) => (
       <Text className="text-base font-bold text-gray-900 dark:text-white">{item.nombre}</Text>
       <Text className="text-xs text-gray-500 dark:text-neutral-400">{item.correo}</Text>
     </View>
-    <TouchableOpacity style={{ padding: 8 }}>
+    <TouchableOpacity style={{ padding: 8 }} onPress={onPressChat}>
       <Ionicons name="chatbubble-ellipses-outline" size={20} color="#6B7280" />
     </TouchableOpacity>
   </View>
@@ -48,7 +48,7 @@ const UserFoundCard = ({ item, onAdd, onCancel }) => (
   </View>
 );
 
-export default function FriendsScreen() {
+export default function FriendsScreen({ navigation }) {
   const { amigos, cargarAmigos, encontrarUsuarioPorCorreo, enviarSolicitudPorId, loading } = useContext(AmistadContext);
   const [usuarioEncontrado, setUsuarioEncontrado] = useState();
   const [correoNuevo,  setCorreoNuevo] = useState('');
@@ -146,7 +146,14 @@ export default function FriendsScreen() {
               </View>
             ) : (
               usuariosFiltrados.map((item) => (
-                <FriendCard key={item.id} item={item} />
+                <FriendCard 
+                  key={item.id} 
+                  item={item} 
+                  onPressChat={() => navigation.navigate('Mensajes', { 
+                    screen: 'ChatRoomScreen', 
+                    params: { type: 'amigo', target: item }
+                  })}
+                />
               ))
             )}
           </ScrollView>

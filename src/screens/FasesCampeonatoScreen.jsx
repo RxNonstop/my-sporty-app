@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   Modal,
   SafeAreaView,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -319,14 +320,27 @@ if (!campeonatoActual) {
   return <Text>No se encontró el campeonato.</Text>;
 }
 
-const eliminarFase = async (idFase) => {
+const eliminarFase = (idFase) => {
   if(!idFase) return;
-  try {
-    await eliminarFaseService(idFase);
-    cargarDatosIniciales();
-  } catch (error) {
-    console.error('Error eliminando fase:', error);
-  }
+  Alert.alert(
+    '¿Eliminar fase?',
+    'Esta acción no se puede deshacer.',
+    [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await eliminarFaseService(idFase);
+            cargarDatosIniciales();
+          } catch (error) {
+            console.error('Error eliminando fase:', error);
+          }
+        },
+      },
+    ]
+  );
 };
 
   const renderBadge = (text, color) => (

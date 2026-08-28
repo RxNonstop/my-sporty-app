@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-na
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { EventoContext } from '../context/EventoContext';
 import { CampeonatoContext } from '../context/CampeonatoContext';
+import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import EventCard from '../components/EventCard';
 
@@ -39,6 +40,7 @@ const getSportColor = (deporte, fallbackDotColor) => {
 export default function CalendarioScreen({ navigation }) {
   const { misCampeonatos, campeonatosPublicos } = useContext(CampeonatoContext);
   const { isDarkMode } = useContext(ThemeContext);
+  const { usuario } = useContext(AuthContext);
   
   const todayDateString = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(todayDateString);
@@ -185,7 +187,13 @@ export default function CalendarioScreen({ navigation }) {
               <EventCard 
                 key={event.id} 
                 evento={event} 
-                onPress={() => navigation.navigate("FasesCampeonatoScreen", { campeonato: event })}
+                onPress={() => navigation.navigate("Eventos", { 
+                  screen: "FasesCampeonatoScreen",
+                  params: {
+                    campeonato: event,
+                    readOnly: event.propietario_id != usuario?.id 
+                  }
+                })}
               />
             ))
           ) : (
@@ -208,7 +216,13 @@ export default function CalendarioScreen({ navigation }) {
               <EventCard 
                 key={event.id} 
                 evento={event} 
-                onPress={() => setSelectedDate(event.fecha_inicio)}
+                onPress={() => navigation.navigate("Eventos", { 
+                  screen: "FasesCampeonatoScreen",
+                  params: {
+                    campeonato: event,
+                    readOnly: event.propietario_id != usuario?.id 
+                  }
+                })}
               />
             ))
           ) : (

@@ -4,7 +4,8 @@ import {
   getEquipoByIdService,
   deleteEquipoService,
   enviarInvitacionService,
-  createEquipoService
+  createEquipoService,
+  updateEquipoService
 } from '../services/equipoService';
 import { AuthContext } from './AuthContext';
 
@@ -73,6 +74,23 @@ export const EquipoProvider = ({ children }) => {
     }
   }, []);
 
+  const updateEquipo = useCallback(async (id, nombre, deporte) => {
+    setIsLoading(true);
+    try {
+      const response = await updateEquipoService(id, { nombre, deporte });
+      if (response.status === 200) {
+        setYourTeams((prev) => prev.map((eq) => eq.id === id ? response.data.equipo : eq));
+        if (selectedEquipo?.id === id) setSelectedEquipo(response.data.equipo);
+      }
+      return response;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedEquipo]);
+
   const deleteEquipo = useCallback(async (id) => {
     setIsLoading(true);
     try {
@@ -113,9 +131,10 @@ export const EquipoProvider = ({ children }) => {
     getEquipoById,
     getEquipos,
     createEquipo,
+    updateEquipo,
     deleteEquipo,
     enviarInvitacion
-  }), [equipo, yourTeams, otherTeams, usuario, selectedEquipo, isLoading, getEquipoById, getEquipos, createEquipo, deleteEquipo, enviarInvitacion]);
+  }), [equipo, yourTeams, otherTeams, usuario, selectedEquipo, isLoading, getEquipoById, getEquipos, createEquipo, updateEquipo, deleteEquipo, enviarInvitacion]);
 
   return (
     <EquipoContext.Provider value={value}>

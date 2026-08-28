@@ -38,8 +38,8 @@ export const updateMiembroEquipoRolService = async (usuario_id, equipo_id, rol_u
   return res.data;
 };
 
-export const updateEquipoService = async () => {
-  const res = await axios.put(`${API_URL}/equipos`, await authHeader());
+export const updateEquipoService = async (id, data) => {
+  const res = await axios.put(`${API_URL}/equipos/${id}`, data, await authHeader());
   return res.data;
 };
 
