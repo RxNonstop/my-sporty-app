@@ -15,6 +15,27 @@ LocaleConfig.locales['es'] = {
 };
 LocaleConfig.defaultLocale = 'es';
 
+// Sport color mappings
+const SPORT_COLORS = {
+  futbol: '#22c55e',      // Verde
+  fútbol: '#22c55e',
+  baloncesto: '#f97316',  // Naranja
+  basquetbol: '#f97316',
+  básquetbol: '#f97316',
+  beisbol: '#3b82f6',     // Azul
+  béisbol: '#3b82f6',
+  voleibol: '#a855f7',    // Morado
+  voley: '#a855f7',
+};
+
+const DEFAULT_SPORT_COLOR = '#6366f1';
+
+const getSportColor = (deporte, fallbackDotColor) => {
+  if (!deporte) return fallbackDotColor || DEFAULT_SPORT_COLOR;
+  const key = deporte.toLowerCase().trim();
+  return SPORT_COLORS[key] || fallbackDotColor || DEFAULT_SPORT_COLOR;
+};
+
 export default function CalendarioScreen({ navigation }) {
   const { misCampeonatos, campeonatosPublicos } = useContext(CampeonatoContext);
   const { isDarkMode } = useContext(ThemeContext);
@@ -28,7 +49,6 @@ export default function CalendarioScreen({ navigation }) {
     const combined = [...misCampeonatos, ...campeonatosPublicos];
     const uniqueMap = new Map();
     combined.forEach(event => {
-      // Assuming event.fecha_inicio exists and is YYYY-MM-DD
       if (event.id && event.fecha_inicio) {
         uniqueMap.set(event.id, event);
       }
@@ -36,22 +56,45 @@ export default function CalendarioScreen({ navigation }) {
     return Array.from(uniqueMap.values());
   }, [misCampeonatos, campeonatosPublicos]);
 
-  // Create marked dates for Calendar
+  // Create marked dates for Calendar with sport-specific multi-dots
   const markedDates = useMemo(() => {
     const marks = {};
+
     allEvents.forEach(event => {
       if (!event.fecha_inicio) return;
-      marks[event.fecha_inicio] = {
-        marked: true,
-        dotColor: '#007bff'
-      };
+      const dateKey = event.fecha_inicio;
+      const color = getSportColor(event.deporte, event.dotColor);
+
+      if (!marks[dateKey]) {
+        marks[dateKey] = {
+          dots: []
+        };
+      }
+
+      // Avoid duplicate dot colors if multiple events of same sport on same day (max 3 dots)
+      const alreadyHasDot = marks[dateKey].dots.some(d => d.color === color);
+      if (!alreadyHasDot && marks[dateKey].dots.length < 4) {
+        marks[dateKey].dots.push({
+          key: `event-${event.id}`,
+          color: color,
+          selectedDotColor: '#ffffff'
+        });
+      }
     });
     
     // Override/merge selected day style
     if (marks[selectedDate]) {
-      marks[selectedDate] = { ...marks[selectedDate], selected: true, selectedColor: '#007bff' };
+      marks[selectedDate] = { 
+        ...marks[selectedDate], 
+        selected: true, 
+        selectedColor: '#2563eb' 
+      };
     } else {
-      marks[selectedDate] = { selected: true, selectedColor: '#007bff' };
+      marks[selectedDate] = { 
+        selected: true, 
+        selectedColor: '#2563eb',
+        dots: []
+      };
     }
     return marks;
   }, [allEvents, selectedDate]);
@@ -80,14 +123,14 @@ export default function CalendarioScreen({ navigation }) {
   const themeConfig = {
     calendarBackground: isDarkMode ? '#171717' : '#ffffff',
     textSectionTitleColor: isDarkMode ? '#a3a3a3' : '#b6c1cd',
-    selectedDayBackgroundColor: '#007bff',
+    selectedDayBackgroundColor: '#2563eb',
     selectedDayTextColor: '#ffffff',
-    todayTextColor: '#007bff',
+    todayTextColor: '#2563eb',
     dayTextColor: isDarkMode ? '#d4d4d4' : '#2d4150',
     textDisabledColor: isDarkMode ? '#404040' : '#d9e1e8',
-    dotColor: '#007bff',
+    dotColor: '#2563eb',
     selectedDotColor: '#ffffff',
-    arrowColor: '#007bff',
+    arrowColor: '#2563eb',
     monthTextColor: isDarkMode ? '#ffffff' : '#1a1a1a',
     textDayFontWeight: '500',
     textMonthFontWeight: 'bold',
@@ -100,12 +143,32 @@ export default function CalendarioScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <ScrollView style={{ flex: 1 }} className="pt-4 px-5" showsVerticalScrollIndicator={false}>
-   
+        
+        {/* ── Leyenda de Deportes por Color ── */}
+        <View className="flex-row flex-wrap justify-between items-center bg-white dark:bg-neutral-800 p-3 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-4 shadow-sm">
+          <View className="flex-row items-center mr-2 mb-1">
+            <View className="w-3 h-3 rounded-full bg-[#22c55e] mr-1.5" />
+            <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">Fútbol</Text>
+          </View>
+          <View className="flex-row items-center mr-2 mb-1">
+            <View className="w-3 h-3 rounded-full bg-[#f97316] mr-1.5" />
+            <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">Baloncesto</Text>
+          </View>
+          <View className="flex-row items-center mr-2 mb-1">
+            <View className="w-3 h-3 rounded-full bg-[#3b82f6] mr-1.5" />
+            <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">Béisbol</Text>
+          </View>
+          <View className="flex-row items-center mb-1">
+            <View className="w-3 h-3 rounded-full bg-[#a855f7] mr-1.5" />
+            <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">Voleibol</Text>
+          </View>
+        </View>
 
-        <View className="rounded-xl overflow-hidden border border-[#eaeaea] dark:border-neutral-700 mb-6 bg-white dark:bg-neutral-800">
+        <View className="rounded-xl overflow-hidden border border-[#eaeaea] dark:border-neutral-700 mb-6 bg-white dark:bg-neutral-800 shadow-sm">
           <Calendar
             onDayPress={handleDayPress}
             onMonthChange={handeMonthChange}
+            markingType={'multi-dot'}
             markedDates={markedDates}
             theme={themeConfig}
             firstDay={1}

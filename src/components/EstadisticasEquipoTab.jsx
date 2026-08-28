@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { getEstadisticasEquipoService } from "../services/equipoService";
 
 // ── Configuración por deporte ────────────────────────────────────────────────

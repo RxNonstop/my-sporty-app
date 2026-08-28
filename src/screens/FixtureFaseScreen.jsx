@@ -304,7 +304,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               <Text className="text-[11px] text-gray-500 ml-1">
                 {new Date(partido.fecha).toLocaleDateString([], { day: '2-digit', month: '2-digit' })}
               </Text>
-              <Ionicons name="time-outline" size={14} color="#6b7280" className="ml-2" style={{marginLeft: 8}} />
+              <Ionicons name="time-outline" size={14} color="#6b7280" className="ml-2" style={{ marginLeft: 8 }} />
               <Text className="text-[11px] text-gray-500 ml-1">
                 {new Date(partido.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
@@ -319,7 +319,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               setSelectedPartido(partido);
               setScoreLocal(partido.puntos_local !== null ? String(partido.puntos_local) : "");
               setScoreVisitante(partido.puntos_visitante !== null ? String(partido.puntos_visitante) : "");
-              
+
               const pDate = partido.fecha ? new Date(partido.fecha) : new Date();
               setFecha(pDate);
               setHora(pDate);
@@ -627,14 +627,14 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               {/* Fecha y Hora */}
               <Text className="text-xs font-bold text-gray-500 mb-2 uppercase">Programación</Text>
               <View className="flex-row space-x-2 mb-4">
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setShowDatePicker(true)}
                   className="flex-1 bg-gray-100 dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-700 flex-row items-center justify-between"
                 >
                   <Text className="dark:text-white text-sm">{fecha.toLocaleDateString()}</Text>
                   <Ionicons name="calendar-outline" size={18} color="#6366f1" />
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setShowTimePicker(true)}
                   className="flex-1 bg-gray-100 dark:bg-neutral-900 p-3 rounded-xl border border-gray-200 dark:border-neutral-700 flex-row items-center justify-between"
                 >
@@ -715,22 +715,22 @@ const FixtureFaseScreen = ({ route, navigation }) => {
               {/* Botones de Acción */}
               <View className="space-y-3">
                 <TouchableOpacity
-                  className="bg-indigo-600 py-3 rounded-xl items-center shadow-sm"
+                  className="bg-indigo-600 py-3 rounded-xl items-center shadow-sm m-2"
                   onPress={() => handleUpdatePartido()}
                 >
                   <Text className="text-white font-bold">Guardar Cambios</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="bg-emerald-600 py-3 rounded-xl items-center shadow-sm"
+                  className="bg-emerald-600 py-3 rounded-xl items-center shadow-sm m-2"
                   onPress={() => {
                     Alert.alert(
                       "Finalizar Partido",
                       "¿Estás seguro? Esto bloqueará el resultado para usuarios normales y actualizará las tablas/llaves.",
                       [
                         { text: "Cancelar", style: "cancel" },
-                        { 
-                          text: "Sí, Finalizar", 
+                        {
+                          text: "Sí, Finalizar",
                           onPress: () => handleUpdatePartido('finalizado'),
                           style: "destructive"
                         }
@@ -742,7 +742,7 @@ const FixtureFaseScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="py-3 rounded-xl items-center"
+                  className="py-3 rounded-xl items-center m-2"
                   onPress={() => setModalVisible(false)}
                 >
                   <Text className="text-gray-500 dark:text-gray-400 font-semibold">Cancelar</Text>

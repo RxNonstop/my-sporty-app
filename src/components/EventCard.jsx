@@ -1,32 +1,32 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 const STATUS_CONFIG = {
-  activo:     { label: "Activo",      bg: "#d1fae5", text: "#065f46", dot: "#10b981" },
-  publicado:  { label: "Activo",      bg: "#d1fae5", text: "#065f46", dot: "#10b981" },
-  programado: { label: "Programado",  bg: "#e0e7ff", text: "#3730a3", dot: "#6366f1" },
-  borrador:   { label: "Borrador",    bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" },
-  finalizado: { label: "Finalizado",  bg: "#f5f3ff", text: "#5b21b6", dot: "#7c3aed" },
+  activo: { label: "Activo", bg: "#d1fae5", text: "#065f46", dot: "#10b981" },
+  publicado: { label: "Activo", bg: "#d1fae5", text: "#065f46", dot: "#10b981" },
+  programado: { label: "Programado", bg: "#e0e7ff", text: "#3730a3", dot: "#6366f1" },
+  borrador: { label: "Borrador", bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" },
+  finalizado: { label: "Finalizado", bg: "#f5f3ff", text: "#5b21b6", dot: "#7c3aed" },
 };
 
 const SPORT_ICONS = {
-  futbol:     "football-outline",
-  baloncesto: "basketball-outline",
-  beisbol:    "baseball-outline",
-  voleibol:   "balloon-outline",
+  futbol: "sports-soccer",
+  baloncesto: "sports-basketball",
+  beisbol: "sports-baseball",
+  voleibol: "sports-volleyball",
 };
 
 export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
   const estado = evento.estado || "borrador";
   const sc = STATUS_CONFIG[estado] || STATUS_CONFIG.borrador;
 
-  const inscOpen   = evento.inscripciones_abiertas == 1;
+  const inscOpen = evento.inscripciones_abiertas == 1;
   const totalSlots = parseInt(evento.numero_equipos, 10) || 0;
-  const inscribed  = parseInt(evento.equipos_inscritos, 10) || 0;
-  const slotsLeft  = Math.max(0, totalSlots - inscribed);
+  const inscribed = parseInt(evento.equipos_inscritos, 10) || 0;
+  const slotsLeft = Math.max(0, totalSlots - inscribed);
 
   const isFinalized = estado === "finalizado";
-  const champion    = evento.campeon_nombre;
+  const champion = evento.campeon_nombre;
   const sportIcon = SPORT_ICONS[evento.deporte] || "trophy-outline";
 
   const formatDate = (d) => {
@@ -45,13 +45,13 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         borderRadius: 16, backgroundColor: '#ffffff',
         shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05, shadowRadius: 2, elevation: 2,
-        borderWidth: 0.5 , overflow: 'hidden', borderColor: '#eaeaea',
+        borderWidth: 0.5, overflow: 'hidden', borderColor: '#eaeaea',
       }}
     >
       {/* ── Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-[#f8f8f8] dark:bg-neutral-900 border-b border-[#eaeaea] dark:border-neutral-700">
         <View className="flex-row items-center gap-2">
-          <Ionicons name={sportIcon} size={15} color="#6366f1" />
+          <MaterialIcons name={sportIcon} size={15} color="#6366f1" />
           <Text className="text-[13px] font-semibold text-[#1a1a1a] dark:text-white capitalize">
             {evento.deporte || "Deporte"}
           </Text>
