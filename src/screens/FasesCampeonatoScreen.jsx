@@ -37,6 +37,7 @@ const [equiposInscritos, setEquiposInscritos] = useState([]);
 const [modalAmigosVisible, setModalAmigosVisible] = useState(false);
 const [equiposAmigos, setEquiposAmigos] = useState([]);
 const [loadingAmigos, setLoadingAmigos] = useState(false);
+const [busquedaEquipo, setBusquedaEquipo] = useState('');
 
 const { isDarkMode } = useContext(ThemeContext);
 
@@ -178,6 +179,7 @@ const calcularDivisores = (num) => {
 };
 
 const abrirModalAmigos = async () => {
+  setBusquedaEquipo('');
   setModalAmigosVisible(true);
   setLoadingAmigos(true);
   const campId = campeonatoActual?.id || campeonato?.id;
@@ -636,11 +638,29 @@ const eliminarFase = async (idFase) => {
         >
           <View className="flex-1 bg-black/40 dark:bg-black/60 justify-end">
             <KeyboardAvoidingView className="w-full h-2/3 bg-white dark:bg-neutral-800 rounded-t-3xl pt-5 pb-8 px-5 mb-5">
-              <View className="flex-row items-center justify-between mb-4">
+              <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-lg font-bold text-[#1a1a1a] dark:text-white">Invitar o Inscribir Equipos</Text>
                 <TouchableOpacity onPress={() => setModalAmigosVisible(false)} style={{ padding: 4 }}>
                   <Ionicons name="close" size={24} color="#8a8a8a" />
                 </TouchableOpacity>
+              </View>
+
+              {/* Search input by team name */}
+              <View className="flex-row items-center bg-[#f3f4f6] dark:bg-neutral-900 border border-[#eaeaea] dark:border-neutral-700 rounded-xl px-3 py-2 mb-3">
+                <Ionicons name="search-outline" size={18} color="#9ca3af" style={{ marginRight: 8 }} />
+                <TextInput
+                  className="flex-1 text-sm text-[#1a1a1a] dark:text-white p-0"
+                  placeholder="Buscar por nombre de equipo..."
+                  placeholderTextColor="#9ca3af"
+                  value={busquedaEquipo}
+                  onChangeText={setBusquedaEquipo}
+                  autoCapitalize="none"
+                />
+                {busquedaEquipo.trim().length > 0 && (
+                  <TouchableOpacity onPress={() => setBusquedaEquipo('')} style={{ padding: 2 }}>
+                    <Ionicons name="close-circle" size={16} color="#9ca3af" />
+                  </TouchableOpacity>
+                )}
               </View>
               
               {loadingAmigos ? (
@@ -651,48 +671,55 @@ const eliminarFase = async (idFase) => {
                 <View className="flex-1 justify-center items-center">
                   <Text className="text-gray-500">No se encontraron equipos disponibles para este deporte.</Text>
                 </View>
+              ) : equiposAmigos.filter(e => e.nombre?.toLowerCase().includes(busquedaEquipo.trim().toLowerCase())).length === 0 ? (
+                <View className="flex-1 justify-center items-center">
+                  <Ionicons name="search-outline" size={32} color="#9ca3af" style={{ marginBottom: 6 }} />
+                  <Text className="text-gray-500 text-center">No se encontraron equipos que coincidan con "{busquedaEquipo}".</Text>
+                </View>
               ) : (
                 <ScrollView
                   className="flex-1"
                   showsVerticalScrollIndicator={false}
                 >
-                  {equiposAmigos.map((item) => {
-                    const isMyTeam = item.propietario_id === usuario?.id;
-                    const ownerName = isMyTeam
-                      ? `${usuario?.nombre || 'Tú'} (Tú)`
-                      : (item.propietario_nombre || 'Desconocido');
+                  {equiposAmigos
+                    .filter(e => e.nombre?.toLowerCase().includes(busquedaEquipo.trim().toLowerCase()))
+                    .map((item) => {
+                      const isMyTeam = item.propietario_id === usuario?.id;
+                      const ownerName = isMyTeam
+                        ? `${usuario?.nombre || 'Tú'} (Tú)`
+                        : (item.propietario_nombre || 'Desconocido');
 
-                    return (
-                      <View key={item.id} className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3.5 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
-                        <View className="flex-1 mr-3">
-                          <Text className="font-bold text-[15px] text-[#1a1a1a] dark:text-white mb-0.5">{item.nombre}</Text>
-                          <View className="flex-row items-center flex-wrap gap-y-1">
-                            <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
-                            <Text className="text-xs text-gray-400 mx-1.5">•</Text>
-                            <View className="flex-row items-center">
-                              <Ionicons name="person-circle-outline" size={13} color="#6366f1" style={{ marginRight: 3 }} />
-                              <Text className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                                Dueño: {ownerName}
-                              </Text>
+                      return (
+                        <View key={item.id} className="flex-row items-center justify-between bg-[#fafafa] dark:bg-neutral-900 p-3.5 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-3">
+                          <View className="flex-1 mr-3">
+                            <Text className="font-bold text-[15px] text-[#1a1a1a] dark:text-white mb-0.5">{item.nombre}</Text>
+                            <View className="flex-row items-center flex-wrap gap-y-1">
+                              <Text className="text-xs text-gray-500 capitalize">{item.deporte}</Text>
+                              <Text className="text-xs text-gray-400 mx-1.5">•</Text>
+                              <View className="flex-row items-center">
+                                <Ionicons name="person-circle-outline" size={13} color="#6366f1" style={{ marginRight: 3 }} />
+                                <Text className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                                  Dueño: {ownerName}
+                                </Text>
+                              </View>
                             </View>
                           </View>
+                          <TouchableOpacity 
+                            style={{ 
+                              backgroundColor: isMyTeam ? '#059669' : '#4f46e5', 
+                              paddingHorizontal: 16, 
+                              paddingVertical: 8, 
+                              borderRadius: 8 
+                            }}
+                            onPress={() => invitarEquipo(item)}
+                          >
+                            <Text className="text-white text-xs font-semibold">
+                              {isMyTeam ? 'Inscribir' : 'Invitar'}
+                            </Text>
+                          </TouchableOpacity>
                         </View>
-                        <TouchableOpacity 
-                          style={{ 
-                            backgroundColor: isMyTeam ? '#059669' : '#4f46e5', 
-                            paddingHorizontal: 16, 
-                            paddingVertical: 8, 
-                            borderRadius: 8 
-                          }}
-                          onPress={() => invitarEquipo(item)}
-                        >
-                          <Text className="text-white text-xs font-semibold">
-                            {isMyTeam ? 'Inscribir' : 'Invitar'}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
+                      );
+                    })}
                 </ScrollView>
               )}
             </KeyboardAvoidingView>
