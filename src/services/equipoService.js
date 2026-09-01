@@ -38,6 +38,12 @@ export const updateMiembroEquipoRolService = async (usuario_id, equipo_id, rol_u
   return res.data;
 };
 
+export const deleteMiembroEquipoService = async (usuario_id, equipo_id) => {
+  const config = await authHeader();
+  const res = await axios.delete(`${API_URL}/miembros-equipo`, { ...config, data: { usuario_id, equipo_id } });
+  return res.data;
+};
+
 export const updateEquipoService = async (id, data) => {
   const res = await axios.put(`${API_URL}/equipos/${id}`, data, await authHeader());
   return res.data;

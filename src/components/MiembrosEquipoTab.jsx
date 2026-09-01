@@ -6,10 +6,11 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { getMiembrosEquipoService, updateMiembroEquipoRolService } from "../services/equipoService";
+import { getMiembrosEquipoService, updateMiembroEquipoRolService, deleteMiembroEquipoService } from "../services/equipoService";
 
 const ROL_ICONS = {
   jugador: "person-outline",
@@ -78,6 +79,35 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
     } finally {
       setUpdatingRole(false);
     }
+  };
+
+  const handleEliminarMiembro = () => {
+    if (!selectedMember) return;
+    Alert.alert(
+      "Eliminar Miembro",
+      `¿Estás seguro de que quieres eliminar a ${selectedMember.usuario_nombre} del equipo?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Eliminar", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setUpdatingRole(true);
+              await deleteMiembroEquipoService(selectedMember.usuario_id, equipoId);
+              setModalVisible(false);
+              setSelectedMember(null);
+              await fetchMiembros();
+            } catch (err) {
+              console.error("Error eliminando miembro:", err);
+              Alert.alert("Error", "No se pudo eliminar al miembro. Intenta de nuevo.");
+            } finally {
+              setUpdatingRole(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   if (loading) {
@@ -255,30 +285,40 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
         );
       })}
 
-      {/* Modal para cambiar rol */}
+      {/* Modal para opciones del miembro */}
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 20 }}>
           <View style={{ backgroundColor: "white", borderRadius: 16, width: "100%", padding: 20 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16, textAlign: "center" }}>
-              Cambiar rol de {selectedMember?.usuario_nombre}
+              Opciones para {selectedMember?.usuario_nombre}
             </Text>
             
             {updatingRole ? (
               <ActivityIndicator size="large" color="#4f46e5" style={{ marginVertical: 20 }} />
             ) : (
               <>
+                <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 8, fontWeight: "600", marginLeft: 4 }}>Cambiar rol</Text>
                 {["jugador", "capitan", "suplente"].map(role => (
                    <TouchableOpacity
                      key={role}
-                     style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", alignItems: "center" }}
+                     style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", alignItems: "center" }}
                      onPress={() => handleCambiarRol(role)}
                    >
                      <Ionicons name={ROL_ICONS[role] || "person-outline"} size={20} color={ROL_COLORS[role] || "#6366f1"} style={{ marginRight: 12 }} />
                      <Text style={{ fontSize: 16, textTransform: "capitalize", color: "#374151", fontWeight: "600" }}>{role}</Text>
                    </TouchableOpacity>
                 ))}
+                
                 <TouchableOpacity
-                  style={{ marginTop: 16, padding: 14, backgroundColor: "#f3f4f6", borderRadius: 8, alignItems: "center" }}
+                  style={{ marginTop: 16, padding: 14, backgroundColor: "#fee2e2", borderRadius: 8, alignItems: "center", flexDirection: "row", justifyContent: "center" }}
+                  onPress={handleEliminarMiembro}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#ef4444" style={{ marginRight: 8 }} />
+                  <Text style={{ fontWeight: "600", color: "#ef4444" }}>Eliminar del equipo</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{ marginTop: 12, padding: 14, backgroundColor: "#f3f4f6", borderRadius: 8, alignItems: "center" }}
                   onPress={() => setModalVisible(false)}
                 >
                   <Text style={{ fontWeight: "600", color: "#4b5563" }}>Cancelar</Text>
